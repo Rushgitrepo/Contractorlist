@@ -1,5 +1,5 @@
 import React from "react";
-import Header from "@/components/Header";
+import ReduxHeader from "@/components/ReduxHeader";
 import Footer from "@/components/Footer";
 import { Link } from "react-router-dom";
 import {
@@ -125,10 +125,11 @@ const AboutUs = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-yellow-50">
-      <Header />
+      <ReduxHeader />
 
-      {/* Hero Section */}
-      <section className="relative h-[600px] max-md:h-[500px] flex items-center justify-center overflow-hidden">
+      {/* Hero Section with Background Image */}
+      <section className="relative h-[600px] flex items-center justify-center overflow-hidden">
+        {/* Background Image */}
         <div className="absolute inset-0">
           <img
             src="/constructionAboutUs.jpg"

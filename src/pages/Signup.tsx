@@ -4,7 +4,8 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Eye, EyeOff, Mail, Lock, User, Phone, Building, ArrowLeft, Check } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { registerUser, clearError } from '@/store/slices/authSlice';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -32,7 +33,8 @@ const Signup = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState('');
-  const { signup, isLoading } = useAuth();
+  const dispatch = useAppDispatch();
+  const { isLoading, error: authError } = useAppSelector((state) => state.auth);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -46,21 +48,23 @@ const Signup = () => {
 
   const onSubmit = async (data: SignupFormData) => {
     setError('');
+    dispatch(clearError());
     
     try {
-      const result = await signup(data);
+      await dispatch(registerUser({
+        name: data.name,
+        email: data.email,
+        password: data.password,
+        role: data.role
+      })).unwrap();
       
-      if (result.success) {
-        toast({
-          title: "Success!",
-          description: result.message,
-        });
-        navigate('/');
-      } else {
-        setError(result.message);
-      }
+      toast({
+        title: "Success!",
+        description: "Your account has been created successfully.",
+      });
+      navigate('/');
     } catch (err) {
-      setError('An unexpected error occurred. Please try again.');
+      setError(err as string || 'An unexpected error occurred. Please try again.');
     }
   };
 

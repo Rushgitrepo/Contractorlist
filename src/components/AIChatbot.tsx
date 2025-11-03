@@ -1,25 +1,29 @@
 import { useState, useRef, useEffect } from "react";
-import { Bot, Send, X, Sparkles, Zap, Brain } from "lucide-react";
-
-interface Message {
-  id: number;
-  text: string;
-  isBot: boolean;
-  timestamp: Date;
-}
+import {
+  Bot,
+  Send,
+  X,
+  MessageCircle,
+  Sparkles,
+  Zap,
+  Brain,
+} from "lucide-react";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import type { RootState } from "@/store";
+import {
+  openChatbot,
+  closeChatbot,
+  addUserMessage,
+  sendMessage,
+  setTyping,
+} from "@/store/slices/chatbotSlice";
 
 const AIChatbot = () => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: 1,
-      text: "Hi! I'm your AI construction assistant. How can I help you today?",
-      isBot: true,
-      timestamp: new Date(),
-    },
-  ]);
+  const dispatch = useAppDispatch();
+  const { isOpen, messages, isTyping, isLoading } = useAppSelector(
+    (state) => state.chatbot
+  );
   const [inputText, setInputText] = useState("");
-  const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -33,28 +37,13 @@ const AIChatbot = () => {
   const handleSendMessage = async () => {
     if (!inputText.trim()) return;
 
-    const userMessage: Message = {
-      id: Date.now(),
-      text: inputText,
-      isBot: false,
-      timestamp: new Date(),
-    };
-
-    setMessages((prev) => [...prev, userMessage]);
+    // Add user message to store
+    dispatch(addUserMessage(inputText));
+    const messageText = inputText;
     setInputText("");
-    setIsTyping(true);
 
-    // Simulated AI response
-    setTimeout(() => {
-      const botResponse: Message = {
-        id: Date.now() + 1,
-        text: "Thanks for your question! I'm here to help with construction projects, contractor recommendations, cost estimates, and more. What specific assistance do you need?",
-        isBot: true,
-        timestamp: new Date(),
-      };
-      setMessages((prev) => [...prev, botResponse]);
-      setIsTyping(false);
-    }, 1500);
+    // Send message to AI and get response
+    dispatch(sendMessage(messageText));
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -70,18 +59,24 @@ const AIChatbot = () => {
       <div className="fixed bottom-5 right-5 z-50">
         {!isOpen && (
           <button
-            onClick={() => setIsOpen(true)}
+            onClick={() => dispatch(openChatbot())}
             className="group relative bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-black rounded-full p-4 shadow-2xl hover:shadow-3xl transform hover:scale-110 transition-all duration-300 animate-pulse border-2 border-yellow-600"
           >
             <div className="absolute inset-0 rounded-full bg-gradient-to-r from-yellow-300 to-yellow-400 opacity-30 animate-ping"></div>
+
+            {/* AI Brain Icon with sparkles */}
             <div className="relative flex items-center justify-center">
               <Brain className="w-7 h-7 text-black" />
               <Sparkles className="absolute -top-1 -right-1 w-4 h-4 text-orange-500 animate-bounce" />
               <Zap className="absolute -bottom-1 -left-1 w-3 h-3 text-amber-600 animate-pulse" />
             </div>
+
+            {/* Notification badge */}
             <div className="absolute -top-2 -right-2 bg-black text-yellow-400 text-xs rounded-full w-6 h-6 flex items-center justify-center font-bold animate-bounce border-2 border-yellow-500">
               AI
             </div>
+
+            {/* Tooltip */}
             <div className="absolute bottom-full right-0 mb-2 px-3 py-1 bg-black text-yellow-400 text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">
               Chat with AI Assistant
             </div>
@@ -121,7 +116,7 @@ const AIChatbot = () => {
               </div>
 
               <button
-                onClick={() => setIsOpen(false)}
+                onClick={() => dispatch(closeChatbot())}
                 className="p-2 hover:bg-black hover:bg-opacity-20 rounded-full transition-colors duration-200"
               >
                 <X className="w-5 h-5 text-black" />
@@ -149,8 +144,9 @@ const AIChatbot = () => {
                       </span>
                     </div>
                   )}
+
                   <div
-                    className={`p-2 sm:p-3 rounded-2xl ${
+                    className={`p-3 rounded-2xl ${
                       message.isBot
                         ? "bg-gradient-to-r from-yellow-50 to-amber-50 border border-yellow-200 text-gray-800"
                         : "bg-gradient-to-r from-yellow-400 to-yellow-500 text-black shadow-lg border border-yellow-600"
@@ -160,8 +156,9 @@ const AIChatbot = () => {
                       {message.text}
                     </p>
                   </div>
-                  <div className="text-[10px] sm:text-xs text-gray-400 mt-1 px-2">
-                    {message.timestamp.toLocaleTimeString([], {
+
+                  <div className="text-xs text-gray-400 mt-1 px-2">
+                    {new Date(message.timestamp).toLocaleTimeString([], {
                       hour: "2-digit",
                       minute: "2-digit",
                     })}
@@ -170,6 +167,7 @@ const AIChatbot = () => {
               </div>
             ))}
 
+            {/* Typing indicator */}
             {isTyping && (
               <div className="flex justify-start">
                 <div className="flex items-center gap-2 mb-1">
@@ -193,6 +191,7 @@ const AIChatbot = () => {
                 </div>
               </div>
             )}
+
             <div ref={messagesEndRef} />
           </div>
 
@@ -212,6 +211,7 @@ const AIChatbot = () => {
                   <Sparkles className="w-4 h-4 text-yellow-500 animate-pulse" />
                 </div>
               </div>
+
               <button
                 onClick={handleSendMessage}
                 disabled={!inputText.trim()}

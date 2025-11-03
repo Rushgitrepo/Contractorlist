@@ -176,8 +176,8 @@ const SolutionsSection = () => {
                 <div
                   key={index}
                   className={`bg-white rounded-2xl p-6 shadow-lg border border-gray-100 transition-all duration-500 transform ${isCenter
-                      ? 'scale-105 shadow-xl ring-2 ring-yellow-400 ring-opacity-30'
-                      : 'hover:shadow-xl hover:-translate-y-2'
+                    ? 'scale-105 shadow-xl ring-2 ring-yellow-400 ring-opacity-30'
+                    : 'hover:shadow-xl hover:-translate-y-2'
                     }`}
                   onMouseEnter={() => setIsPaused(true)}
                   onMouseLeave={() => setIsPaused(false)}
@@ -220,8 +220,8 @@ const SolutionsSection = () => {
               key={index}
               onClick={() => setCurrentIndex(index)}
               className={`w-3 h-3 rounded-full transition-all duration-300 ${index === currentIndex
-                  ? 'bg-yellow-500 scale-125 shadow-md'
-                  : 'bg-gray-300 hover:bg-gray-400'
+                ? 'bg-yellow-500 scale-125 shadow-md'
+                : 'bg-gray-300 hover:bg-gray-400'
                 }`}
               aria-label={`Go to testimonial ${index + 1}`}
             />

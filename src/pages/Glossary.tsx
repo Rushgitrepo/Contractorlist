@@ -1,4 +1,4 @@
-import Header from "@/components/Header";
+import ReduxHeader from "@/components/ReduxHeader";
 import Footer from "@/components/Footer";
 import { Search, BookOpen, Filter, Hash, TrendingUp, Users, Star, CheckCircle } from "lucide-react";
 import { useState } from "react";
@@ -159,7 +159,7 @@ const Glossary = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-yellow-50">
-      <Header />
+      <ReduxHeader />
       
       {/* Hero Section with Background Image */}
       <section className="relative h-[600px] flex items-center justify-center overflow-hidden">

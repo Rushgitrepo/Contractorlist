@@ -1,4 +1,4 @@
-import Header from "@/components/Header";
+import ReduxHeader from "@/components/ReduxHeader";
 import HeroSection from "@/components/HeroSection";
 import PartnersSection from "@/components/PartnersSection";
 import AboutSection from "@/components/AboutSection";
@@ -9,7 +9,7 @@ import Footer from "@/components/Footer";
 const Index = () => {
   return (
     <div className="min-h-screen bg-background">
-      <Header />
+      <ReduxHeader />
       <HeroSection />
       <PartnersSection />
       <AboutSection />

@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAppSelector } from "@/store/hooks";
 import {
   MapPin,
   Phone,
@@ -32,7 +32,7 @@ import {
 const Contractors = () => {
   const [params] = useSearchParams();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user } = useAppSelector((state) => state.auth);
 
   const zip = (params.get("zip") || "").trim();
   const serviceRaw = (params.get("service") || "").trim();

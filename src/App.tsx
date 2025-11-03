@@ -3,9 +3,11 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { AuthProvider } from "@/contexts/AuthContext";
+import { Provider } from "react-redux";
+import { store } from "@/store";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import AIChatbot from "@/components/AIChatbot";
+import NotificationSystem from "@/components/NotificationSystem";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
@@ -35,11 +37,12 @@ import ContractorDetails from "./pages/ContractorDetails";
 const queryClient = new QueryClient();
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <AuthProvider>
+  <Provider store={store}>
+    <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <Toaster />
         <Sonner />
+        <NotificationSystem />
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
@@ -77,8 +80,8 @@ const App = () => (
           <AIChatbot />
         </BrowserRouter>
       </TooltipProvider>
-    </AuthProvider>
-  </QueryClientProvider>
+    </QueryClientProvider>
+  </Provider>
 );
 
 export default App;

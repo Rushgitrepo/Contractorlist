@@ -4,7 +4,8 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Eye, EyeOff, Mail, Lock, ArrowLeft } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { loginUser, clearError } from '@/store/slices/authSlice';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -22,7 +23,8 @@ type LoginFormData = z.infer<typeof loginSchema>;
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
-  const { login, isLoading } = useAuth();
+  const dispatch = useAppDispatch();
+  const { isLoading, error: authError } = useAppSelector((state) => state.auth);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -36,21 +38,18 @@ const Login = () => {
 
   const onSubmit = async (data: LoginFormData) => {
     setError('');
+    dispatch(clearError());
     
     try {
-      const result = await login(data.email, data.password);
+      await dispatch(loginUser({ email: data.email, password: data.password })).unwrap();
       
-      if (result.success) {
-        toast({
-          title: "Success!",
-          description: result.message,
-        });
-        navigate('/');
-      } else {
-        setError(result.message);
-      }
+      toast({
+        title: "Success!",
+        description: "You have been successfully logged in.",
+      });
+      navigate('/');
     } catch (err) {
-      setError('An unexpected error occurred. Please try again.');
+      setError(err as string || 'An unexpected error occurred. Please try again.');
     }
   };
 
