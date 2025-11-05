@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 const AboutSection = () => {
   return (
     <div className="py-16 bg-white font-sans">
@@ -25,9 +27,11 @@ const AboutSection = () => {
             </div>
 
             {/* Ask for Consultation Button */}
-            <button className="bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-black font-bold px-6 py-3 rounded-full text-sm shadow-lg border-2 border-black">
-              Ask for Consultation
-            </button>
+            <Link to="/contact-us">
+              <button className="bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-black font-bold px-6 py-3 rounded-full text-sm shadow-lg border-2 border-black">
+                Ask for Consultation
+              </button>
+            </Link>
           </div>
 
           {/* Middle Content - Our Products Box with Button */}
@@ -61,15 +65,17 @@ const AboutSection = () => {
                   Mojo rare
                 </li>
               </ul>
-              <button className="text-blue-600 text-sm font-semibold hover:text-blue-800 hover:underline transition-colors duration-200">
+              <Link to="/products" className="text-blue-600 text-sm font-semibold hover:text-blue-800 hover:underline transition-colors duration-200">
                 learn more
-              </button>
+              </Link>
             </div>
             {/* Products Button */}
             <div className="flex justify-center">
-              <button className="bg-gradient-to-r from-yellow-400 via-yellow-500 to-yellow-600 hover:from-yellow-500 hover:via-yellow-600 hover:to-yellow-700 text-black font-bold px-8 py-4 rounded-full text-sm shadow-2xl border-3 border-black transform hover:scale-105 transition-all duration-200">
-                Complete Product Suite
-              </button>
+              <Link to="/products">
+                <button className="bg-gradient-to-r from-yellow-400 via-yellow-500 to-yellow-600 hover:from-yellow-500 hover:via-yellow-600 hover:to-yellow-700 text-black font-bold px-8 py-4 rounded-full text-sm shadow-2xl border-3 border-black transform hover:scale-105 transition-all duration-200">
+                  Complete Product Suite
+                </button>
+              </Link>
             </div>
           </div>
 
@@ -107,9 +113,11 @@ const AboutSection = () => {
             </div>
             {/* Services Button */}
             <div className="flex justify-center">
-              <button className="bg-gradient-to-r from-yellow-400 via-yellow-500 to-yellow-600 hover:from-yellow-500 hover:via-yellow-600 hover:to-yellow-700 text-black font-bold px-8 py-4 rounded-full text-sm shadow-2xl border-3 border-black transform hover:scale-105 transition-all duration-200">
-                Explore Our Range of Services
-              </button>
+              <Link to="/services">
+                <button className="bg-gradient-to-r from-yellow-400 via-yellow-500 to-yellow-600 hover:from-yellow-500 hover:via-yellow-600 hover:to-yellow-700 text-black font-bold px-8 py-4 rounded-full text-sm shadow-2xl border-3 border-black transform hover:scale-105 transition-all duration-200">
+                  Explore Our Range of Services
+                </button>
+              </Link>
             </div>
           </div>
         </div>

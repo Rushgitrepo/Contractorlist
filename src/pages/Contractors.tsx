@@ -5,6 +5,9 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useAppSelector } from "@/store/hooks";
+import ContractorProfilePreview from "@/components/ContractorProfilePreview";
+import AdvancedSearchBar from "@/components/AdvancedSearchBar";
+import ContractorCard from "@/components/ContractorCard";
 import {
   MapPin,
   Phone,
@@ -26,7 +29,15 @@ import {
   Mail,
   Globe,
   BadgeCheck,
-  Calendar
+  Calendar,
+  SlidersHorizontal,
+  X,
+  Eye,
+  Award,
+  Users,
+  Clock,
+  Shield,
+  CheckCircle
 } from "lucide-react";
 
 const Contractors = () => {
@@ -42,6 +53,13 @@ const Contractors = () => {
   const [priceRange, setPriceRange] = useState<string>("");
   const [rating, setRating] = useState<string>("");
   const [onlyMyZip, setOnlyMyZip] = useState<boolean>(true);
+  const [showFilters, setShowFilters] = useState(false);
+  const [selectedTrade, setSelectedTrade] = useState<string>("");
+  const [licenseFilter, setLicenseFilter] = useState<string>("");
+  const [experienceFilter, setExperienceFilter] = useState<string>("");
+  const [availabilityFilter, setAvailabilityFilter] = useState<string>("");
+  const [selectedContractor, setSelectedContractor] = useState<any>(null);
+  const [showProfilePreview, setShowProfilePreview] = useState(false);
 
   // API state
   const [results, setResults] = useState<any[]>([]);
@@ -156,6 +174,16 @@ const Contractors = () => {
     navigate(`/contractors/${contractorId}`);
   };
 
+  const handleProfilePreview = (contractor: any) => {
+    setSelectedContractor(contractor);
+    setShowProfilePreview(true);
+  };
+
+  const closeProfilePreview = () => {
+    setShowProfilePreview(false);
+    setSelectedContractor(null);
+  };
+
   
 
   // Pagination handlers
@@ -181,14 +209,25 @@ const Contractors = () => {
 
             {/* Search bar */}
             <div className="flex-1 max-w-2xl mx-8">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                <Input
-                  placeholder="Search contractors, services..."
-                  className="pl-10 h-10 border-gray-300 focus:border-yellow-500 focus:ring-yellow-500"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
+              <div className="relative flex gap-2">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                  <Input
+                    placeholder="Search contractors, services, location..."
+                    className="pl-10 h-10 border-gray-300 focus:border-yellow-500 focus:ring-yellow-500"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowFilters(!showFilters)}
+                  className="h-10 px-3 border-gray-300 hover:bg-gray-50"
+                >
+                  <SlidersHorizontal className="w-4 h-4 mr-2" />
+                  Filters
+                </Button>
               </div>
             </div>
 
@@ -206,6 +245,20 @@ const Contractors = () => {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        {/* Advanced Search Bar */}
+        <AdvancedSearchBar
+          onSearch={(filters) => {
+            console.log('Search filters:', filters);
+            // Handle search with filters
+            fetchContractors(1);
+          }}
+          initialFilters={{
+            query: searchQuery,
+            location: zip,
+            service: serviceRaw
+          }}
+        />
+
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           {/* Sidebar */}
           <div className="lg:col-span-1">
@@ -296,18 +349,42 @@ const Contractors = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <h1 className="text-2xl font-bold text-gray-900">
-                    Contractors in {zip || "Your Area"}
+                    Professional Contractors in {zip || "Your Area"}
                   </h1>
                   <p className="text-gray-600 mt-1">
-                    {visibleContractors.length} professionals available
+                    {visibleContractors.length} verified professionals available
                     {serviceRaw && ` for "${serviceRaw}"`}
                   </p>
+                  <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
+                    <div className="flex items-center gap-1">
+                      <Shield className="w-4 h-4 text-green-600" />
+                      <span>Licensed & Insured</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <CheckCircle className="w-4 h-4 text-blue-600" />
+                      <span>Background Verified</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Award className="w-4 h-4 text-yellow-600" />
+                      <span>Top Rated</span>
+                    </div>
+                  </div>
                 </div>
-                <div className="flex items-center space-x-2">
-                  <Filter className="w-5 h-5 text-gray-400" />
-                  <span className="text-sm text-gray-600">
-                    {visibleContractors.length} results
-                  </span>
+                <div className="flex items-center space-x-4">
+                  <div className="flex items-center space-x-2">
+                    <Filter className="w-5 h-5 text-gray-400" />
+                    <span className="text-sm text-gray-600">
+                      {visibleContractors.length} results
+                    </span>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowFilters(!showFilters)}
+                  >
+                    <SlidersHorizontal className="w-4 h-4 mr-2" />
+                    {showFilters ? 'Hide' : 'Show'} Filters
+                  </Button>
                 </div>
               </div>
             </div>
@@ -357,199 +434,22 @@ const Contractors = () => {
             )}
 
             {/* Contractors List */}
-            <div className="space-y-4">
+            <div className="space-y-6">
               {visibleContractors.map((contractor, index) => {
-                const photo = '/images.png';
-                const projectsCompleted = 150 - index * 4;
-                const fallbackYearsExperience = 10 + (index % 6);
-
-                const email = contractor?.contact?.email || contractor?.email || '';
-                const phone = contractor?.contact?.phone || contractor?.phone || '';
+                const email = contractor?.contact?.email || contractor?.email || 'contact@contractor.com';
+                const phone = contractor?.contact?.phone || contractor?.phone || '(555) 123-4567';
                 const website = contractor?.website || contractor?.contact?.website || '';
-                const licenseNumber = contractor?.licenseNumber || contractor?.license || contractor?.credentials?.licenseNumber || '';
-                const yearsInBusiness = contractor?.yearsInBusiness || contractor?.experienceYears || contractor?.experience?.years || null;
-                const serviceAreas: string[] = contractor?.serviceAreas || contractor?.service_areas || [];
-                const address = contractor?.address;
-                const locationAddress = contractor?.location?.address || '';
-                const addressLine = address
-                  ? `${address.street || ''}${address.street ? ', ' : ''}${address.city || contractor?.location?.city || ''}, ${address.state || contractor?.location?.state || ''} ${address.zipCode || address.zip || contractor?.location?.zip || contractor?.location?.zipCode || ''}`
-                  : (locationAddress || `${contractor?.location?.city || ''}, ${contractor?.location?.state || ''}`);
-                const reviewCount = (typeof contractor?.reviewCount === 'number' ? contractor?.reviewCount : undefined) ?? contractor?.rating?.count ?? (Array.isArray(contractor?.reviews) ? contractor?.reviews.length : undefined);
-                const isVerified = contractor?.credentials?.isVerified || contractor?.badges?.isVerified || false;
 
                 return (
-                  <Card
+                  <ContractorCard
                     key={contractor.id}
-                    className="bg-white border hover:shadow-lg transition-all duration-300"
-                  >
-                    <CardContent className="p-6">
-                      <div className="flex gap-6">
-                        {/* Contractor Image */}
-                        <div className="flex-shrink-0">
-                          <img
-                            src={photo}
-                            alt={contractor.name}
-                            className="w-24 h-24 rounded-lg object-cover border border-gray-200"
-                          />
-                        </div>
-
-                        {/* Contractor Info */}
-                        <div className="flex-1">
-                          <div className="flex items-start justify-between">
-                            <div>
-                              <h3 className="text-xl font-semibold text-gray-900 mb-1">
-                                {contractor.name}
-                              </h3>
-                              <div className="flex items-center space-x-4 text-sm text-gray-600 mb-2">
-                                <div className="flex items-center space-x-1">
-                                  <MapPin className="w-4 h-4" />
-                                  <span>{addressLine}</span>
-                                </div>
-                                <div className="flex items-center space-x-1">
-                                  <Star className="w-4 h-4 text-yellow-500" />
-                                  <span className="font-medium">{(contractor.rating?.average ?? contractor.rating ?? 0).toFixed ? (contractor.rating?.average ?? contractor.rating ?? 0).toFixed(1) : Number(contractor.rating?.average ?? contractor.rating ?? 0).toFixed(1)}</span>
-                                  {typeof reviewCount === 'number' && (
-                                    <span className="text-gray-500">({reviewCount})</span>
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-
-                            
-                          </div>
-
-                          {/* Description */}
-                          {contractor.description && (
-                            <p className="text-sm text-gray-700 mb-3">
-                              {contractor.description}
-                            </p>
-                          )}
-
-                          {/* Verification / License */}
-                          <div className="flex flex-wrap gap-2 mb-3">
-                            {isVerified && (
-                              <Badge variant="outline" className="text-xs bg-green-50 text-green-700 border-green-200">Verified</Badge>
-                            )}
-                            {licenseNumber && (
-                              <Badge variant="outline" className="text-xs">License: {licenseNumber}</Badge>
-                            )}
-                          </div>
-
-                          {/* Services */}
-                          <div className="flex flex-wrap gap-2 mb-3">
-                            {(contractor.services || []).slice(0, 4).map((service: string) => (
-                              <Badge key={service} variant="secondary" className="text-xs">
-                                {service}
-                              </Badge>
-                            ))}
-                            {(contractor.services?.length || 0) > 4 && (
-                              <Badge variant="outline" className="text-xs">
-                                +{contractor.services.length - 4} more
-                              </Badge>
-                            )}
-                          </div>
-
-                          {/* Stats / Business info */}
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm mb-3">
-                            <div className="flex items-center gap-2 text-gray-700">
-                              <Calendar className="w-4 h-4 text-gray-500" />
-                              <span className="text-gray-600">Years in Business:</span>
-                              <span className="font-medium">{yearsInBusiness ?? fallbackYearsExperience} years</span>
-                            </div>
-                            {licenseNumber && (
-                              <div className="flex items-center gap-2 text-gray-700">
-                                <BadgeCheck className="w-4 h-4 text-green-600" />
-                                <span className="text-gray-600">License:</span>
-                                <span className="font-medium">{licenseNumber}</span>
-                              </div>
-                            )}
-                          </div>
-
-                          {/* Service Areas */}
-                          {serviceAreas && serviceAreas.length > 0 && (
-                            <div className="mb-3">
-                              <div className="text-xs font-medium text-gray-600 mb-1">Service Areas</div>
-                              <div className="flex flex-wrap gap-2">
-                                {serviceAreas.map((area: string) => (
-                                  <Badge key={area} variant="outline" className="text-xs">
-                                    {area}
-                                  </Badge>
-                                ))}
-                              </div>
-                            </div>
-                          )}
-
-                          {/* Recent Reviews */}
-                          {Array.isArray(contractor?.reviews) && contractor.reviews.length > 0 && (
-                            <div className="mt-4">
-                              <div className="text-xs font-medium text-gray-600 mb-2">Recent Reviews</div>
-                              <div className="space-y-2">
-                                {contractor.reviews.slice(0, 2).map((review: any, reviewIdx: number) => {
-                                  const reviewer = review.clientName || review.reviewer || review.author || review.name || 'Client';
-                                  const text = review.comment || review.text || review.review || '';
-                                  const stars = Number(review.rating ?? review.stars ?? 0);
-                                  const date = review.reviewDate || review.date || review.createdAt || null;
-                                  return (
-                                    <div key={reviewIdx} className="bg-gray-50 rounded-lg p-3">
-                                      <div className="flex items-start justify-between mb-1">
-                                        <div className="font-medium text-sm text-gray-900">{reviewer}</div>
-                                        <div className="flex items-center">
-                                          {Array.from({ length: 5 }).map((_, i) => (
-                                            <Star key={i} className={`w-3 h-3 ${i < Math.round(stars) ? 'text-yellow-500' : 'text-gray-300'}`} />
-                                          ))}
-                                        </div>
-                                      </div>
-                                      {text && <p className="text-xs text-gray-700 mb-1">{text}</p>}
-                                      {date && <div className="text-xs text-gray-500">{new Date(date).toLocaleDateString()}</div>}
-                                    </div>
-                                  );
-                                })}
-                              </div>
-                            </div>
-                          )}
-
-                          {/* Action Buttons */}
-                          <div className="flex flex-wrap items-center gap-3 mt-4">
-                            <Button
-                              size="sm"
-                              className="bg-yellow-500 hover:bg-yellow-600 text-black font-medium"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                if (phone) {
-                                  window.location.href = `tel:${phone}`;
-                                }
-                              }}
-                            >
-                              <Phone className="w-4 h-4 mr-2" />
-                              Call Now
-                            </Button>
-                            {email && (
-                              <a
-                                href={`mailto:${email}`}
-                                className="inline-flex items-center px-3 py-2 text-sm border rounded-md hover:bg-gray-50"
-                                onClick={(e) => e.stopPropagation()}
-                              >
-                                <Mail className="w-4 h-4 mr-2" />
-                                Email
-                              </a>
-                            )}
-                            {website && (
-                              <a
-                                href={website}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="inline-flex items-center px-3 py-2 text-sm border rounded-md hover:bg-gray-50"
-                                onClick={(e) => e.stopPropagation()}
-                              >
-                                <Globe className="w-4 h-4 mr-2" />
-                                Website
-                              </a>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
+                    contractor={contractor}
+                    featured={index < 2} // Mark first 2 as featured
+                    onViewProfile={handleProfilePreview}
+                    onCall={(phone) => window.location.href = `tel:${phone}`}
+                    onEmail={(email) => window.location.href = `mailto:${email}`}
+                    onWebsite={(website) => window.open(website, '_blank')}
+                  />
                 );
               })}
             </div>
@@ -579,6 +479,13 @@ const Contractors = () => {
           </div>
         </div>
       </div>
+
+      {/* Contractor Profile Preview Modal */}
+      <ContractorProfilePreview
+        contractor={selectedContractor}
+        isOpen={showProfilePreview}
+        onClose={closeProfilePreview}
+      />
     </div>
   );
 };

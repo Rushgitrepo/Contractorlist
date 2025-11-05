@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Eye, EyeOff, Mail, Lock, User, Phone, Building, ArrowLeft, Check } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, User, Phone, Building, ArrowLeft, Check, Users, Briefcase } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { registerUser, clearError } from '@/store/slices/authSlice';
 import { Button } from '@/components/ui/button';
@@ -22,6 +22,15 @@ const signupSchema = z.object({
   confirmPassword: z.string(),
   phone: z.string().optional(),
   company: z.string().optional(),
+  role: z.enum(['contractor', 'client'], { required_error: 'Please select your account type' }),
+  // Contractor specific fields
+  licenseNumber: z.string().optional(),
+  businessAddress: z.string().optional(),
+  yearsExperience: z.string().optional(),
+  specialties: z.string().optional(),
+  // Client specific fields
+  projectType: z.string().optional(),
+  budget: z.string().optional(),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Passwords don't match",
   path: ["confirmPassword"],
@@ -33,6 +42,7 @@ const Signup = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState('');
+  const [selectedRole, setSelectedRole] = useState<'client' | 'contractor' | ''>('');
   const dispatch = useAppDispatch();
   const { isLoading, error: authError } = useAppSelector((state) => state.auth);
   const navigate = useNavigate();
@@ -59,10 +69,12 @@ const Signup = () => {
       })).unwrap();
       
       toast({
-        title: "Success!",
-        description: "Your account has been created successfully.",
+        title: "Account Created Successfully!",
+        description: "Please login with your credentials to continue.",
       });
-      navigate('/');
+      
+      // Always redirect to login after signup
+      navigate('/login');
     } catch (err) {
       setError(err as string || 'An unexpected error occurred. Please try again.');
     }
@@ -101,8 +113,143 @@ const Signup = () => {
             )}
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+              {/* Account Type Selection */}
+              <div className="space-y-3">
+                <Label className="text-sm font-medium text-gray-700">
+                  I want to sign up as:
+                </Label>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="radio"
+                      id="client"
+                      value="client"
+                      {...register('role')}
+                      onChange={(e) => setSelectedRole(e.target.value as 'client')}
+                      className="text-yellow-600 focus:ring-yellow-500"
+                    />
+                    <label htmlFor="client" className="flex items-center p-3 border border-gray-200 rounded-lg cursor-pointer hover:border-yellow-300 transition-colors flex-1">
+                      <Users className="w-5 h-5 text-gray-600 mr-3" />
+                      <div>
+                        <div className="font-medium text-gray-900">Client</div>
+                        <div className="text-xs text-gray-500">Find contractors</div>
+                      </div>
+                    </label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="radio"
+                      id="contractor"
+                      value="contractor"
+                      {...register('role')}
+                      onChange={(e) => setSelectedRole(e.target.value as 'contractor')}
+                      className="text-yellow-600 focus:ring-yellow-500"
+                    />
+                    <label htmlFor="contractor" className="flex items-center p-3 border border-gray-200 rounded-lg cursor-pointer hover:border-yellow-300 transition-colors flex-1">
+                      <Briefcase className="w-5 h-5 text-gray-600 mr-3" />
+                      <div>
+                        <div className="font-medium text-gray-900">Contractor</div>
+                        <div className="text-xs text-gray-500">Get projects</div>
+                      </div>
+                    </label>
+                  </div>
+                </div>
+                {errors.role && (
+                  <p className="text-sm text-red-600">{errors.role.message}</p>
+                )}
+              </div>
+
+              {/* Role-specific fields */}
+              {selectedRole === 'contractor' && (
+                <div className="space-y-4 p-4 bg-blue-50 rounded-lg">
+                  <h3 className="font-semibold text-blue-900">Contractor Information</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="licenseNumber" className="text-sm font-medium text-gray-700">
+                        License Number
+                      </Label>
+                      <Input
+                        id="licenseNumber"
+                        placeholder="Enter license number"
+                        {...register('licenseNumber')}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="yearsExperience" className="text-sm font-medium text-gray-700">
+                        Years of Experience
+                      </Label>
+                      <Input
+                        id="yearsExperience"
+                        placeholder="e.g., 5 years"
+                        {...register('yearsExperience')}
+                      />
+                    </div>
+                  </div>
+                  <div className="col-span-2">
+                    <Label htmlFor="specialties" className="text-sm font-medium text-gray-700">
+                      Specialties
+                    </Label>
+                    <Input
+                      id="specialties"
+                      placeholder="e.g., Plumbing, Electrical, HVAC"
+                      {...register('specialties')}
+                    />
+                  </div>
+                  <div className="col-span-2">
+                    <Label htmlFor="businessAddress" className="text-sm font-medium text-gray-700">
+                      Business Address
+                    </Label>
+                    <Input
+                      id="businessAddress"
+                      placeholder="Enter business address"
+                      {...register('businessAddress')}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {selectedRole === 'client' && (
+                <div className="space-y-4 p-4 bg-green-50 rounded-lg">
+                  <h3 className="font-semibold text-green-900">Project Information</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="projectType" className="text-sm font-medium text-gray-700">
+                        Project Type
+                      </Label>
+                      <select
+                        id="projectType"
+                        {...register('projectType')}
+                        className="w-full h-10 rounded-md border border-gray-300 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
+                      >
+                        <option value="">Select project type</option>
+                        <option value="residential">Residential</option>
+                        <option value="commercial">Commercial</option>
+                        <option value="renovation">Renovation</option>
+                        <option value="new-construction">New Construction</option>
+                      </select>
+                    </div>
+                    <div>
+                      <Label htmlFor="budget" className="text-sm font-medium text-gray-700">
+                        Budget Range
+                      </Label>
+                      <select
+                        id="budget"
+                        {...register('budget')}
+                        className="w-full h-10 rounded-md border border-gray-300 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
+                      >
+                        <option value="">Select budget range</option>
+                        <option value="under-10k">Under $10,000</option>
+                        <option value="10k-50k">$10,000 - $50,000</option>
+                        <option value="50k-100k">$50,000 - $100,000</option>
+                        <option value="100k-plus">$100,000+</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* Personal Information */}
-              <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="name" className="text-sm font-medium text-gray-700">
                     Full Name
@@ -124,7 +271,7 @@ const Signup = () => {
 
                 <div className="space-y-2">
                   <Label htmlFor="email" className="text-sm font-medium text-gray-700">
-                    Email address
+                    Email Address
                   </Label>
                   <div className="relative">
                     <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
@@ -143,14 +290,14 @@ const Signup = () => {
 
                 <div className="space-y-2">
                   <Label htmlFor="phone" className="text-sm font-medium text-gray-700">
-                    Phone Number (Optional)
+                    Phone Number
                   </Label>
                   <div className="relative">
                     <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                     <Input
                       id="phone"
                       type="tel"
-                      placeholder="Enter your phone number"
+                      placeholder="Enter phone number"
                       className="pl-10 border-gray-300 focus:border-yellow-500 focus:ring-yellow-500"
                       {...register('phone')}
                     />
@@ -159,14 +306,14 @@ const Signup = () => {
 
                 <div className="space-y-2">
                   <Label htmlFor="company" className="text-sm font-medium text-gray-700">
-                    Company Name (Optional)
+                    Company Name
                   </Label>
                   <div className="relative">
                     <Building className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                     <Input
                       id="company"
                       type="text"
-                      placeholder="Enter your company name"
+                      placeholder="Enter company name"
                       className="pl-10 border-gray-300 focus:border-yellow-500 focus:ring-yellow-500"
                       {...register('company')}
                     />
@@ -175,7 +322,7 @@ const Signup = () => {
               </div>
 
               {/* Password Section */}
-              <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="password" className="text-sm font-medium text-gray-700">
                     Password
@@ -185,7 +332,7 @@ const Signup = () => {
                     <Input
                       id="password"
                       type={showPassword ? 'text' : 'password'}
-                      placeholder="Create a strong password"
+                      placeholder="Create password"
                       className="pl-10 pr-10 border-gray-300 focus:border-yellow-500 focus:ring-yellow-500"
                       {...register('password')}
                     />
@@ -211,7 +358,7 @@ const Signup = () => {
                     <Input
                       id="confirmPassword"
                       type={showConfirmPassword ? 'text' : 'password'}
-                      placeholder="Confirm your password"
+                      placeholder="Confirm password"
                       className="pl-10 pr-10 border-gray-300 focus:border-yellow-500 focus:ring-yellow-500"
                       {...register('confirmPassword')}
                     />

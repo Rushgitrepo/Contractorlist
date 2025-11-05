@@ -35,6 +35,7 @@ import {
   ShoppingCart,
   User,
   Users,
+  BarChart3,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 
@@ -120,7 +121,7 @@ const ReduxHeader = () => {
           {/* Logo */}
           <Link
             to="/"
-            className="flex items-center space-x-3 select-none"
+            className="flex items-center select-none flex-shrink-0 -ml-24"
             onClick={() => dispatch(closeMobileMenu())}
           >
             <img
@@ -131,7 +132,7 @@ const ReduxHeader = () => {
           </Link>
 
           {/* Navigation */}
-          <nav className="hidden md:flex items-center space-x-8 text-base font-medium">
+          <nav className="hidden md:flex items-center space-x-6 text-base font-medium flex-1 justify-center">
             {/* Get Our Services Dropdown */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -388,8 +389,18 @@ const ReduxHeader = () => {
             </DropdownMenu>
 
             <Link
+              to="/contractors"
+              className="text-black hover:text-yellow-500 transition-colors font-medium"
+            >
+              Find Contractors
+            </Link>
+          </nav>
+
+          {/* Right side actions */}
+          <div className="hidden md:flex items-center space-x-4 flex-shrink-0">
+            <Link
               to="/join-network"
-              className="ml-2 px-6 py-2 rounded bg-yellow-400 hover:bg-yellow-300 text-black font-semibold shadow transition-colors"
+              className="px-6 py-2 rounded bg-yellow-400 hover:bg-yellow-300 text-black font-semibold shadow transition-colors"
               style={{ boxShadow: "0 2px 8px rgba(255,221,51,0.08)" }}
             >
               Join Our Network
@@ -432,6 +443,12 @@ const ReduxHeader = () => {
                       <span>Settings</span>
                     </Link>
                   </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/dashboard" className="cursor-pointer">
+                      <BarChart3 className="mr-2 h-4 w-4" />
+                      <span>Dashboard</span>
+                    </Link>
+                  </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
                     onClick={handleLogout}
@@ -443,17 +460,15 @@ const ReduxHeader = () => {
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <div className="flex items-center space-x-4">
-                <button
-                  onClick={() => dispatch(openLoginModal())}
-                  className="flex items-center text-black hover:text-yellow-500 transition-colors"
-                >
-                  <User className="w-4 h-4 mr-1" />
-                  Sign in
-                </button>
-              </div>
+              <Link
+                to="/login"
+                className="flex items-center text-black hover:text-yellow-500 transition-colors"
+              >
+                <User className="w-4 h-4 mr-1" />
+                Sign in
+              </Link>
             )}
-          </nav>
+          </div>
 
           {/* Mobile menu button */}
           <div className="md:hidden">
@@ -502,6 +517,13 @@ const ReduxHeader = () => {
                 onClick={() => dispatch(closeMobileMenu())}
               >
                 Company
+              </Link>
+              <Link
+                to="/contractors"
+                className="text-black hover:text-yellow-500 transition-colors px-4 py-2"
+                onClick={() => dispatch(closeMobileMenu())}
+              >
+                Find Contractors
               </Link>
               <Link
                 to="/join-network"

@@ -33,6 +33,8 @@ import ServePMCompanies from "./pages/ServePMCompanies";
 import ServeCommercialCompanies from "./pages/ServeCommercialCompanies";
 import Contractors from "./pages/Contractors";
 import ContractorDetails from "./pages/ContractorDetails";
+import ContactUs from "./pages/ContactUs";
+import Dashboard from "./pages/Dashboard";
 
 const queryClient = new QueryClient();
 
@@ -71,6 +73,8 @@ const App = () => (
             <Route path="/serve/commercial-companies" element={<ServeCommercialCompanies />} />
             <Route path="/contractors" element={<Contractors />} />
             <Route path="/contractors/:id" element={<ContractorDetails />} />
+            <Route path="/contact-us" element={<ContactUs />} />
+            <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
 
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />

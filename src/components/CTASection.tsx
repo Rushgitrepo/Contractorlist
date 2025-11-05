@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Users, Building2 } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const CTASection = () => {
   return (
@@ -14,18 +15,22 @@ const CTASection = () => {
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-            <Button 
-              className="bg-white text-yellow-600 hover:bg-gray-100 font-semibold px-8 py-4 text-lg flex items-center space-x-2"
-            >
-              <span>Join Our Network</span>
-              <ArrowRight className="w-5 h-5" />
-            </Button>
-            <Button 
-              variant="outline"
-              className="border-white text-white hover:bg-white hover:text-yellow-600 font-semibold px-8 py-4 text-lg"
-            >
-              Learn More
-            </Button>
+            <Link to="/join-network">
+              <Button 
+                className="bg-white text-yellow-600 hover:bg-gray-100 font-semibold px-8 py-4 text-lg flex items-center space-x-2"
+              >
+                <span>Join Our Network</span>
+                <ArrowRight className="w-5 h-5" />
+              </Button>
+            </Link>
+            <Link to="/contact-us">
+              <Button 
+                variant="outline"
+                className="border-white text-white hover:bg-white hover:text-yellow-600 font-semibold px-8 py-4 text-lg"
+              >
+                Contact Us
+              </Button>
+            </Link>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">

@@ -240,6 +240,209 @@ const AICostEstimation = () => {
         </div>
       </section>
 
+      {/* Market Intelligence */}
+      <section className="relative z-10 py-20 bg-white/50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-black mb-4">Market Intelligence Dashboard</h2>
+            <p className="text-xl text-gray-600">Real-time construction market analytics</p>
+          </div>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+            <Card className="p-8">
+              <CardHeader>
+                <CardTitle className="flex items-center text-2xl">
+                  <TrendingUp className="w-6 h-6 text-green-600 mr-3" />
+                  Cost Trend Analysis
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-6">
+                  <div className="flex justify-between items-center p-4 bg-green-50 rounded-lg">
+                    <span className="font-medium">Labor Costs</span>
+                    <div className="flex items-center">
+                      <TrendingUp className="w-4 h-4 text-green-500 mr-2" />
+                      <span className="text-green-600 font-bold">+3.2%</span>
+                    </div>
+                  </div>
+                  <div className="flex justify-between items-center p-4 bg-blue-50 rounded-lg">
+                    <span className="font-medium">Material Prices</span>
+                    <div className="flex items-center">
+                      <TrendingUp className="w-4 h-4 text-blue-500 mr-2" />
+                      <span className="text-blue-600 font-bold">+1.8%</span>
+                    </div>
+                  </div>
+                  <div className="flex justify-between items-center p-4 bg-purple-50 rounded-lg">
+                    <span className="font-medium">Equipment Rental</span>
+                    <div className="flex items-center">
+                      <TrendingUp className="w-4 h-4 text-purple-500 mr-2" />
+                      <span className="text-purple-600 font-bold">+2.1%</span>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card className="p-8">
+              <CardHeader>
+                <CardTitle className="flex items-center text-2xl">
+                  <BarChart3 className="w-6 h-6 text-blue-600 mr-3" />
+                  Regional Variations
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {[
+                    { region: "Northeast", multiplier: "1.15x", color: "bg-red-100 text-red-700" },
+                    { region: "West Coast", multiplier: "1.22x", color: "bg-orange-100 text-orange-700" },
+                    { region: "Southeast", multiplier: "0.92x", color: "bg-green-100 text-green-700" },
+                    { region: "Midwest", multiplier: "0.88x", color: "bg-blue-100 text-blue-700" },
+                    { region: "Southwest", multiplier: "1.05x", color: "bg-purple-100 text-purple-700" }
+                  ].map((region, index) => (
+                    <div key={index} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                      <span className="font-medium">{region.region}</span>
+                      <span className={`px-3 py-1 rounded-full text-sm font-bold ${region.color}`}>
+                        {region.multiplier}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* Integration & API */}
+      <section className="relative z-10 py-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-black mb-4">Seamless Integration</h2>
+            <p className="text-xl text-gray-600">Connect with your existing tools and workflows</p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[
+              { name: "Procore", desc: "Project management integration", logo: "🏗️" },
+              { name: "Autodesk", desc: "BIM and design software", logo: "📐" },
+              { name: "QuickBooks", desc: "Financial management", logo: "💰" },
+              { name: "Sage", desc: "Construction ERP", logo: "📊" },
+              { name: "PlanGrid", desc: "Field collaboration", logo: "📱" },
+              { name: "Buildertrend", desc: "Project scheduling", logo: "📅" },
+              { name: "CoConstruct", desc: "Custom home building", logo: "🏠" },
+              { name: "REST API", desc: "Custom integrations", logo: "⚡" }
+            ].map((integration, index) => (
+              <Card key={index} className="text-center p-6 hover:shadow-lg transition-all duration-300">
+                <div className="text-4xl mb-4">{integration.logo}</div>
+                <h3 className="font-bold text-lg mb-2">{integration.name}</h3>
+                <p className="text-gray-600 text-sm">{integration.desc}</p>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Pricing Plans */}
+      <section className="relative z-10 py-20 bg-gradient-to-br from-gray-900 to-black text-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold mb-4">Flexible Pricing Plans</h2>
+            <p className="text-xl text-gray-300">Choose the right plan for your business size</p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {[
+              {
+                name: "Basic",
+                price: "$149",
+                period: "/month",
+                features: ["Up to 100 estimates/month", "Basic market data", "Email support", "Standard accuracy (90%)", "PDF reports"],
+                popular: false
+              },
+              {
+                name: "Professional",
+                price: "$399",
+                period: "/month",
+                features: ["Up to 1000 estimates/month", "Real-time market data", "Priority support", "Advanced accuracy (95%)", "API access", "Custom reports"],
+                popular: true
+              },
+              {
+                name: "Enterprise",
+                price: "Custom",
+                period: "",
+                features: ["Unlimited estimates", "Custom ML models", "24/7 dedicated support", "Premium accuracy (98%)", "White-label solution", "On-premise deployment"],
+                popular: false
+              }
+            ].map((plan, index) => (
+              <Card key={index} className={`${plan.popular ? 'border-2 border-yellow-400 scale-105' : 'border border-gray-700'} bg-gray-800/50 backdrop-blur-sm`}>
+                {plan.popular && (
+                  <div className="bg-yellow-400 text-black text-center py-2 text-sm font-bold rounded-t-lg">
+                    MOST POPULAR
+                  </div>
+                )}
+                <CardContent className="p-8 text-center">
+                  <h3 className="text-2xl font-bold text-white mb-4">{plan.name}</h3>
+                  <div className="mb-6">
+                    <span className="text-4xl font-bold text-white">{plan.price}</span>
+                    <span className="text-gray-400">{plan.period}</span>
+                  </div>
+                  <ul className="space-y-3 mb-8">
+                    {plan.features.map((feature, idx) => (
+                      <li key={idx} className="flex items-center text-gray-300">
+                        <CheckCircle className="w-4 h-4 text-green-400 mr-3" />
+                        {feature}
+                      </li>
+                    ))}
+                  </ul>
+                  <Button className={`w-full ${plan.popular ? 'bg-yellow-400 hover:bg-yellow-500 text-black' : 'bg-white hover:bg-gray-100 text-black'} font-bold py-3`}>
+                    {plan.name === 'Enterprise' ? 'Contact Sales' : 'Start Free Trial'}
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ROI Calculator */}
+      <section className="relative z-10 py-20 bg-gradient-to-r from-green-400 to-emerald-600">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-4xl font-bold text-white mb-6">Calculate Your ROI</h2>
+          <p className="text-xl text-white/90 mb-8">See how much you can save with AI-powered cost estimation</p>
+          
+          <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-white">
+              <div>
+                <div className="text-3xl font-bold mb-2">42%</div>
+                <div className="text-sm opacity-90">Average Cost Reduction</div>
+              </div>
+              <div>
+                <div className="text-3xl font-bold mb-2">85%</div>
+                <div className="text-sm opacity-90">Time Savings</div>
+              </div>
+              <div>
+                <div className="text-3xl font-bold mb-2">$2.3M</div>
+                <div className="text-sm opacity-90">Average Annual Savings</div>
+              </div>
+            </div>
+          </div>
+          
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link to="/contact-us">
+              <Button size="lg" className="bg-white hover:bg-gray-100 text-green-600 font-bold px-8 py-4">
+                <Calculator className="mr-2 h-5 w-5" />
+                Calculate My ROI
+              </Button>
+            </Link>
+            <Link to="/contact-us">
+              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-green-600 font-bold px-8 py-4">
+                Schedule Demo
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </section>
+
       <Footer />
     </div>
   );

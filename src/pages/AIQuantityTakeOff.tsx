@@ -214,6 +214,186 @@ const AIQuantityTakeOff = () => {
         </div>
       </section>
 
+      {/* Technical Specifications */}
+      <section className="relative z-10 py-20 bg-white/50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-black mb-4">Technical Specifications</h2>
+            <p className="text-xl text-gray-600">Enterprise-grade AI infrastructure</p>
+          </div>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <Card className="border-2 border-blue-200 hover:border-blue-400 transition-colors">
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <Cpu className="w-6 h-6 text-blue-600 mr-2" />
+                  AI Processing Power
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-3 text-sm">
+                  <li className="flex items-center"><CheckCircle className="w-4 h-4 text-green-500 mr-2" />NVIDIA A100 GPU Clusters</li>
+                  <li className="flex items-center"><CheckCircle className="w-4 h-4 text-green-500 mr-2" />TensorFlow & PyTorch Models</li>
+                  <li className="flex items-center"><CheckCircle className="w-4 h-4 text-green-500 mr-2" />Real-time Processing</li>
+                  <li className="flex items-center"><CheckCircle className="w-4 h-4 text-green-500 mr-2" />Auto-scaling Infrastructure</li>
+                </ul>
+              </CardContent>
+            </Card>
+            
+            <Card className="border-2 border-green-200 hover:border-green-400 transition-colors">
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <Eye className="w-6 h-6 text-green-600 mr-2" />
+                  Computer Vision
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-3 text-sm">
+                  <li className="flex items-center"><CheckCircle className="w-4 h-4 text-green-500 mr-2" />OCR Text Recognition</li>
+                  <li className="flex items-center"><CheckCircle className="w-4 h-4 text-green-500 mr-2" />3D Model Analysis</li>
+                  <li className="flex items-center"><CheckCircle className="w-4 h-4 text-green-500 mr-2" />Blueprint Digitization</li>
+                  <li className="flex items-center"><CheckCircle className="w-4 h-4 text-green-500 mr-2" />Multi-format Support</li>
+                </ul>
+              </CardContent>
+            </Card>
+            
+            <Card className="border-2 border-purple-200 hover:border-purple-400 transition-colors">
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <Shield className="w-6 h-6 text-purple-600 mr-2" />
+                  Security & Compliance
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-3 text-sm">
+                  <li className="flex items-center"><CheckCircle className="w-4 h-4 text-green-500 mr-2" />SOC 2 Type II Certified</li>
+                  <li className="flex items-center"><CheckCircle className="w-4 h-4 text-green-500 mr-2" />GDPR Compliant</li>
+                  <li className="flex items-center"><CheckCircle className="w-4 h-4 text-green-500 mr-2" />End-to-end Encryption</li>
+                  <li className="flex items-center"><CheckCircle className="w-4 h-4 text-green-500 mr-2" />Zero Data Retention</li>
+                </ul>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* Use Cases */}
+      <section className="relative z-10 py-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-black mb-4">Industry Use Cases</h2>
+            <p className="text-xl text-gray-600">Trusted by leading construction companies worldwide</p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {[
+              { title: "Residential Construction", desc: "Single-family homes, condos, and apartment complexes", savings: "40% time reduction" },
+              { title: "Commercial Buildings", desc: "Office towers, retail spaces, and mixed-use developments", savings: "60% accuracy improvement" },
+              { title: "Infrastructure Projects", desc: "Roads, bridges, and public works projects", savings: "$2M average cost savings" },
+              { title: "Industrial Facilities", desc: "Manufacturing plants, warehouses, and distribution centers", savings: "85% faster estimates" },
+              { title: "Healthcare Facilities", desc: "Hospitals, clinics, and medical office buildings", savings: "99.8% compliance rate" },
+              { title: "Educational Buildings", desc: "Schools, universities, and training facilities", savings: "50% project acceleration" }
+            ].map((useCase, index) => (
+              <Card key={index} className="hover:shadow-xl transition-all duration-300 border-l-4 border-l-yellow-400">
+                <CardContent className="p-6">
+                  <h3 className="text-xl font-bold text-black mb-3">{useCase.title}</h3>
+                  <p className="text-gray-600 mb-4">{useCase.desc}</p>
+                  <div className="bg-green-50 p-3 rounded-lg">
+                    <div className="flex items-center">
+                      <TrendingUp className="w-4 h-4 text-green-600 mr-2" />
+                      <span className="text-sm font-semibold text-green-700">{useCase.savings}</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Pricing */}
+      <section className="relative z-10 py-20 bg-gradient-to-br from-gray-900 to-black text-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold mb-4">Simple, Transparent Pricing</h2>
+            <p className="text-xl text-gray-300">Choose the plan that fits your project needs</p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {[
+              {
+                name: "Starter",
+                price: "$99",
+                period: "/month",
+                features: ["Up to 50 documents/month", "Basic AI analysis", "Email support", "Standard accuracy"],
+                popular: false
+              },
+              {
+                name: "Professional",
+                price: "$299",
+                period: "/month",
+                features: ["Up to 500 documents/month", "Advanced AI models", "Priority support", "99.8% accuracy", "API access"],
+                popular: true
+              },
+              {
+                name: "Enterprise",
+                price: "Custom",
+                period: "",
+                features: ["Unlimited documents", "Custom AI training", "24/7 dedicated support", "On-premise deployment", "SLA guarantee"],
+                popular: false
+              }
+            ].map((plan, index) => (
+              <Card key={index} className={`${plan.popular ? 'border-2 border-yellow-400 scale-105' : 'border border-gray-700'} bg-gray-800/50 backdrop-blur-sm`}>
+                {plan.popular && (
+                  <div className="bg-yellow-400 text-black text-center py-2 text-sm font-bold rounded-t-lg">
+                    MOST POPULAR
+                  </div>
+                )}
+                <CardContent className="p-8 text-center">
+                  <h3 className="text-2xl font-bold text-white mb-4">{plan.name}</h3>
+                  <div className="mb-6">
+                    <span className="text-4xl font-bold text-white">{plan.price}</span>
+                    <span className="text-gray-400">{plan.period}</span>
+                  </div>
+                  <ul className="space-y-3 mb-8">
+                    {plan.features.map((feature, idx) => (
+                      <li key={idx} className="flex items-center text-gray-300">
+                        <CheckCircle className="w-4 h-4 text-green-400 mr-3" />
+                        {feature}
+                      </li>
+                    ))}
+                  </ul>
+                  <Button className={`w-full ${plan.popular ? 'bg-yellow-400 hover:bg-yellow-500 text-black' : 'bg-white hover:bg-gray-100 text-black'} font-bold py-3`}>
+                    {plan.name === 'Enterprise' ? 'Contact Sales' : 'Start Free Trial'}
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="relative z-10 py-20 bg-gradient-to-r from-yellow-400 to-yellow-600">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-4xl font-bold text-black mb-6">Ready to Transform Your Takeoff Process?</h2>
+          <p className="text-xl text-black/80 mb-8">Join 10,000+ construction professionals using AI to accelerate their projects</p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link to="/contact-us">
+              <Button size="lg" className="bg-black hover:bg-gray-800 text-white font-bold px-8 py-4">
+                <Brain className="mr-2 h-5 w-5" />
+                Start Free Trial
+              </Button>
+            </Link>
+            <Link to="/contact-us">
+              <Button size="lg" variant="outline" className="border-black text-black hover:bg-black hover:text-white font-bold px-8 py-4">
+                Schedule Demo
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </section>
+
       <Footer />
     </div>
   );

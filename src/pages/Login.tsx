@@ -41,12 +41,14 @@ const Login = () => {
     dispatch(clearError());
     
     try {
-      await dispatch(loginUser({ email: data.email, password: data.password })).unwrap();
+      const result = await dispatch(loginUser({ email: data.email, password: data.password })).unwrap();
       
       toast({
         title: "Success!",
         description: "You have been successfully logged in.",
       });
+      
+      // Always redirect to homepage after login
       navigate('/');
     } catch (err) {
       setError(err as string || 'An unexpected error occurred. Please try again.');
