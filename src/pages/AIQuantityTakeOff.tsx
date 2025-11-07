@@ -209,6 +209,7 @@ const AIQuantityTakeOff = () => {
           </div>
         </div>
       </section>
+      <div className="mt-6 border-t border-gray-200" />
 
       {/* AI Metrics Section */}
       <section className="relative z-10 py-20">
@@ -221,6 +222,8 @@ const AIQuantityTakeOff = () => {
               Live metrics from our neural network processing
             </p>
           </div>
+
+          <div className="w-40 h-1 bg-gradient-to-r from-[#fce011] to-yellow-400 mx-auto rounded-full mb-10 animate-bounce"></div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-20">
             {metrics.map((metric, index) => {
@@ -330,6 +333,8 @@ const AIQuantityTakeOff = () => {
         </div>
       </section>
 
+      <div className="mt-6 border-t border-gray-200" />
+
       {/* Technical Specifications */}
       <section className="relative z-10 py-20 bg-white/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -341,6 +346,8 @@ const AIQuantityTakeOff = () => {
               Enterprise-grade AI infrastructure
             </p>
           </div>
+
+          <div className="w-40 h-1 bg-gradient-to-r from-[#fce011] to-yellow-400 mx-auto rounded-full mb-10 animate-bounce"></div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <Card className="border-2 border-blue-200 hover:border-blue-400 transition-colors">
@@ -432,6 +439,7 @@ const AIQuantityTakeOff = () => {
           </div>
         </div>
       </section>
+      <div className="mt-6 border-t border-gray-200" />
 
       {/* Use Cases */}
       <section className="relative z-10 py-20">
@@ -444,6 +452,8 @@ const AIQuantityTakeOff = () => {
               Trusted by leading construction companies worldwide
             </p>
           </div>
+
+          <div className="w-40 h-1 bg-gradient-to-r from-[#fce011] to-yellow-400 mx-auto rounded-full mb-10 animate-bounce"></div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {[

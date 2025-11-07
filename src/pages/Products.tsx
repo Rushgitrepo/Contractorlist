@@ -90,7 +90,7 @@ const Products = () => {
       title: "AI Cost Estimation",
       subtitle: "Predictive Analytics + Real-time Data",
       description:
-        "Intelligent cost prediction engine that analyzes market trends, historical data, and real-time pricing to deliver precise project estimates.",
+        "The Intelligent Cost Prediction Engine leverages advanced AI algorithms and data analytics to revolutionize how project estimates are created. By continuously analyzing market trends, material costs, labor rates, and supply chain fluctuations, it delivers real-time insights that ensure every estimate remains accurate and up to date. This predictive capability minimizes human error and allows businesses to anticipate cost variations before they occur, enabling proactive decision-making and optimized budget allocation.Furthermore, the engine integrates historical performance data with live market intelligence to forecast future pricing with unmatched precision. Its adaptive learning models evolve over time, improving accuracy with each project and adapting to regional, seasonal, and economic changes.",
       icon: DollarSign,
       aiIcon: TrendingUp,
       color: "bg-gradient-to-br from-green-500 to-emerald-600",
@@ -125,7 +125,7 @@ const Products = () => {
       title: "AI Chat Bot",
       subtitle: "Natural Language Processing + GPT-4",
       description:
-        "Advanced conversational AI powered by GPT-4 technology, providing human-like interactions and intelligent responses 24/7.",
+        "The AI Chat Bot combines Natural Language Processing (NLP) with GPT-4 technology to deliver next-generation conversational experiences. It understands context, intent, and emotion, allowing it to engage users with fluid, human-like communication. Whether it’s customer support, lead generation, or personalized assistance, this chatbot ensures instant, accurate, and empathetic responses—enhancing user satisfaction while reducing operational load. Backed by continuous learning and adaptive intelligence, the AI Chat Bot evolves with every interaction, refining its tone, accuracy, and contextual awareness over time. It supports multilingual communication and integrates seamlessly with websites, mobile apps, and enterprise systems, enabling 24/7 intelligent engagement.",
       icon: MessageCircle,
       aiIcon: Brain,
       color: "bg-gradient-to-br from-purple-500 to-violet-600",
@@ -148,7 +148,7 @@ const Products = () => {
       title: "AI Virtual Assistant",
       subtitle: "Automation + Workflow Intelligence",
       description:
-        "Comprehensive AI assistant that learns your workflow patterns and automates complex project management tasks with intelligent decision-making.",
+        "The AI Virtual Assistant is designed to redefine productivity by combining Automation and Workflow Intelligence. It observes and learns from user behavior, identifying repetitive processes and optimizing them through smart automation. From scheduling meetings and managing tasks to tracking project milestones, it intelligently adapts to your workflow, ensuring smoother operations and faster decision-making without manual intervention. Powered by advanced machine learning algorithms, this assistant doesn’t just execute commands—it understands priorities, anticipates needs, and provides actionable insights for better project outcomes. Its seamless integration with existing tools and platforms enables real-time collaboration, reporting, and task coordination across teams.",
       icon: Bot,
       aiIcon: Cpu,
       color: "bg-gradient-to-br from-orange-500 to-red-600",
@@ -325,7 +325,7 @@ const Products = () => {
                     <div className="grid grid-cols-3 gap-4 mb-6 p-4 bg-gray-50 rounded-xl">
                       {Object.entries(product.metrics).map(([key, value]) => (
                         <div key={key} className="text-center">
-                          <div className="text-lg font-bold text-black">
+                          <div className="text-sm font-bold text-black">
                             {value}
                           </div>
                           <div className="text-xs text-gray-500 capitalize">
@@ -367,7 +367,7 @@ const Products = () => {
 
                     <Button
                       asChild
-                      className="w-full bg-gradient-to-r from-[#fce011] to-yellow-400 hover:from-yellow-400 hover:to-[#fce011] text-black font-bold py-4 rounded-xl transition-all duration-300 group-hover:shadow-2xl border-0 transform hover:scale-105"
+                      className="w-full bg-gradient-to-r  from-[#fce011] to-yellow-400 hover:from-yellow-400 hover:to-[#fce011] text-black font-bold py-4 rounded-xl transition-all duration-300 group-hover:shadow-2xl border-0 transform hover:scale-105"
                     >
                       <Link
                         to={product.link}

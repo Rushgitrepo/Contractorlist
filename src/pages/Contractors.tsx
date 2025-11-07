@@ -89,114 +89,81 @@ const Contractors = () => {
 
   const companies = [
     {
-      id: 1,
-      name: "Nadler Modular",
-      logo: "/companylogo.png",
-      description:
-        "Nadler Modular has been a leading supplier of quality modular buildings.",
-      features: [
-        "Field Offices/Storage",
-        "Sales/Lease/Custom-Built",
-        "On-site Installation",
-      ],
-      buttons: [
-        {
-          label: "Request a Quote",
-          type: "primary",
-          onClick: () => alert("Quote requested!"),
-        },
-        { label: "Contact Us", type: "secondary" },
-        { label: "Website", type: "secondary" },
-        { label: "Follow", type: "secondary" },
-      ],
+      name: "Grandeur Hills Group, Inc.",
+      rating: 5.0,
+      reviews: 54,
+      verifiedHires: 1,
+      tagline:
+        "Manhattan's Premium Choice For Luxury Living | 5X Best of Houzz Winner",
+      testimonial:
+        "The results were truly mind-blowing, the moment I saw the finished house. The entire Grandeur Hills Group team went above and beyond!",
+      reviewer: "Daniel",
+      location: "New York",
+      projects: 31,
+      images: ["/home1.jpeg", "/home2.jpeg", "/home3.jpeg"],
+      bannerText: "Complimentary Initial Consultations!",
+      sponsored: true,
     },
     {
-      id: 2,
-      name: "BuildPro Contractors",
-      logo: "/companylogo.png",
-      description:
-        "BuildPro specializes in commercial and residential construction projects.",
-      features: [
-        "Project Management",
-        "Design Consultation",
-        "Quality Assurance",
-      ],
-      buttons: [
-        {
-          label: "Request a Quote",
-          type: "primary",
-          onClick: () => alert("Quote requested!"),
-        },
-        { label: "Contact Us", type: "secondary" },
-        { label: "Website", type: "secondary" },
-        { label: "Follow", type: "secondary" },
-      ],
+      name: "Monk's Home Improvements",
+      rating: 4.9,
+      reviews: 24,
+      verifiedHires: 2,
+      tagline:
+        "Transforming Homes with Precision and Care | NJ’s Trusted Remodel Experts",
+      testimonial:
+        "Monk's delivered exactly what we envisioned — a modern kitchen that feels warm and functional. The craftsmanship is unmatched.",
+      reviewer: "Sarah",
+      location: "New Jersey",
+      projects: 45,
+      images: ["/home5.jpeg", "/home3.jpeg", "/home2.jpeg"],
+      bannerText: "Free In-Home Design Consultation!",
+      sponsored: true,
     },
     {
-      id: 3,
-      name: "Skyline Builders",
-      logo: "/companylogo.png",
-      description:
-        "Skyline Builders delivers innovative building solutions with excellence.",
-      features: [
-        "High-rise Construction",
-        "Custom Homes",
-        "Sustainable Solutions",
-      ],
-      buttons: [
-        {
-          label: "Request a Quote",
-          type: "primary",
-          onClick: () => alert("Quote requested!"),
-        },
-        { label: "Contact Us", type: "secondary" },
-        { label: "Website", type: "secondary" },
-        { label: "Follow", type: "secondary" },
-      ],
+      name: "Skyline Interiors",
+      rating: 4.8,
+      reviews: 32,
+      verifiedHires: 3,
+      tagline: "Elegant Interior Designs That Reflect Your Personality",
+      testimonial:
+        "Every corner of our new home speaks of style and comfort. Skyline’s team was extremely professional and creative!",
+      reviewer: "Michael",
+      location: "Los Angeles",
+      projects: 28,
+      images: ["/home3.jpeg", "/home2.jpeg", "/home1.jpeg"],
+      bannerText: "Book Your Free Design Consultation!",
+      sponsored: false,
     },
     {
-      id: 4,
-      name: "GreenLeaf Construction",
-      logo: "/companylogo.png",
-      description:
-        "GreenLeaf Construction focuses on eco-friendly and sustainable projects.",
-      features: [
-        "Eco-friendly Materials",
-        "Solar Installations",
-        "Energy-efficient Designs",
-      ],
-      buttons: [
-        {
-          label: "Request a Quote",
-          type: "primary",
-          onClick: () => alert("Quote requested!"),
-        },
-        { label: "Contact Us", type: "secondary" },
-        { label: "Website", type: "secondary" },
-        { label: "Follow", type: "secondary" },
-      ],
+      name: "EverGreen Landscaping Co.",
+      rating: 5.0,
+      reviews: 41,
+      verifiedHires: 4,
+      tagline: "Turning Lawns Into Luxurious Green Spaces",
+      testimonial:
+        "The transformation was unbelievable — our backyard is now a peaceful paradise. Couldn’t be happier with EverGreen!",
+      reviewer: "Jessica",
+      location: "Chicago",
+      projects: 50,
+      images: ["/home5.jpeg", "/home1.jpeg", "/home4.jpeg"],
+      bannerText: "Spring Discount: 20% Off Lawn Makeovers!",
+      sponsored: true,
     },
     {
-      id: 5,
-      name: "PrimeBuild Solutions",
-      logo: "/companylogo.png",
-      description:
-        "PrimeBuild Solutions is known for delivering projects on time and budget.",
-      features: [
-        "Industrial Projects",
-        "Residential Projects",
-        "Consulting Services",
-      ],
-      buttons: [
-        {
-          label: "Request a Quote",
-          type: "primary",
-          onClick: () => alert("Quote requested!"),
-        },
-        { label: "Contact Us", type: "secondary" },
-        { label: "Website", type: "secondary" },
-        { label: "Follow", type: "secondary" },
-      ],
+      name: "BrightBuild Construction",
+      rating: 4.7,
+      reviews: 20,
+      verifiedHires: 2,
+      tagline: "Sustainable Construction for Modern Living",
+      testimonial:
+        "BrightBuild used eco-friendly materials without compromising on design. Our new home feels futuristic yet warm.",
+      reviewer: "Ethan",
+      location: "San Francisco",
+      projects: 35,
+      images: ["/home3.jpeg", "/home2.jpeg", "/home1.jpeg"],
+      bannerText: "Eco-Conscious Building Solutions!",
+      sponsored: false,
     },
   ];
   // fallback list if meta is unavailable
@@ -585,14 +552,17 @@ const Contractors = () => {
               <CompanyCard
                 key={c?.id}
                 name={c?.name}
-                logo={c?.logo}
-                description={c?.description}
-                features={c?.features}
-                buttons={c?.buttons?.map((b) => ({
-                  label: b?.label,
-                  type: b?.type,
-                  onClick: b?.onClick,
-                }))}
+                images={c?.images}
+                testimonial={c?.testimonial}
+                bannerText={c?.bannerText}
+                location={c?.location}
+                projects={c?.projects}
+                rating={c?.rating}
+                reviewer={c?.reviewer}
+                reviews={c?.reviews}
+                sponsored={c?.sponsored}
+                tagline={c?.tagline}
+                verifiedHires={c?.verifiedHires}
               />
             ))}
             {/* Contractors List */}

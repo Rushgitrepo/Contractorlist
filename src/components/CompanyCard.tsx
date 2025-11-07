@@ -1,93 +1,117 @@
-import { Link } from "lucide-react";
 import React from "react";
+import { Mail, MapPin, Verified, Video } from "lucide-react";
+import { Swiper, SwiperSlide } from "swiper/react";
+import "swiper/css";
+import "swiper/css/pagination";
+import { Pagination, Autoplay } from "swiper/modules";
 
 const CompanyCard = ({
-  logo,
-  name,
-  description,
-  features = [],
-  buttons = [],
+  name = "Company Name",
+  rating = 0,
+  reviews = 0,
+  verifiedHires = 0,
+  tagline = "",
+  testimonial = "",
+  reviewer = "Anonymous",
+  location = "Unknown",
+  projects = 0,
+  images = [],
+  sponsored = false,
+  bannerText = "",
 }) => {
   return (
-    <div className="max-w-3xl w-full bg-white border border-gray-200 rounded-2xl shadow-sm p-6 flex flex-col sm:flex-row gap-6 hover:shadow-md transition-shadow my-7">
-      {/* Left Section */}
-      <div className="flex items-start gap-4 flex-1">
-        {/* Checkbox */}
+    <div className="flex flex-col md:flex-row w-full max-w-5xl border-b border-gray-200 shadow-sm overflow-hidden bg-white h-[260px] my-3 rounded-lg">
+      {/* Left Section (Swiper Images) */}
+      <div className="relative w-full md:w-[40%]">
+        <Swiper
+          modules={[Pagination]}
+          pagination={{ clickable: true }}
+          className="w-full h-full"
+        >
+          {(images && images.length > 0 ? images : ["/placeholder.png"]).map(
+            (img, idx) => (
+              <SwiperSlide key={idx}>
+                <img
+                  src={img}
+                  alt={`${name} image ${idx + 1}`}
+                  className="object-cover w-full h-full"
+                />
+              </SwiperSlide>
+            )
+          )}
+        </Swiper>
 
-        <div className="flex flex-1 items-center gap-4">
-          <input type="checkbox" className="w-5 h-5 accent-blue-600" />
-
-          {/* Logo */}
-          <div className="flex-shrink-0 w-20 h-20 rounded-full border border-gray-200 flex items-center justify-center overflow-hidden">
-            {logo ? (
-              <img
-                src={logo}
-                alt={`${name} Logo`}
-                className="w-full h-full object-contain p-2"
-              />
-            ) : (
-              <div className="text-gray-400 text-sm">No Logo</div>
-            )}
+        {bannerText && (
+          <div className="absolute top-0 left-0 bg-black bg-opacity-80 text-white text-xs font-semibold px-3 py-1 rounded-br-lg z-10">
+            {bannerText}
           </div>
-        </div>
-
-        {/* Company Info (column layout) */}
-        <div className="flex flex-col justify-between w-full">
-          <div>
-            <h2 className="text-xl font-bold text-gray-900">{name}</h2>
-            <p className="text-gray-600 text-sm mt-1 line-clamp-1">
-              {description || "No description available"}
-            </p>
-
-            {features.length > 0 && (
-              <ul className="mt-3 grid grid-cols-2 gap-x-4 gap-y-1 text-sm text-gray-800">
-                {features.map((item, index) => (
-                  <li key={index} className="flex items-center gap-1 ">
-                    • <span className="font-bold">{item}</span>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-
-          {/* Buttons (bottom aligned in one line) */}
-          <div className="flex flex-wrap gap-2 mt-4">
-            {buttons.map((btn, i) => (
-              <button
-                key={i}
-                onClick={btn.onClick}
-                className={`px-3 py-1.5 rounded-md text-sm font-semibold transition ${
-                  btn.type === "primary"
-                    ? "bg-blue-100 text-blue-800 hover:bg-blue-200"
-                    : "border border-gray-300 text-gray-700 hover:bg-gray-100"
-                }`}
-              >
-                {btn.label}
-              </button>
-            ))}
-          </div>
-        </div>
+        )}
       </div>
 
-      {/* Right Section: Certifications */}
+      {/* Right Section */}
+      <div className="flex flex-col justify-between p-5 w-full md:w-[60%]">
+        <div className="flex justify-between items-start">
+          {/* Left Content */}
+          <div className="flex-1 pr-5 w-[75%]">
+            <h2 className="text-lg font-semibold text-gray-900">{name}</h2>
 
-      <div className="flex-col">
-        <button className="flex items-center gap-2 text-sm text-gray-800 self-start">
-          <img
-            src={"/certified.jpg"}
-            alt={`certified logo`}
-            className="w-6 h-6 object-contain "
-          />
-          <span className="font-medium underline">{"Certifications"}</span>
-        </button>
-        <button className="flex items-center gap-2 text-sm text-gray-800 self-start">
-          <img
-            src={"/certified.jpg"}
-            alt={`certified logo`}
-            className="w-6 h-6 object-contain "
-          />
-          <span className="font-medium underline">{"Lisences"}</span>
-        </button>
+            <div className="flex items-center mt-1 space-x-1">
+              <span className="text-yellow-400 text-sm">
+                {"★".repeat(Math.round(rating || 0))}
+              </span>
+              <span className="text-gray-600 text-sm">
+                {rating ? rating.toFixed(1) : "0.0"}
+              </span>
+              <span className="text-gray-400 text-sm">• {reviews} Reviews</span>
+            </div>
+
+            <div className="mt-1">
+              <button className="border bg-gray-200 rounded-md px-3 py-1 text-xs font-medium flex items-center hover:bg-gray-50">
+                <Verified className="w-3.5 h-3.5 mr-1" /> {verifiedHires}{" "}
+                Verified Hire
+              </button>
+            </div>
+
+            <h3 className="font-semibold text-gray-800 text-sm mt-3 leading-tight">
+              {tagline}
+            </h3>
+
+            <p className="text-gray-600 text-xs mt-1 italic leading-snug">
+              “{testimonial}”
+            </p>
+
+            <div className="flex justify-between items-center mt-2">
+              <p className="text-gray-500 text-xs">– {reviewer}</p>
+              <button className="text-gray-700 text-xs font-medium hover:underline">
+                Read More →
+              </button>
+            </div>
+          </div>
+
+          {/* Right Content */}
+          <div className="flex flex-col items-end space-y-2">
+            <button className="border border-gray-500 rounded-sm px-3 py-1 text-xs font-medium flex items-center hover:bg-gray-50">
+              <Mail className="w-3.5 h-3.5 mr-1" /> Send Message
+            </button>
+            <button className="border border-gray-500 rounded-sm px-3 py-1 text-xs font-medium flex items-center hover:bg-gray-50">
+              <Video className="w-3.5 h-3.5 mr-1" /> Video Meeting
+            </button>
+
+            <div className="flex flex-col text-gray-600 text-xs items-end mt-1 leading-tight">
+              <div className="flex items-center">
+                <MapPin className="w-3 h-3.5 mr-1" />
+                <span>{projects} projects</span>
+              </div>
+              <span>in the {location} area</span>
+            </div>
+
+            {sponsored && (
+              <div className="text-gray-400 text-xs mt-3">
+                <span>Sponsored</span>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
