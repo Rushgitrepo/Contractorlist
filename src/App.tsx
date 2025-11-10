@@ -4,7 +4,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Provider } from "react-redux";
-import { store } from "@/store";
+import { PersistGate } from 'redux-persist/integration/react';
+import { store, persistor } from "@/store";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import AIChatbot from "@/components/AIChatbot";
 import NotificationSystem from "@/components/NotificationSystem";
@@ -35,17 +36,20 @@ import Contractors from "./pages/Contractors";
 import ContractorDetails from "./pages/ContractorDetails";
 import ContactUs from "./pages/ContactUs";
 import Dashboard from "./pages/Dashboard";
+import Settings from "./pages/Settings";
+import ServiceDetail from "./pages/ServiceDetail";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <Provider store={store}>
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <NotificationSystem />
-        <BrowserRouter>
+    <PersistGate loading={null} persistor={persistor}>
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <NotificationSystem />
+          <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
@@ -61,6 +65,7 @@ const App = () => (
             <Route path="/articles" element={<Articles />} />
             <Route path="/glossary" element={<Glossary />} />
             <Route path="/services" element={<Services />} />
+            <Route path="/services/:serviceName" element={<ServiceDetail />} />
             <Route path="/products" element={<Products />} />
             <Route path="/products/ai-quantity-takeoff" element={<AIQuantityTakeOff />} />
             <Route path="/products/ai-cost-estimation" element={<AICostEstimation />} />
@@ -75,6 +80,7 @@ const App = () => (
             <Route path="/contractors/:id" element={<ContractorDetails />} />
             <Route path="/contact-us" element={<ContactUs />} />
             <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+            <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
 
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
@@ -85,6 +91,7 @@ const App = () => (
         </BrowserRouter>
       </TooltipProvider>
     </QueryClientProvider>
+    </PersistGate>
   </Provider>
 );
 

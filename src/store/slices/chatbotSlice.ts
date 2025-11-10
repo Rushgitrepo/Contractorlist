@@ -54,7 +54,10 @@ export const sendMessage = createAsyncThunk(
             const data = await response.json();
             return data.response;
         } catch (error) {
-            // Fallback response for demo
+            // For demo purposes, provide fallback responses
+            // In production, this should properly reject with error
+            console.warn('API not available, using fallback response');
+            
             const responses = [
                 "Thanks for your question! I'm here to help with construction projects, contractor recommendations, cost estimates, and more.",
                 "I can assist you with finding qualified contractors, project planning, cost estimation, and construction best practices.",
@@ -62,7 +65,11 @@ export const sendMessage = createAsyncThunk(
                 "I'm your AI construction expert. I can help with project management, contractor vetting, cost analysis, and technical guidance.",
             ];
 
+            // Return fallback response (for demo mode only)
             return responses[Math.floor(Math.random() * responses.length)];
+            
+            // In production, uncomment this to properly handle errors:
+            // return rejectWithValue(error instanceof Error ? error.message : 'Failed to send message');
         }
     }
 );

@@ -1,5 +1,6 @@
 import ReduxHeader from "@/components/ReduxHeader";
 import Footer from "@/components/Footer";
+import { Link } from "react-router-dom";
 import {
   FileText,
   Calculator,
@@ -428,9 +429,11 @@ const Services = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-8">
               {section.items.map((svc, idx) => {
                 const Icon = svc.icon;
+                const serviceSlug = svc.name.toLowerCase().replace(/ & /g, '-').replace(/ /g, '-');
                 return (
-                  <div
+                  <Link
                     key={idx}
+                    to={`/services/${serviceSlug}`}
                     className="group bg-white rounded-2xl p-6 shadow-xl hover:shadow-2xl border border-gray-100 hover:border-[#fce011] transition-all duration-500 cursor-pointer transform hover:-translate-y-3 hover:scale-105 h-full flex flex-col"
                   >
                     {/* Icon Section */}
@@ -456,7 +459,7 @@ const Services = () => {
                         Learn More →
                       </div>
                     </div>
-                  </div>
+                  </Link>
                 );
               })}
             </div>

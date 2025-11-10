@@ -149,43 +149,63 @@ const ReduxHeader = () => {
                   Our Services
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem className="flex items-center space-x-3 p-3 cursor-pointer hover:bg-yellow-50">
-                  <FileText className="h-5 w-5 text-yellow-600" />
-                  <div>
-                    <div className="font-medium">Bid Management</div>
-                    <div className="text-xs text-gray-500">
-                      Streamlined bidding processes
+                <DropdownMenuItem asChild>
+                  <Link
+                    to="/services/bid-management"
+                    className="flex items-center space-x-3 p-3 cursor-pointer hover:bg-yellow-50"
+                  >
+                    <FileText className="h-5 w-5 text-yellow-600" />
+                    <div>
+                      <div className="font-medium">Bid Management</div>
+                      <div className="text-xs text-gray-500">
+                        Streamlined bidding processes
+                      </div>
                     </div>
-                  </div>
+                  </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem className="flex items-center space-x-3 p-3 cursor-pointer hover:bg-yellow-50">
-                  <Calculator className="h-5 w-5 text-yellow-600" />
-                  <div>
-                    <div className="font-medium">Cost Estimating</div>
-                    <div className="text-xs text-gray-500">
-                      Accurate project cost analysis
+                <DropdownMenuItem asChild>
+                  <Link
+                    to="/services/cost-estimating"
+                    className="flex items-center space-x-3 p-3 cursor-pointer hover:bg-yellow-50"
+                  >
+                    <Calculator className="h-5 w-5 text-yellow-600" />
+                    <div>
+                      <div className="font-medium">Cost Estimating</div>
+                      <div className="text-xs text-gray-500">
+                        Accurate project cost analysis
+                      </div>
                     </div>
-                  </div>
+                  </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem className="flex items-center space-x-3 p-3 cursor-pointer hover:bg-yellow-50">
-                  <ClipboardList className="h-5 w-5 text-yellow-600" />
-                  <div>
-                    <div className="font-medium">Tenders Management</div>
-                    <div className="text-xs text-gray-500">
-                      Efficient tender processes
+                <DropdownMenuItem asChild>
+                  <Link
+                    to="/services/tenders-management"
+                    className="flex items-center space-x-3 p-3 cursor-pointer hover:bg-yellow-50"
+                  >
+                    <ClipboardList className="h-5 w-5 text-yellow-600" />
+                    <div>
+                      <div className="font-medium">Tenders Management</div>
+                      <div className="text-xs text-gray-500">
+                        Efficient tender processes
+                      </div>
                     </div>
-                  </div>
+                  </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem className="flex items-center space-x-3 p-3 cursor-pointer hover:bg-yellow-50">
-                  <ShoppingCart className="h-5 w-5 text-yellow-600" />
-                  <div>
-                    <div className="font-medium">
-                      Procurement & Pre-Contract Management
+                <DropdownMenuItem asChild>
+                  <Link
+                    to="/services/procurement-pre-contract"
+                    className="flex items-center space-x-3 p-3 cursor-pointer hover:bg-yellow-50"
+                  >
+                    <ShoppingCart className="h-5 w-5 text-yellow-600" />
+                    <div>
+                      <div className="font-medium">
+                        Procurement & Pre-Contract Management
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        Strategic procurement solutions
+                      </div>
                     </div>
-                    <div className="text-xs text-gray-500">
-                      Strategic procurement solutions
-                    </div>
-                  </div>
+                  </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
@@ -435,7 +455,7 @@ const ReduxHeader = () => {
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
-                    <Link to="/profile" className="cursor-pointer">
+                  <Link to="/settings" className="cursor-pointer">
                       <Settings className="mr-2 h-4 w-4" />
                       <span>Settings</span>
                     </Link>
