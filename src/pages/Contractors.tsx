@@ -120,6 +120,7 @@ const Contractors = () => {
 
   const companies = [
     {
+      id: "grandeur-hills-group",
       name: "Grandeur Hills Group, Inc.",
       rating: 5.0,
       reviews: 54,
@@ -136,6 +137,7 @@ const Contractors = () => {
       sponsored: true,
     },
     {
+      id: "monks-home-improvements",
       name: "Monk's Home Improvements",
       rating: 4.9,
       reviews: 24,
@@ -152,6 +154,7 @@ const Contractors = () => {
       sponsored: true,
     },
     {
+      id: "skyline-interiors",
       name: "Skyline Interiors",
       rating: 4.8,
       reviews: 32,
@@ -167,6 +170,7 @@ const Contractors = () => {
       sponsored: false,
     },
     {
+      id: "evergreen-landscaping",
       name: "EverGreen Landscaping Co.",
       rating: 5.0,
       reviews: 41,
@@ -182,6 +186,7 @@ const Contractors = () => {
       sponsored: true,
     },
     {
+      id: "brightbuild-construction",
       name: "BrightBuild Construction",
       rating: 4.7,
       reviews: 20,
@@ -653,6 +658,7 @@ const Contractors = () => {
             {companies?.map((c) => (
               <CompanyCard
                 key={c?.id}
+                id={c?.id}
                 name={c?.name}
                 images={c?.images}
                 testimonial={c?.testimonial}

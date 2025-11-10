@@ -5,7 +5,10 @@ import "swiper/css";
 import "swiper/css/pagination";
 import { Pagination, Autoplay } from "swiper/modules";
 
+import { useNavigate } from "react-router-dom";
+
 const CompanyCard = ({
+  id,
   name = "Company Name",
   rating = 0,
   reviews = 0,
@@ -19,6 +22,7 @@ const CompanyCard = ({
   sponsored = false,
   bannerText = "",
 }) => {
+  const navigate = useNavigate();
   return (
     <div className="flex flex-col md:flex-row w-full max-w-5xl border-b border-gray-200 shadow-sm overflow-hidden bg-white h-[260px] my-3 rounded-lg">
       {/* Left Section (Swiper Images) */}
@@ -82,7 +86,10 @@ const CompanyCard = ({
 
             <div className="flex justify-between items-center mt-2">
               <p className="text-gray-500 text-xs">– {reviewer}</p>
-              <button className="text-gray-700 text-xs font-medium hover:underline">
+              <button 
+                onClick={() => id && navigate(`/contractors/${id}`)}
+                className="text-gray-700 text-xs font-medium hover:underline"
+              >
                 Read More →
               </button>
             </div>
