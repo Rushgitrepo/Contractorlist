@@ -38,8 +38,14 @@ import {
   Clock,
   Shield,
   CheckCircle,
+  ChevronUp,
+  ChevronDown,
 } from "lucide-react";
 import CompanyCard from "@/components/CompanyCard";
+import ProjectTypeSelector from "@/components/ProjectTypeSelector";
+import HeroSection from "@/components/HeroSection";
+import ContractorHeroSection from "@/components/ContractorHeroSection";
+import ReduxHeader from "@/components/ReduxHeader";
 
 const Contractors = () => {
   const [params] = useSearchParams();
@@ -53,6 +59,9 @@ const Contractors = () => {
   const [sortBy, setSortBy] = useState<"best" | "rating" | "name">("best");
   const [priceRange, setPriceRange] = useState<string>("");
   const [rating, setRating] = useState<string>("");
+  const [location, setLocation] = useState("New York, NY");
+  const [radius, setRadius] = useState("50 mi");
+
   const [onlyMyZip, setOnlyMyZip] = useState<boolean>(true);
   const [showFilters, setShowFilters] = useState(false);
   const [selectedTrade, setSelectedTrade] = useState<string>("");
@@ -68,6 +77,28 @@ const Contractors = () => {
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const [pagination, setPagination] = useState<any | null>(null);
+  const [filters, setFilters] = useState([
+    "New York / 50 mi",
+    "General Contractors",
+  ]);
+  const [search, setSearch] = useState("");
+
+  // Add at the top (near your other state variables)
+  const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
+
+  // Helper to toggle filters
+  const toggleFilter = (filter: string) => {
+    setSelectedFilters((prev) =>
+      prev.includes(filter)
+        ? prev.filter((f) => f !== filter)
+        : [...prev, filter]
+    );
+  };
+
+  // Remove filter when "×" clicked
+  const handleRemoveFilter = (filter: string) => {
+    setSelectedFilters((prev) => prev.filter((f) => f !== filter));
+  };
 
   // Sidebar services: fetch real counts from backend with fallback icons
   const [servicesMeta, setServicesMeta] = useState<any[]>([]);
@@ -275,174 +306,231 @@ const Contractors = () => {
   const goPrev = () => fetchContractors(page - 1);
   const goNext = () => fetchContractors(page + 1);
 
+  const AccordionSection = ({ title, children }: any) => {
+    const [open, setOpen] = useState(true);
+    return (
+      <div className="border-b border-gray-200 pb-4 mb-4">
+        <button
+          onClick={() => setOpen(!open)}
+          className="flex items-center justify-between w-full text-sm font-semibold text-gray-800 mb-2"
+        >
+          {title}
+          {open ? (
+            <ChevronUp className="w-4 h-4 text-gray-600" />
+          ) : (
+            <ChevronDown className="w-4 h-4 text-gray-600" />
+          )}
+        </button>
+        {open && <div className="space-y-2">{children}</div>}
+      </div>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center space-x-4">
-              <Link
-                to="/"
-                className="flex items-center space-x-2 text-gray-600 hover:text-gray-900"
-              >
-                <ArrowLeft className="w-5 h-5" />
-                <span>Back</span>
-              </Link>
-              <div className="h-6 w-px bg-gray-300" />
-              <Link to="/">
-                <img
-                  src="/main-logo.png"
-                  alt="Contractorlist Logo"
-                  className="h-8 w-auto"
-                />
-              </Link>
-            </div>
-
-            {/* Search bar */}
-            <div className="flex-1 max-w-2xl mx-8">
-              <div className="relative flex gap-2">
-                <div className="relative flex-1">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                  <Input
-                    placeholder="Search contractors, services, location..."
-                    className="pl-10 h-10 border-gray-300 focus:border-yellow-500 focus:ring-yellow-500"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                  />
-                </div>
-                {/* <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setShowFilters(!showFilters)}
-                  className="h-10 px-3 border-gray-300 hover:bg-gray-50"
-                >
-                  <SlidersHorizontal className="w-4 h-4 mr-2" />
-                  Filters
-                </Button> */}
-              </div>
-            </div>
-
-            <div className="flex items-center space-x-4">
-              {user ? (
-                <span className="text-sm text-gray-600">
-                  Welcome, {user.name}
-                </span>
-              ) : (
-                <Link
-                  to="/login"
-                  className="text-sm text-yellow-600 hover:text-yellow-700 font-medium"
-                >
-                  Sign In
-                </Link>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
+      <ReduxHeader />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        {/* Advanced Search Bar */}
-        <AdvancedSearchBar
-          onSearch={(filters) => {
-            console.log("Search filters:", filters);
-            // Handle search with filters
-            fetchContractors(1);
-          }}
-          initialFilters={{
-            query: searchQuery,
-            location: zip,
-            service: serviceRaw,
-          }}
-        />
-
+        <div>
+          <h1 className="text-2xl sm:text-2xl lg:text-2xl font-bold text-black leading-tight text-center">
+            General Contractors Near New York
+          </h1>
+          <p className="text-center sm:text-lg text-gray-700 mb-5">
+            Don’t know how to begin? See our Hiring Guide for more information
+          </p>
+        </div>
+        <div className=" border-t border-gray-400" />
+        <ContractorHeroSection />
+        <div className=" border-t border-gray-400" />
+        <ProjectTypeSelector />
+        <div className="my-1 border-t border-gray-200" />
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           {/* Sidebar */}
-          <div className="lg:col-span-1">
-            <div className="bg-white rounded-lg shadow-sm border p-6 sticky top-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                Our Services
-              </h3>
+          <div className="rounded-lg  p-6 sticky top-6 w-full max-w-xs">
+            {/* Location Section */}
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              Location (1)
+            </h3>
+            <div className="space-y-4 mb-6">
+              <select
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                className="w-full h-10 rounded-md border border-gray-300 bg-white px-4 text-sm focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
+              >
+                <option>New York, NY</option>
+                <option>California, CA</option>
+                <option>New Jersey, NJ</option>
+              </select>
 
-              {/* Filters */}
-              <div className="space-y-4 mb-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Sort by
-                  </label>
-                  <select
-                    value={sortBy}
-                    onChange={(e) => setSortBy(e.target.value as any)}
-                    className="w-full h-10 rounded-md border border-gray-300 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
-                  >
-                    <option value="best">Best Match</option>
-                    <option value="rating">Highest Rating</option>
-                    <option value="name">Name A-Z</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Minimum Rating
-                  </label>
-                  <select
-                    value={rating}
-                    onChange={(e) => setRating(e.target.value)}
-                    className="w-full h-10 rounded-md border border-gray-300 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
-                  >
-                    <option value="">Any Rating</option>
-                    <option value="4.5">4.5+ Stars</option>
-                    <option value="4.0">4.0+ Stars</option>
-                    <option value="3.5">3.5+ Stars</option>
-                  </select>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <input
-                    id="onlyMyZip"
-                    type="checkbox"
-                    className="rounded border-gray-300 text-yellow-600 focus:ring-yellow-500"
-                    checked={onlyMyZip}
-                    onChange={(e) => setOnlyMyZip(e.target.checked)}
-                  />
-                  <label htmlFor="onlyMyZip" className="text-sm text-gray-700">
-                    Limit to my ZIP
-                  </label>
-                </div>
-              </div>
-
-              {/* Services List */}
-              <div className="space-y-2">
-                {(servicesMeta.length ? servicesMeta : fallbackServices).map(
-                  (service: any, index: number) => {
-                    const label = service.name || service.label;
-                    const count =
-                      service.contractor_count ?? service.count ?? 0;
-                    const IconComponent =
-                      service.icon || serviceIconMap[label] || Wrench;
-                    return (
-                      <Link
-                        key={index}
-                        to={`/contractors?service=${encodeURIComponent(label)}`}
-                        className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors group"
-                      >
-                        <div className="flex items-center space-x-3">
-                          <div className="p-2 bg-yellow-100 rounded-lg group-hover:bg-yellow-200 transition-colors">
-                            <IconComponent className="w-4 h-4 text-yellow-600" />
-                          </div>
-                          <span className="text-sm font-medium text-gray-700 group-hover:text-gray-900">
-                            {label}
-                          </span>
-                        </div>
-                        <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
-                          {count}
-                        </span>
-                      </Link>
-                    );
-                  }
-                )}
-              </div>
+              <select
+                value={radius}
+                onChange={(e) => setRadius(e.target.value)}
+                className="w-full h-10 rounded-md border border-gray-300 bg-white px-4 text-sm focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
+              >
+                <option>50 mi</option>
+                <option>100 mi</option>
+                <option>120 mi</option>
+              </select>
             </div>
+
+            <AccordionSection title="Suggested Filters">
+              {["Verified License", "Responds Quickly", "Hired on Houzz"].map(
+                (item, i) => (
+                  <label
+                    key={i}
+                    className="flex items-center gap-2 text-sm text-gray-700"
+                  >
+                    <input
+                      type="checkbox"
+                      className="accent-yellow-500"
+                      checked={selectedFilters.includes(item)}
+                      onChange={() => toggleFilter(item)}
+                    />
+                    {item}
+                  </label>
+                )
+              )}
+            </AccordionSection>
+
+            {/* Professional Category */}
+            <AccordionSection title="Professional Category (1)">
+              <input
+                type="text"
+                placeholder="Search Professional Category"
+                className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-yellow-500 mb-2"
+              />
+              {[
+                "Architects & Building Designers",
+                "Design-Build Firms",
+                "General Contractors",
+                "Home Builders",
+                "Interior Designers & Decorators",
+              ].map((item, i) => (
+                <label
+                  key={i}
+                  className="flex items-center gap-2 text-sm text-gray-700"
+                >
+                  <input
+                    type="radio"
+                    name="category"
+                    defaultChecked={item === "General Contractors"}
+                    className="accent-yellow-500"
+                    checked={selectedFilters.includes(item)}
+                    onChange={() => toggleFilter(item)}
+                  />
+                  {item}
+                </label>
+              ))}
+            </AccordionSection>
+
+            {/* Project Type */}
+            <AccordionSection title="Project Type">
+              <p className="text-gray-500 text-sm">Select project type...</p>
+            </AccordionSection>
+
+            {/* Budget */}
+            <AccordionSection title="Budget">
+              {[
+                "$$$$ - I want the best results",
+                "$$$ - Mid-to-high price",
+                "$$ - Low-to-mid price",
+                "$ - I want to minimize costs",
+              ].map((item, i) => (
+                <label
+                  key={i}
+                  className="flex items-center gap-2 text-sm text-gray-700"
+                >
+                  <input
+                    type="checkbox"
+                    className="accent-yellow-500"
+                    checked={selectedFilters.includes(item)}
+                    onChange={() => toggleFilter(item)}
+                  />
+                  {item}
+                </label>
+              ))}
+            </AccordionSection>
+
+            {/* Business Highlights */}
+            <AccordionSection title="Business Highlights">
+              {[
+                "Hired on Houzz",
+                "Responds Quickly",
+                "Provides 3D Visualization",
+                "Eco-friendly",
+                "Family owned",
+                "Locally owned",
+                "Offers Custom Work",
+              ].map((item, i) => (
+                <label
+                  key={i}
+                  className="flex items-center gap-2 text-sm text-gray-700"
+                >
+                  <input
+                    type="checkbox"
+                    className="accent-yellow-500"
+                    checked={selectedFilters.includes(item)}
+                    onChange={() => toggleFilter(item)}
+                  />
+                  {item}
+                </label>
+              ))}
+            </AccordionSection>
+
+            {/* Languages */}
+            <AccordionSection title="Languages (1)">
+              {[
+                "All Languages",
+                "Speaks Spanish",
+                "Speaks Russian",
+                "Speaks Italian",
+              ].map((item, i) => (
+                <label
+                  key={i}
+                  className="flex items-center gap-2 text-sm text-gray-700"
+                >
+                  <input
+                    type="radio"
+                    name="language"
+                    defaultChecked={item === "All Languages"}
+                    className="accent-yellow-500"
+                    checked={selectedFilters.includes(item)}
+                    onChange={() => toggleFilter(item)}
+                  />
+                  {item}
+                </label>
+              ))}
+            </AccordionSection>
+
+            {/* Rating */}
+            <AccordionSection title="Rating (1)">
+              {[
+                "Any Rating",
+                "5 stars only",
+                "4 stars & up",
+                "3 stars & up",
+              ].map((item, i) => (
+                <label
+                  key={i}
+                  className="flex items-center gap-2 text-sm text-gray-700"
+                >
+                  <input
+                    type="radio"
+                    name="rating"
+                    className="accent-yellow-500"
+                    checked={selectedFilters.includes(item)}
+                    onChange={() => {
+                      // Remove all rating filters first, then add the new one
+                      setSelectedFilters((prev) => [
+                        ...prev.filter((f) => !f.includes("stars")),
+                        item,
+                      ]);
+                    }}
+                  />
+                  {item}
+                </label>
+              ))}
+            </AccordionSection>
           </div>
 
           {/* Main Content */}
@@ -492,22 +580,6 @@ const Contractors = () => {
               </div>
             </div> */}
 
-            {/* No Results */}
-            {!zip && (
-              <div className="bg-white rounded-lg shadow-sm border p-8 text-center">
-                <div className="text-gray-500 mb-4">
-                  <Search className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">
-                    Enter a zip code to find contractors
-                  </h3>
-                  <p className="text-gray-600">
-                    Please go back and enter your zip code to see available
-                    contractors in your area.
-                  </p>
-                </div>
-              </div>
-            )}
-
             {loading && (
               <div className="bg-white rounded-lg shadow-sm border p-8 text-center">
                 <div className="text-gray-500 mb-4">
@@ -548,6 +620,36 @@ const Contractors = () => {
               </div>
             )}
 
+            <div className="flex justify-between items-center w-full py-2 font-sans">
+              {/* Left: Active Filters */}
+              <div className="flex flex-wrap items-center gap-2">
+                {selectedFilters.map((filter) => (
+                  <div
+                    key={filter}
+                    className="flex items-center bg-[#e7e4da] text-gray-800 rounded-full px-3 py-1 text-sm"
+                  >
+                    {filter}
+                    <button
+                      className="ml-2 text-gray-600 hover:text-black"
+                      onClick={() => handleRemoveFilter(filter)}
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+
+              {/* Right: Search box */}
+              <div className="flex items-center">
+                <input
+                  type="text"
+                  placeholder="Search by Keyword"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="border border-gray-300 rounded px-3 py-1 text-sm w-52 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-400"
+                />
+              </div>
+            </div>
             {companies?.map((c) => (
               <CompanyCard
                 key={c?.id}
