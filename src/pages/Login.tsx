@@ -4,14 +4,15 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Eye, EyeOff, Mail, Lock, ArrowLeft } from 'lucide-react';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { loginUser, clearError } from '@/store/slices/authSlice';
+import { useAppDispatch } from '@/store/hooks';
+import { clearError, setUser } from '@/store/slices/authSlice';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
+import { authService } from '@/services/authService';
 
 const loginSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
@@ -23,8 +24,8 @@ type LoginFormData = z.infer<typeof loginSchema>;
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const dispatch = useAppDispatch();
-  const { isLoading, error: authError } = useAppSelector((state) => state.auth);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -38,20 +39,38 @@ const Login = () => {
 
   const onSubmit = async (data: LoginFormData) => {
     setError('');
+    setIsLoading(true);
     dispatch(clearError());
     
     try {
-      const result = await dispatch(loginUser({ email: data.email, password: data.password })).unwrap();
+      // Call backend API
+      const response = await authService.login({
+        email: data.email,
+        password: data.password,
+      });
+
+      // Update Redux store with user data
+      if (response.data?.user) {
+        dispatch(setUser({
+          id: response.data.user.id.toString(),
+          name: response.data.user.name,
+          email: response.data.user.email,
+          role: response.data.user.role,
+        }));
+      }
       
       toast({
-        title: "Success!",
-        description: "You have been successfully logged in.",
+        title: "Login Successful!",
+        description: `Welcome back, ${response.data?.user?.name || 'User'}!`,
       });
       
-      // Always redirect to homepage after login
-      navigate('/');
-    } catch (err) {
-      setError(err as string || 'An unexpected error occurred. Please try again.');
+      // Redirect to dashboard or homepage
+      navigate('/dashboard');
+    } catch (err: any) {
+      const errorMessage = err.response?.data?.message || err.message || 'Login failed. Please check your credentials.';
+      setError(errorMessage);
+    } finally {
+      setIsLoading(false);
     }
   };
 

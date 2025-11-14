@@ -33,22 +33,27 @@ interface AuthState {
   refreshTokenExpiry: number | null;
 }
 
-// Initial state
-const initialState: AuthState = {
-  user: null,
-  isAuthenticated: false,
-  isLoading: false,
-  error: null,
-  token: localStorage.getItem('token'),
-  // Enhanced async states
-  loginState: { pending: false, fulfilled: false, rejected: false, error: null },
-  registerState: { pending: false, fulfilled: false, rejected: false, error: null },
-  logoutState: { pending: false, fulfilled: false, rejected: false, error: null },
-  deleteAccountState: { pending: false, fulfilled: false, rejected: false, error: null },
-  // Session management
-  sessionExpiry: null,
-  refreshTokenExpiry: null,
+// Initial state - check for accessToken in localStorage
+const getInitialAuthState = (): AuthState => {
+  const accessToken = localStorage.getItem('accessToken');
+  return {
+    user: null,
+    isAuthenticated: !!accessToken,
+    isLoading: false,
+    error: null,
+    token: accessToken,
+    // Enhanced async states
+    loginState: { pending: false, fulfilled: false, rejected: false, error: null },
+    registerState: { pending: false, fulfilled: false, rejected: false, error: null },
+    logoutState: { pending: false, fulfilled: false, rejected: false, error: null },
+    deleteAccountState: { pending: false, fulfilled: false, rejected: false, error: null },
+    // Session management
+    sessionExpiry: null,
+    refreshTokenExpiry: null,
+  };
 };
+
+const initialState: AuthState = getInitialAuthState();
 
 // Async thunks
 export const loginUser = createAsyncThunk(
@@ -151,11 +156,16 @@ export const logoutUser = createAsyncThunk(
   'auth/logoutUser',
   async (_, { rejectWithValue }) => {
     try {
-      localStorage.removeItem('token');
-      localStorage.removeItem('userData');
+      // Import authService dynamically to avoid circular dependencies
+      const { authService } = await import('@/services/authService');
+      await authService.logout();
       return null;
     } catch (error) {
-      return rejectWithValue('Logout failed');
+      // Even if API call fails, clear local state
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
+      localStorage.removeItem('userData');
+      return null;
     }
   }
 );
@@ -199,6 +209,11 @@ const authSlice = createSlice({
     setUser: (state, action: PayloadAction<User>) => {
       state.user = action.payload;
       state.isAuthenticated = true;
+      // Sync token from localStorage
+      const accessToken = localStorage.getItem('accessToken');
+      if (accessToken) {
+        state.token = accessToken;
+      }
     },
     clearUser: (state) => {
       state.user = null;
@@ -206,6 +221,9 @@ const authSlice = createSlice({
       state.token = null;
       state.sessionExpiry = null;
       state.refreshTokenExpiry = null;
+      // Clear tokens from localStorage
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
     },
     updateUserPreferences: (state, action: PayloadAction<Partial<User['preferences']>>) => {
       if (state.user?.preferences) {
@@ -218,7 +236,7 @@ const authSlice = createSlice({
     refreshSession: (state, action: PayloadAction<{ token: string; sessionExpiry: number }>) => {
       state.token = action.payload.token;
       state.sessionExpiry = action.payload.sessionExpiry;
-      localStorage.setItem('token', action.payload.token);
+      localStorage.setItem('accessToken', action.payload.token);
       localStorage.setItem('sessionExpiry', action.payload.sessionExpiry.toString());
     },
   },
@@ -274,11 +292,24 @@ const authSlice = createSlice({
 
     // Logout
     builder
+      .addCase(logoutUser.pending, (state) => {
+        state.isLoading = true;
+      })
       .addCase(logoutUser.fulfilled, (state) => {
         state.user = null;
         state.token = null;
         state.isAuthenticated = false;
         state.error = null;
+        state.sessionExpiry = null;
+        state.refreshTokenExpiry = null;
+        state.isLoading = false;
+      })
+      .addCase(logoutUser.rejected, (state) => {
+        // Even if logout fails, clear the state
+        state.user = null;
+        state.token = null;
+        state.isAuthenticated = false;
+        state.isLoading = false;
       });
 
     // Delete Account

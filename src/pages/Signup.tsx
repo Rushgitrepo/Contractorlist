@@ -16,8 +16,8 @@ import {
   Users,
   Briefcase,
 } from "lucide-react";
-import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { registerUser, clearError } from "@/store/slices/authSlice";
+import { useAppDispatch } from "@/store/hooks";
+import { clearError } from "@/store/slices/authSlice";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -30,6 +30,7 @@ import {
 } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
+import { authService } from "@/services/authService";
 
 const signupSchema = z
   .object({
@@ -75,11 +76,11 @@ const Signup = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const [selectedRole, setSelectedRole] = useState<
     "client" | "contractor" | ""
   >("");
   const dispatch = useAppDispatch();
-  const { isLoading, error: authError } = useAppSelector((state) => state.auth);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -93,29 +94,38 @@ const Signup = () => {
 
   const onSubmit = async (data: SignupFormData) => {
     setError("");
+    setIsLoading(true);
     dispatch(clearError());
 
     try {
-      await dispatch(
-        registerUser({
-          name: data.name,
-          email: data.email,
-          password: data.password,
-          role: data.role,
-        })
-      ).unwrap();
+      // Call backend API
+      const response = await authService.register({
+        name: data.name,
+        email: data.email,
+        password: data.password,
+        role: data.role,
+        phone: data.phone,
+        company: data.company,
+        licenseNumber: data.licenseNumber,
+        businessAddress: data.businessAddress,
+        yearsExperience: data.yearsExperience,
+        specialties: data.specialties,
+        projectType: data.projectType,
+        budget: data.budget,
+      });
 
       toast({
         title: "Account Created Successfully!",
-        description: "Please login with your credentials to continue.",
+        description: "Please check your email to verify your account.",
       });
 
-      // Always redirect to login after signup
-      navigate("/login");
-    } catch (err) {
-      setError(
-        (err as string) || "An unexpected error occurred. Please try again."
-      );
+      // Redirect to verification notice page with email
+      navigate("/verify-email-notice", { state: { email: data.email } });
+    } catch (err: any) {
+      const errorMessage = err.response?.data?.message || err.message || "Registration failed. Please try again.";
+      setError(errorMessage);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -506,7 +516,7 @@ const Signup = () => {
                 className="w-full bg-yellow-500 hover:bg-yellow-600 text-black font-semibold py-2 px-4 rounded-lg transition-colors disabled:opacity-50"
               >
                 {isLoading ? (
-                  <div className="flex items-center">
+                  <div className="flex items-center justify-center">
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-black mr-2"></div>
                     Creating account...
                   </div>

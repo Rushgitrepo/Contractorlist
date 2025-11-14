@@ -39,7 +39,8 @@ const ContractorDetails = () => {
       setLoading(true);
       setError(null);
       try {
-        const res = await fetch(`http://localhost:5000/api/contractors/${id}`);
+        const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+        const res = await fetch(`${API_URL}/contractors/${id}`);
         const json: ContractorDetailsResponse = await res.json();
         if (!json.success) {
           throw new Error(json.message || "Failed to load contractor");
