@@ -48,15 +48,22 @@ const ReduxHeader = () => {
     (state) => state.ui
   );
 
-  const handleLogout = () => {
-    dispatch(logoutUser());
-    dispatch(
-      addNotification({
-        type: "success",
-        title: "Logged Out",
-        message: "You have been successfully logged out.",
-      })
-    );
+  const handleLogout = async () => {
+    try {
+      await dispatch(logoutUser()).unwrap();
+      dispatch(
+        addNotification({
+          type: "success",
+          title: "Logged Out",
+          message: "You have been successfully logged out.",
+        })
+      );
+      // Navigate to login page
+      window.location.href = '/login';
+    } catch (error) {
+      // Even if logout fails, redirect to login
+      window.location.href = '/login';
+    }
   };
 
   const handleDropdownToggle = (dropdownName: string) => {

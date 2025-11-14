@@ -40,12 +40,18 @@ import {
   CheckCircle,
   ChevronUp,
   ChevronDown,
+  DollarSign,
+  Languages,
+  Sparkles,
+  Briefcase,
+  Verified,
 } from "lucide-react";
 import CompanyCard from "@/components/CompanyCard";
 import ProjectTypeSelector from "@/components/ProjectTypeSelector";
 import HeroSection from "@/components/HeroSection";
 import ContractorHeroSection from "@/components/ContractorHeroSection";
 import ReduxHeader from "@/components/ReduxHeader";
+import companyService, { CompanySearchFilters } from "@/services/companyService";
 
 const Contractors = () => {
   const [params] = useSearchParams();
@@ -83,8 +89,27 @@ const Contractors = () => {
   ]);
   const [search, setSearch] = useState("");
 
-  // Add at the top (near your other state variables)
+  // Company API state
+  const [companies, setCompanies] = useState<any[]>([]);
+  const [companiesLoading, setCompaniesLoading] = useState(false);
+  const [companiesError, setCompaniesError] = useState<string | null>(null);
+  const [companiesCurrentPage, setCompaniesCurrentPage] = useState(1);
+  const companiesPerPage = 5;
+
+  // Filter state
   const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
+  const [verifiedLicense, setVerifiedLicense] = useState(false);
+  const [respondsQuickly, setRespondsQuickly] = useState(false);
+  const [hiredOnPlatform, setHiredOnPlatform] = useState(false);
+  const [professionalCategory, setProfessionalCategory] = useState<string>("");
+  const [budget, setBudget] = useState<string>("");
+  const [provides3d, setProvides3d] = useState(false);
+  const [ecoFriendly, setEcoFriendly] = useState(false);
+  const [familyOwned, setFamilyOwned] = useState(false);
+  const [locallyOwned, setLocallyOwned] = useState(false);
+  const [offersCustomWork, setOffersCustomWork] = useState(false);
+  const [selectedLanguage, setSelectedLanguage] = useState<string>("");
+  const [selectedRating, setSelectedRating] = useState<string>("");
 
   // Helper to toggle filters
   const toggleFilter = (filter: string) => {
@@ -93,12 +118,99 @@ const Contractors = () => {
         ? prev.filter((f) => f !== filter)
         : [...prev, filter]
     );
+
+    // Update actual filter state based on filter name
+    if (filter === "Verified License") {
+      setVerifiedLicense(!verifiedLicense);
+    } else if (filter === "Responds Quickly") {
+      setRespondsQuickly(!respondsQuickly);
+    } else if (filter === "Hired on Houzz" || filter === "Hired on Platform") {
+      setHiredOnPlatform(!hiredOnPlatform);
+    } else if (filter === "Provides 3D Visualization") {
+      setProvides3d(!provides3d);
+    } else if (filter === "Eco-friendly") {
+      setEcoFriendly(!ecoFriendly);
+    } else if (filter === "Family owned") {
+      setFamilyOwned(!familyOwned);
+    } else if (filter === "Locally owned") {
+      setLocallyOwned(!locallyOwned);
+    } else if (filter === "Offers Custom Work") {
+      setOffersCustomWork(!offersCustomWork);
+    } else if (filter.includes("$$$$") || filter.includes("$$$") || filter.includes("$$") || filter === "$ - I want to minimize costs") {
+      setBudget(filter);
+    } else if (filter.includes("Architects") || filter.includes("Design-Build") || filter.includes("General Contractors") || filter.includes("Home Builders") || filter.includes("Interior Designers")) {
+      setProfessionalCategory(filter);
+    } else if (filter.includes("Spanish") || filter.includes("Russian") || filter.includes("Italian") || filter === "All Languages") {
+      setSelectedLanguage(filter);
+    } else if (filter.includes("stars")) {
+      setSelectedRating(filter);
+    }
   };
 
   // Remove filter when "×" clicked
   const handleRemoveFilter = (filter: string) => {
     setSelectedFilters((prev) => prev.filter((f) => f !== filter));
+    
+    // Clear actual filter state
+    if (filter === "Verified License") {
+      setVerifiedLicense(false);
+    } else if (filter === "Responds Quickly") {
+      setRespondsQuickly(false);
+    } else if (filter === "Hired on Houzz" || filter === "Hired on Platform") {
+      setHiredOnPlatform(false);
+    } else if (filter === "Provides 3D Visualization") {
+      setProvides3d(false);
+    } else if (filter === "Eco-friendly") {
+      setEcoFriendly(false);
+    } else if (filter === "Family owned") {
+      setFamilyOwned(false);
+    } else if (filter === "Locally owned") {
+      setLocallyOwned(false);
+    } else if (filter === "Offers Custom Work") {
+      setOffersCustomWork(false);
+    } else if (filter.includes("$$$$") || filter.includes("$$$") || filter.includes("$$") || filter === "$ - I want to minimize costs") {
+      setBudget("");
+    } else if (filter.includes("Architects") || filter.includes("Design-Build") || filter.includes("General Contractors") || filter.includes("Home Builders") || filter.includes("Interior Designers")) {
+      setProfessionalCategory("");
+    } else if (filter.includes("Spanish") || filter.includes("Russian") || filter.includes("Italian") || filter === "All Languages") {
+      setSelectedLanguage("");
+    } else if (filter.includes("stars")) {
+      setSelectedRating("");
+    }
   };
+
+  // Clear all filters
+  const clearAllFilters = () => {
+    setSelectedFilters([]);
+    setVerifiedLicense(false);
+    setRespondsQuickly(false);
+    setHiredOnPlatform(false);
+    setProfessionalCategory("");
+    setBudget("");
+    setProvides3d(false);
+    setEcoFriendly(false);
+    setFamilyOwned(false);
+    setLocallyOwned(false);
+    setOffersCustomWork(false);
+    setSelectedLanguage("");
+    setSelectedRating("");
+  };
+
+  // Count active filters
+  const activeFiltersCount = [
+    verifiedLicense,
+    respondsQuickly,
+    hiredOnPlatform,
+    professionalCategory,
+    budget,
+    provides3d,
+    ecoFriendly,
+    familyOwned,
+    locallyOwned,
+    offersCustomWork,
+    selectedLanguage && selectedLanguage !== "All Languages",
+    selectedRating && selectedRating !== "Any Rating",
+  ].filter(Boolean).length;
 
   // Sidebar services: fetch real counts from backend with fallback icons
   const [servicesMeta, setServicesMeta] = useState<any[]>([]);
@@ -118,90 +230,8 @@ const Contractors = () => {
     "Windows & Doors": Building,
   };
 
-  const companies = [
-    {
-      id: "grandeur-hills-group",
-      name: "Grandeur Hills Group, Inc.",
-      rating: 5.0,
-      reviews: 54,
-      verifiedHires: 1,
-      tagline:
-        "Manhattan's Premium Choice For Luxury Living | 5X Best of Houzz Winner",
-      testimonial:
-        "The results were truly mind-blowing, the moment I saw the finished house. The entire Grandeur Hills Group team went above and beyond!",
-      reviewer: "Daniel",
-      location: "New York",
-      projects: 31,
-      images: ["/home1.jpeg", "/home2.jpeg", "/home3.jpeg"],
-      bannerText: "Complimentary Initial Consultations!",
-      sponsored: true,
-    },
-    {
-      id: "monks-home-improvements",
-      name: "Monk's Home Improvements",
-      rating: 4.9,
-      reviews: 24,
-      verifiedHires: 2,
-      tagline:
-        "Transforming Homes with Precision and Care | NJ’s Trusted Remodel Experts",
-      testimonial:
-        "Monk's delivered exactly what we envisioned — a modern kitchen that feels warm and functional. The craftsmanship is unmatched.",
-      reviewer: "Sarah",
-      location: "New Jersey",
-      projects: 45,
-      images: ["/home5.jpeg", "/home3.jpeg", "/home2.jpeg"],
-      bannerText: "Free In-Home Design Consultation!",
-      sponsored: true,
-    },
-    {
-      id: "skyline-interiors",
-      name: "Skyline Interiors",
-      rating: 4.8,
-      reviews: 32,
-      verifiedHires: 3,
-      tagline: "Elegant Interior Designs That Reflect Your Personality",
-      testimonial:
-        "Every corner of our new home speaks of style and comfort. Skyline’s team was extremely professional and creative!",
-      reviewer: "Michael",
-      location: "Los Angeles",
-      projects: 28,
-      images: ["/home3.jpeg", "/home2.jpeg", "/home1.jpeg"],
-      bannerText: "Book Your Free Design Consultation!",
-      sponsored: false,
-    },
-    {
-      id: "evergreen-landscaping",
-      name: "EverGreen Landscaping Co.",
-      rating: 5.0,
-      reviews: 41,
-      verifiedHires: 4,
-      tagline: "Turning Lawns Into Luxurious Green Spaces",
-      testimonial:
-        "The transformation was unbelievable — our backyard is now a peaceful paradise. Couldn’t be happier with EverGreen!",
-      reviewer: "Jessica",
-      location: "Chicago",
-      projects: 50,
-      images: ["/home5.jpeg", "/home1.jpeg", "/home4.jpeg"],
-      bannerText: "Spring Discount: 20% Off Lawn Makeovers!",
-      sponsored: true,
-    },
-    {
-      id: "brightbuild-construction",
-      name: "BrightBuild Construction",
-      rating: 4.7,
-      reviews: 20,
-      verifiedHires: 2,
-      tagline: "Sustainable Construction for Modern Living",
-      testimonial:
-        "BrightBuild used eco-friendly materials without compromising on design. Our new home feels futuristic yet warm.",
-      reviewer: "Ethan",
-      location: "San Francisco",
-      projects: 35,
-      images: ["/home3.jpeg", "/home2.jpeg", "/home1.jpeg"],
-      bannerText: "Eco-Conscious Building Solutions!",
-      sponsored: false,
-    },
-  ];
+  // Default images for companies (fallback)
+  const defaultImages = ["/home1.jpeg", "/home2.jpeg", "/home3.jpeg"];
   // fallback list if meta is unavailable
   const fallbackServices = [
     { icon: Bath, name: "Bathroom Remodel", contractor_count: 45 },
@@ -220,8 +250,9 @@ const Contractors = () => {
   useEffect(() => {
     (async () => {
       try {
+        const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
         const res = await fetch(
-          "http://localhost:5000/api/contractors/meta/services"
+          `${API_URL}/contractors/meta/services`
         );
         const json = await res.json();
         if (json?.success) {
@@ -236,6 +267,141 @@ const Contractors = () => {
       }
     })();
   }, []);
+
+  // Fetch companies from API
+  const fetchCompanies = async () => {
+    setCompaniesLoading(true);
+    setCompaniesError(null);
+
+    try {
+      const filters: CompanySearchFilters = {};
+
+      // Location filters
+      if (zip) {
+        filters.zip = zip;
+      }
+      if (location && location !== "New York, NY") {
+        const [city, state] = location.split(", ");
+        if (city) filters.city = city;
+        if (state) filters.location = state;
+      }
+
+      // Service filter
+      if (serviceRaw) {
+        filters.service = serviceRaw;
+      }
+
+      // Business feature filters
+      if (verifiedLicense) filters.verified_license = true;
+      if (respondsQuickly) filters.responds_quickly = true;
+      if (hiredOnPlatform) filters.hired_on_platform = true;
+      if (provides3d) filters.provides_3d = true;
+      if (ecoFriendly) filters.eco_friendly = true;
+      if (familyOwned) filters.family_owned = true;
+      if (locallyOwned) filters.locally_owned = true;
+      if (offersCustomWork) filters.offers_custom_work = true;
+
+      // Category filter
+      if (professionalCategory) {
+        filters.professional_category = professionalCategory;
+      }
+
+      // Budget filter
+      if (budget) {
+        const budgetMap: Record<string, "$" | "$$" | "$$$" | "$$$$"> = {
+          "$ - I want to minimize costs": "$",
+          "$$ - Low-to-mid price": "$$",
+          "$$$ - Mid-to-high price": "$$$",
+          "$$$$ - I want the best results": "$$$$",
+        };
+        if (budgetMap[budget]) {
+          filters.budget = budgetMap[budget];
+        }
+      }
+
+      // Language filter
+      if (selectedLanguage && selectedLanguage !== "All Languages") {
+        const languageMap: Record<string, string> = {
+          "Speaks Spanish": "Spanish",
+          "Speaks Russian": "Russian",
+          "Speaks Italian": "Italian",
+        };
+        if (languageMap[selectedLanguage]) {
+          filters.language = languageMap[selectedLanguage];
+        }
+      }
+
+      // Rating filter
+      if (selectedRating && selectedRating !== "Any Rating") {
+        if (selectedRating === "5 stars only") {
+          filters.rating = 5;
+        } else if (selectedRating === "4 stars & up") {
+          filters.rating = 4;
+        } else if (selectedRating === "3 stars & up") {
+          filters.rating = 3;
+        }
+      }
+
+      const response = await companyService.searchCompanies(filters);
+      
+      if (response.success) {
+        // Map API response to CompanyCard format
+        const mappedCompanies = response.data.map((item: any) => {
+          const company = item.company || item;
+          const details = company.details || {};
+          
+          return {
+            id: company.id || company.name?.toLowerCase().replace(/\s+/g, "-"),
+            name: company.name || "Unknown Company",
+            rating: company.rating || 0,
+            reviewsCount: company.reviews_count || company.reviews || company.reviewCount || 0,
+            verifiedHires: company.verified_hires || company.verifiedHires || 0,
+            tagline: company.tagline || "",
+            featuredReview: company.featured_review ? {
+              reviewer: company.featured_review.reviewer,
+              reviewText: company.featured_review.review_text || company.featured_review.reviewText,
+            } : undefined,
+            address: details.address || company.address || company.location || "",
+            verifiedBusiness: details.verified_business || company.verified_business || false,
+            description: details.description || company.description || "",
+            yearsInBusiness: details.years_in_business || company.years_in_business || company.yearsInBusiness || null,
+            licenseNumber: details.license_number || company.license_number || company.licenseNumber || "",
+            certifications: details.certifications || company.certifications || [],
+            awards: details.awards || company.awards || [],
+            servicesOffered: details.services_offered || company.services_offered || company.services || [],
+            specialties: details.specialties || company.specialties || [],
+            serviceAreas: details.service_areas || company.service_areas || [],
+            respondsQuickly: details.responds_quickly || company.responds_quickly || false,
+            hiredOnPlatform: details.hired_on_platform || company.hired_on_platform || false,
+            provides3d: details.provides_3d_visualization || company.provides_3d_visualization || company.provides_3d || false,
+            ecoFriendly: details.eco_friendly || company.eco_friendly || false,
+            familyOwned: details.family_owned || company.family_owned || false,
+            locallyOwned: details.locally_owned || company.locally_owned || false,
+            offersCustomWork: details.offers_custom_work || company.offers_custom_work || false,
+            languages: details.languages || company.languages || (company.language ? [company.language] : []),
+            budgetRange: details.budget_range || company.budget_range || company.budget || "",
+            professionalCategory: details.professional_category || company.professional_category || company.category || "",
+            images: company.images && company.images.length > 0 
+              ? company.images 
+              : defaultImages,
+            bannerText: company.bannerText || company.banner_text || "",
+            sponsored: company.sponsored || false,
+            email: company.email || company.contact?.email || details.email || "",
+            phone: company.phone || company.contact?.phone || details.phone || "",
+            website: company.website || company.contact?.website || details.website || "",
+          };
+        });
+        setCompanies(mappedCompanies);
+      } else {
+        throw new Error(response.message || "Failed to fetch companies");
+      }
+    } catch (e: any) {
+      setCompaniesError(e.message || "Failed to load companies");
+      setCompanies([]);
+    } finally {
+      setCompaniesLoading(false);
+    }
+  };
 
   // Fetch contractors from backend
   const fetchContractors = async (pageNum = 1) => {
@@ -264,8 +430,9 @@ const Contractors = () => {
         searchParams.append("service", serviceRaw);
       }
 
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
       const res = await fetch(
-        `http://localhost:5000/api/contractors?${searchParams.toString()}`
+        `${API_URL}/contractors?${searchParams.toString()}`
       );
       const json = await res.json();
 
@@ -285,13 +452,46 @@ const Contractors = () => {
     }
   };
 
-  // Run on mount and when URL params change
+  // Run on mount and when URL params or filters change
+  useEffect(() => {
+    fetchCompanies();
+    setCompaniesCurrentPage(1); // Reset to first page when filters change
+  }, [
+    zip,
+    serviceRaw,
+    location,
+    verifiedLicense,
+    respondsQuickly,
+    hiredOnPlatform,
+    professionalCategory,
+    budget,
+    provides3d,
+    ecoFriendly,
+    familyOwned,
+    locallyOwned,
+    offersCustomWork,
+    selectedLanguage,
+    selectedRating,
+  ]);
+
   useEffect(() => {
     fetchContractors(1);
   }, [zip, serviceRaw, onlyMyZip]);
 
   // Use API results instead of filtered data
   const visibleContractors = results;
+
+  // Calculate pagination for companies
+  const totalCompaniesPages = Math.ceil(companies.length / companiesPerPage);
+  const startIndex = (companiesCurrentPage - 1) * companiesPerPage;
+  const endIndex = startIndex + companiesPerPage;
+  const paginatedCompanies = companies.slice(startIndex, endIndex);
+
+  // Pagination handlers for companies
+  const goToCompaniesPage = (page: number) => {
+    setCompaniesCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   const handleContractorClick = (contractorId: string) => {
     navigate(`/contractors/${contractorId}`);
@@ -311,22 +511,25 @@ const Contractors = () => {
   const goPrev = () => fetchContractors(page - 1);
   const goNext = () => fetchContractors(page + 1);
 
-  const AccordionSection = ({ title, children }: any) => {
+  const AccordionSection = ({ title, children, icon: Icon }: any) => {
     const [open, setOpen] = useState(true);
     return (
-      <div className="border-b border-gray-200 pb-4 mb-4">
+      <div className="border-b border-gray-200 pb-3 mb-3 last:border-b-0">
         <button
           onClick={() => setOpen(!open)}
-          className="flex items-center justify-between w-full text-sm font-semibold text-gray-800 mb-2"
+          className="flex items-center justify-between w-full text-sm font-bold text-gray-900 mb-2 hover:text-yellow-600 transition-colors"
         >
-          {title}
+          <div className="flex items-center gap-2">
+            {Icon && <Icon className="w-4 h-4 text-yellow-600" />}
+            <span>{title}</span>
+          </div>
           {open ? (
-            <ChevronUp className="w-4 h-4 text-gray-600" />
+            <ChevronUp className="w-4 h-4 text-gray-500" />
           ) : (
-            <ChevronDown className="w-4 h-4 text-gray-600" />
+            <ChevronDown className="w-4 h-4 text-gray-500" />
           )}
         </button>
-        {open && <div className="space-y-2">{children}</div>}
+        {open && <div className="space-y-1.5">{children}</div>}
       </div>
     );
   };
@@ -351,190 +554,345 @@ const Contractors = () => {
         <div className="my-1 border-t border-gray-200" />
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           {/* Sidebar */}
-          <div className="rounded-lg  p-6 sticky top-6 w-full max-w-xs">
-            {/* Location Section */}
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              Location (1)
-            </h3>
-            <div className="space-y-4 mb-6">
-              <select
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
-                className="w-full h-10 rounded-md border border-gray-300 bg-white px-4 text-sm focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
-              >
-                <option>New York, NY</option>
-                <option>California, CA</option>
-                <option>New Jersey, NJ</option>
-              </select>
+          <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6 sticky top-6 w-full max-w-4xl h-fit max-h-[calc(100vh-100px)] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+            {/* Header with Clear All */}
+            {activeFiltersCount > 0 && (
+              <div className="mb-4 pb-4 border-b border-gray-200">
+                <button
+                  onClick={clearAllFilters}
+                  className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium rounded-lg transition-colors"
+                >
+                  <X className="w-4 h-4" />
+                  Clear All Filters ({activeFiltersCount})
+                </button>
+              </div>
+            )}
 
-              <select
-                value={radius}
-                onChange={(e) => setRadius(e.target.value)}
-                className="w-full h-10 rounded-md border border-gray-300 bg-white px-4 text-sm focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
-              >
-                <option>50 mi</option>
-                <option>100 mi</option>
-                <option>120 mi</option>
-              </select>
+            {/* Location Section */}
+            <div className="mb-4 pb-3 border-b border-gray-200">
+              <div className="flex items-center gap-2 mb-3">
+                <MapPin className="w-4 h-4 text-yellow-600" />
+                <h3 className="text-sm font-bold text-gray-900">
+                  Location
+                </h3>
+              </div>
+              <div className="space-y-2">
+                <div className="relative">
+                  <select
+                    value={location}
+                    onChange={(e) => {
+                      setLocation(e.target.value);
+                    }}
+                    className="w-full h-9 rounded-lg border border-gray-300 bg-white px-3 pr-8 text-sm text-gray-700 focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition-all hover:border-gray-400 appearance-none cursor-pointer"
+                  >
+                    <option>New York, NY</option>
+                    <option>California, CA</option>
+                    <option>New Jersey, NJ</option>
+                  </select>
+                  <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                </div>
+
+                <div className="relative">
+                  <select
+                    value={radius}
+                    onChange={(e) => setRadius(e.target.value)}
+                    className="w-full h-9 rounded-lg border border-gray-300 bg-white px-3 pr-8 text-sm text-gray-700 focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition-all hover:border-gray-400 appearance-none cursor-pointer"
+                  >
+                    <option>50 mi</option>
+                    <option>100 mi</option>
+                    <option>120 mi</option>
+                  </select>
+                  <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                </div>
+              </div>
             </div>
 
-            <AccordionSection title="Suggested Filters">
-              {["Verified License", "Responds Quickly", "Hired on Houzz"].map(
-                (item, i) => (
-                  <label
-                    key={i}
-                    className="flex items-center gap-2 text-sm text-gray-700"
-                  >
-                    <input
-                      type="checkbox"
-                      className="accent-yellow-500"
-                      checked={selectedFilters.includes(item)}
-                      onChange={() => toggleFilter(item)}
-                    />
-                    {item}
-                  </label>
-                )
-              )}
+            <AccordionSection title="Suggested Filters" icon={Filter}>
+              <label className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer group">
+                <div className="relative flex items-center justify-center">
+                  <input
+                    type="checkbox"
+                    className="w-5 h-5 rounded border-2 border-gray-300 text-yellow-600 focus:ring-2 focus:ring-yellow-500 focus:ring-offset-0 cursor-pointer transition-all checked:bg-yellow-500 checked:border-yellow-500"
+                    checked={verifiedLicense}
+                    onChange={(e) => {
+                      setVerifiedLicense(e.target.checked);
+                      toggleFilter("Verified License");
+                    }}
+                  />
+                </div>
+                <div className="flex items-center gap-2 flex-1">
+                  <Shield className="w-4 h-4 text-gray-500 group-hover:text-yellow-600 transition-colors" />
+                  <span className="text-sm font-medium text-gray-700 group-hover:text-gray-900">Verified License</span>
+                </div>
+              </label>
+              <label className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer group">
+                <div className="relative flex items-center justify-center">
+                  <input
+                    type="checkbox"
+                    className="w-5 h-5 rounded border-2 border-gray-300 text-yellow-600 focus:ring-2 focus:ring-yellow-500 focus:ring-offset-0 cursor-pointer transition-all checked:bg-yellow-500 checked:border-yellow-500"
+                    checked={respondsQuickly}
+                    onChange={(e) => {
+                      setRespondsQuickly(e.target.checked);
+                      toggleFilter("Responds Quickly");
+                    }}
+                  />
+                </div>
+                <div className="flex items-center gap-2 flex-1">
+                  <Clock className="w-4 h-4 text-gray-500 group-hover:text-yellow-600 transition-colors" />
+                  <span className="text-sm font-medium text-gray-700 group-hover:text-gray-900">Responds Quickly</span>
+                </div>
+              </label>
+              <label className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer group">
+                <div className="relative flex items-center justify-center">
+                  <input
+                    type="checkbox"
+                    className="w-5 h-5 rounded border-2 border-gray-300 text-yellow-600 focus:ring-2 focus:ring-yellow-500 focus:ring-offset-0 cursor-pointer transition-all checked:bg-yellow-500 checked:border-yellow-500"
+                    checked={hiredOnPlatform}
+                    onChange={(e) => {
+                      setHiredOnPlatform(e.target.checked);
+                      toggleFilter("Hired on Houzz");
+                    }}
+                  />
+                </div>
+                <div className="flex items-center gap-2 flex-1">
+                  <Verified className="w-4 h-4 text-gray-500 group-hover:text-yellow-600 transition-colors" />
+                  <span className="text-sm font-medium text-gray-700 group-hover:text-gray-900">Hired on Houzz</span>
+                </div>
+              </label>
             </AccordionSection>
 
             {/* Professional Category */}
-            <AccordionSection title="Professional Category (1)">
-              <input
-                type="text"
-                placeholder="Search Professional Category"
-                className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-yellow-500 mb-2"
-              />
-              {[
-                "Architects & Building Designers",
-                "Design-Build Firms",
-                "General Contractors",
-                "Home Builders",
-                "Interior Designers & Decorators",
-              ].map((item, i) => (
-                <label
-                  key={i}
-                  className="flex items-center gap-2 text-sm text-gray-700"
-                >
+            <AccordionSection title="Professional Category" icon={Briefcase}>
+              <div className="mb-3">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                   <input
-                    type="radio"
-                    name="category"
-                    defaultChecked={item === "General Contractors"}
-                    className="accent-yellow-500"
-                    checked={selectedFilters.includes(item)}
-                    onChange={() => toggleFilter(item)}
+                    type="text"
+                    placeholder="Search Professional Category"
+                    className="w-full border-2 border-gray-200 rounded-lg px-3 pl-10 py-2.5 text-sm focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition-all"
                   />
-                  {item}
-                </label>
-              ))}
+                </div>
+              </div>
+              <div className="space-y-1.5">
+                {[
+                  "Architects & Building Designers",
+                  "Design-Build Firms",
+                  "General Contractors",
+                  "Home Builders",
+                  "Interior Designers & Decorators",
+                ].map((item, i) => (
+                  <label
+                    key={i}
+                    className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer group"
+                  >
+                    <input
+                      type="radio"
+                      name="category"
+                      className="w-4 h-4 border-2 border-gray-300 text-yellow-600 focus:ring-2 focus:ring-yellow-500 focus:ring-offset-0 cursor-pointer flex-shrink-0"
+                      checked={professionalCategory === item}
+                      onChange={() => {
+                        setProfessionalCategory(item);
+                        toggleFilter(item);
+                      }}
+                    />
+                    <span className="text-sm font-medium text-gray-700 group-hover:text-gray-900 flex-1 whitespace-nowrap overflow-hidden text-ellipsis">{item}</span>
+                    {professionalCategory === item && (
+                      <CheckCircle className="w-4 h-4 text-yellow-600 flex-shrink-0" />
+                    )}
+                  </label>
+                ))}
+              </div>
             </AccordionSection>
 
             {/* Project Type */}
-            <AccordionSection title="Project Type">
-              <p className="text-gray-500 text-sm">Select project type...</p>
+            <AccordionSection title="Project Type" icon={Home}>
+              <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
+                <p className="text-gray-500 text-sm font-medium">Select project type...</p>
+              </div>
             </AccordionSection>
 
             {/* Budget */}
-            <AccordionSection title="Budget">
+            <AccordionSection title="Budget" icon={DollarSign}>
               {[
-                "$$$$ - I want the best results",
-                "$$$ - Mid-to-high price",
-                "$$ - Low-to-mid price",
-                "$ - I want to minimize costs",
+                { value: "$$$$ - I want the best results", label: "Premium", color: "purple" },
+                { value: "$$$ - Mid-to-high price", label: "Mid-to-High", color: "blue" },
+                { value: "$$ - Low-to-mid price", label: "Low-to-Mid", color: "green" },
+                { value: "$ - I want to minimize costs", label: "Budget-Friendly", color: "gray" },
               ].map((item, i) => (
                 <label
                   key={i}
-                  className="flex items-center gap-2 text-sm text-gray-700"
+                  className={`flex items-center gap-3 p-3 rounded-lg border-2 transition-all cursor-pointer group ${
+                    budget === item.value
+                      ? "bg-yellow-50 border-yellow-400 shadow-sm"
+                      : "bg-white border-gray-200 hover:border-gray-300 hover:bg-gray-50"
+                  }`}
                 >
-                  <input
-                    type="checkbox"
-                    className="accent-yellow-500"
-                    checked={selectedFilters.includes(item)}
-                    onChange={() => toggleFilter(item)}
-                  />
-                  {item}
+                  <div className="relative flex items-center justify-center">
+                    <input
+                      type="checkbox"
+                      className="w-5 h-5 rounded border-2 border-gray-300 text-yellow-600 focus:ring-2 focus:ring-yellow-500 focus:ring-offset-0 cursor-pointer transition-all checked:bg-yellow-500 checked:border-yellow-500"
+                      checked={budget === item.value}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setBudget(item.value);
+                          toggleFilter(item.value);
+                        } else {
+                          setBudget("");
+                          handleRemoveFilter(item.value);
+                        }
+                      }}
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-0.5">
+                      <span className="text-lg font-bold text-gray-900">{item.value.split(" -")[0]}</span>
+                      <span className="text-xs font-semibold text-gray-500 uppercase">{item.label}</span>
+                    </div>
+                    <p className="text-xs text-gray-600">{item.value.split(" - ")[1]}</p>
+                  </div>
+                  {budget === item.value && (
+                    <CheckCircle className="w-5 h-5 text-yellow-600" />
+                  )}
                 </label>
               ))}
             </AccordionSection>
 
             {/* Business Highlights */}
-            <AccordionSection title="Business Highlights">
-              {[
-                "Hired on Houzz",
-                "Responds Quickly",
-                "Provides 3D Visualization",
-                "Eco-friendly",
-                "Family owned",
-                "Locally owned",
-                "Offers Custom Work",
-              ].map((item, i) => (
-                <label
-                  key={i}
-                  className="flex items-center gap-2 text-sm text-gray-700"
-                >
-                  <input
-                    type="checkbox"
-                    className="accent-yellow-500"
-                    checked={selectedFilters.includes(item)}
-                    onChange={() => toggleFilter(item)}
-                  />
-                  {item}
-                </label>
-              ))}
+            <AccordionSection title="Business Highlights" icon={Award}>
+              <div className="grid grid-cols-1 gap-2">
+                {[
+                  { label: "Hired on Houzz", checked: hiredOnPlatform, setter: setHiredOnPlatform, filter: "Hired on Houzz", icon: Verified },
+                  { label: "Responds Quickly", checked: respondsQuickly, setter: setRespondsQuickly, filter: "Responds Quickly", icon: Clock },
+                  { label: "Provides 3D Visualization", checked: provides3d, setter: setProvides3d, filter: "Provides 3D Visualization", icon: Sparkles },
+                  { label: "Eco-friendly", checked: ecoFriendly, setter: setEcoFriendly, filter: "Eco-friendly", icon: CheckCircle },
+                  { label: "Family owned", checked: familyOwned, setter: setFamilyOwned, filter: "Family owned", icon: Users },
+                  { label: "Locally owned", checked: locallyOwned, setter: setLocallyOwned, filter: "Locally owned", icon: MapPin },
+                  { label: "Offers Custom Work", checked: offersCustomWork, setter: setOffersCustomWork, filter: "Offers Custom Work", icon: Wrench },
+                ].map((item, i) => (
+                  <label
+                    key={i}
+                    className={`flex items-center gap-3 p-2.5 rounded-lg transition-all cursor-pointer group ${
+                      item.checked
+                        ? "bg-yellow-50 border border-yellow-200"
+                        : "hover:bg-gray-50"
+                    }`}
+                  >
+                    <div className="relative flex items-center justify-center">
+                      <input
+                        type="checkbox"
+                        className="w-5 h-5 rounded border-2 border-gray-300 text-yellow-600 focus:ring-2 focus:ring-yellow-500 focus:ring-offset-0 cursor-pointer transition-all checked:bg-yellow-500 checked:border-yellow-500"
+                        checked={item.checked}
+                        onChange={(e) => {
+                          item.setter(e.target.checked);
+                          toggleFilter(item.filter);
+                        }}
+                      />
+                    </div>
+                    <item.icon className={`w-4 h-4 transition-colors ${
+                      item.checked ? "text-yellow-600" : "text-gray-400 group-hover:text-gray-600"
+                    }`} />
+                    <span className={`text-sm font-medium flex-1 transition-colors ${
+                      item.checked ? "text-gray-900" : "text-gray-700 group-hover:text-gray-900"
+                    }`}>
+                      {item.label}
+                    </span>
+                    {item.checked && (
+                      <CheckCircle className="w-4 h-4 text-yellow-600" />
+                    )}
+                  </label>
+                ))}
+              </div>
             </AccordionSection>
 
             {/* Languages */}
-            <AccordionSection title="Languages (1)">
-              {[
-                "All Languages",
-                "Speaks Spanish",
-                "Speaks Russian",
-                "Speaks Italian",
-              ].map((item, i) => (
-                <label
-                  key={i}
-                  className="flex items-center gap-2 text-sm text-gray-700"
-                >
-                  <input
-                    type="radio"
-                    name="language"
-                    defaultChecked={item === "All Languages"}
-                    className="accent-yellow-500"
-                    checked={selectedFilters.includes(item)}
-                    onChange={() => toggleFilter(item)}
-                  />
-                  {item}
-                </label>
-              ))}
+            <AccordionSection title="Languages" icon={Languages}>
+              <div className="space-y-1.5">
+                {[
+                  "All Languages",
+                  "Speaks Spanish",
+                  "Speaks Russian",
+                  "Speaks Italian",
+                ].map((item, i) => (
+                  <label
+                    key={i}
+                    className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer group"
+                  >
+                    <input
+                      type="radio"
+                      name="language"
+                      className="w-4 h-4 border-2 border-gray-300 text-yellow-600 focus:ring-2 focus:ring-yellow-500 focus:ring-offset-0 cursor-pointer"
+                      checked={selectedLanguage === item}
+                      onChange={() => {
+                        setSelectedLanguage(item);
+                        toggleFilter(item);
+                      }}
+                    />
+                    <span className="text-sm font-medium text-gray-700 group-hover:text-gray-900 flex-1">{item}</span>
+                    {selectedLanguage === item && (
+                      <CheckCircle className="w-4 h-4 text-yellow-600" />
+                    )}
+                  </label>
+                ))}
+              </div>
             </AccordionSection>
 
             {/* Rating */}
-            <AccordionSection title="Rating (1)">
-              {[
-                "Any Rating",
-                "5 stars only",
-                "4 stars & up",
-                "3 stars & up",
-              ].map((item, i) => (
-                <label
-                  key={i}
-                  className="flex items-center gap-2 text-sm text-gray-700"
-                >
-                  <input
-                    type="radio"
-                    name="rating"
-                    className="accent-yellow-500"
-                    checked={selectedFilters.includes(item)}
-                    onChange={() => {
-                      // Remove all rating filters first, then add the new one
-                      setSelectedFilters((prev) => [
-                        ...prev.filter((f) => !f.includes("stars")),
-                        item,
-                      ]);
-                    }}
-                  />
-                  {item}
-                </label>
-              ))}
+            <AccordionSection title="Rating" icon={Star}>
+              <div className="space-y-1.5">
+                {[
+                  { value: "Any Rating", stars: 0 },
+                  { value: "5 stars only", stars: 5 },
+                  { value: "4 stars & up", stars: 4 },
+                  { value: "3 stars & up", stars: 3 },
+                ].map((item, i) => (
+                  <label
+                    key={i}
+                    className={`flex items-center gap-3 p-2.5 rounded-lg transition-all cursor-pointer group ${
+                      selectedRating === item.value
+                        ? "bg-yellow-50 border border-yellow-200"
+                        : "hover:bg-gray-50"
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="rating"
+                      className="w-4 h-4 border-2 border-gray-300 text-yellow-600 focus:ring-2 focus:ring-yellow-500 focus:ring-offset-0 cursor-pointer"
+                      checked={selectedRating === item.value}
+                      onChange={() => {
+                        setSelectedRating(item.value);
+                        setSelectedFilters((prev) => [
+                          ...prev.filter((f) => !f.includes("stars") && f !== "Any Rating"),
+                          item.value,
+                        ]);
+                      }}
+                    />
+                    <div className="flex items-center gap-2 flex-1">
+                      {item.stars > 0 && (
+                        <div className="flex items-center gap-0.5">
+                          {[...Array(5)].map((_, idx) => (
+                            <Star
+                              key={idx}
+                              className={`w-4 h-4 ${
+                                idx < item.stars
+                                  ? "text-yellow-500 fill-yellow-500"
+                                  : "text-gray-300"
+                              }`}
+                            />
+                          ))}
+                        </div>
+                      )}
+                      <span className={`text-sm font-medium flex-1 ${
+                        selectedRating === item.value ? "text-gray-900" : "text-gray-700 group-hover:text-gray-900"
+                      }`}>
+                        {item.value}
+                      </span>
+                    </div>
+                    {selectedRating === item.value && (
+                      <CheckCircle className="w-4 h-4 text-yellow-600" />
+                    )}
+                  </label>
+                ))}
+              </div>
             </AccordionSection>
           </div>
 
@@ -655,24 +1013,139 @@ const Contractors = () => {
                 />
               </div>
             </div>
-            {companies?.map((c) => (
+            {companiesLoading && (
+              <div className="bg-white rounded-lg shadow-sm border p-8 text-center mb-4">
+                <div className="text-gray-500 mb-4">
+                  <Search className="w-12 h-12 mx-auto mb-4 text-gray-300 animate-pulse" />
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">
+                    Loading companies...
+                  </h3>
+                </div>
+              </div>
+            )}
+
+            {companiesError && (
+              <div className="bg-white rounded-lg shadow-sm border p-8 text-center mb-4">
+                <div className="text-red-500 mb-4">
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">
+                    Error loading companies
+                  </h3>
+                  <p className="text-gray-600">{companiesError}</p>
+                </div>
+              </div>
+            )}
+
+            {!companiesLoading && !companiesError && companies.length === 0 && (
+              <div className="bg-white rounded-lg shadow-sm border p-8 text-center mb-4">
+                <div className="text-gray-500 mb-4">
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">
+                    No companies found
+                  </h3>
+                  <p className="text-gray-600">
+                    Try adjusting your filters or search criteria.
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {paginatedCompanies?.map((c) => (
               <CompanyCard
                 key={c?.id}
                 id={c?.id}
                 name={c?.name}
-                images={c?.images}
-                testimonial={c?.testimonial}
-                bannerText={c?.bannerText}
-                location={c?.location}
-                projects={c?.projects}
                 rating={c?.rating}
-                reviewer={c?.reviewer}
-                reviews={c?.reviews}
-                sponsored={c?.sponsored}
-                tagline={c?.tagline}
+                reviewsCount={c?.reviewsCount}
                 verifiedHires={c?.verifiedHires}
+                tagline={c?.tagline}
+                featuredReview={c?.featuredReview}
+                address={c?.address}
+                verifiedBusiness={c?.verifiedBusiness}
+                description={c?.description}
+                yearsInBusiness={c?.yearsInBusiness}
+                licenseNumber={c?.licenseNumber}
+                certifications={c?.certifications}
+                awards={c?.awards}
+                servicesOffered={c?.servicesOffered}
+                specialties={c?.specialties}
+                serviceAreas={c?.serviceAreas}
+                respondsQuickly={c?.respondsQuickly}
+                hiredOnPlatform={c?.hiredOnPlatform}
+                provides3d={c?.provides3d}
+                ecoFriendly={c?.ecoFriendly}
+                familyOwned={c?.familyOwned}
+                locallyOwned={c?.locallyOwned}
+                offersCustomWork={c?.offersCustomWork}
+                languages={c?.languages}
+                budgetRange={c?.budgetRange}
+                professionalCategory={c?.professionalCategory}
+                images={c?.images || defaultImages}
+                bannerText={c?.bannerText}
+                sponsored={c?.sponsored}
+                email={c?.email}
+                phone={c?.phone}
+                website={c?.website}
               />
             ))}
+
+            {/* Companies Pagination */}
+            {!companiesLoading && !companiesError && companies.length > 0 && totalCompaniesPages > 1 && (
+              <div className="flex items-center justify-center gap-3 mt-8 mb-6">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={companiesCurrentPage <= 1}
+                  onClick={() => goToCompaniesPage(companiesCurrentPage - 1)}
+                >
+                  Previous
+                </Button>
+                <div className="flex items-center gap-2">
+                  {[...Array(totalCompaniesPages)].map((_, idx) => {
+                    const page = idx + 1;
+                    // Show first page, last page, current page, and pages around current
+                    if (
+                      page === 1 ||
+                      page === totalCompaniesPages ||
+                      (page >= companiesCurrentPage - 1 && page <= companiesCurrentPage + 1)
+                    ) {
+                      return (
+                        <button
+                          key={page}
+                          onClick={() => goToCompaniesPage(page)}
+                          className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+                            companiesCurrentPage === page
+                              ? "bg-yellow-500 text-white hover:bg-yellow-600"
+                              : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
+                          }`}
+                        >
+                          {page}
+                        </button>
+                      );
+                    } else if (
+                      page === companiesCurrentPage - 2 ||
+                      page === companiesCurrentPage + 2
+                    ) {
+                      return (
+                        <span key={page} className="px-2 text-gray-500">
+                          ...
+                        </span>
+                      );
+                    }
+                    return null;
+                  })}
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={companiesCurrentPage >= totalCompaniesPages}
+                  onClick={() => goToCompaniesPage(companiesCurrentPage + 1)}
+                >
+                  Next
+                </Button>
+                <span className="text-sm text-gray-600 ml-2">
+                  Page {companiesCurrentPage} of {totalCompaniesPages} ({companies.length} total)
+                </span>
+              </div>
+            )}
             {/* Contractors List */}
             <div className="space-y-6">
               {visibleContractors.map((contractor, index) => {
@@ -731,6 +1204,7 @@ const Contractors = () => {
         isOpen={showProfilePreview}
         onClose={closeProfilePreview}
       />
+
     </div>
   );
 };

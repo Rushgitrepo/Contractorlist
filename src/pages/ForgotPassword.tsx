@@ -9,6 +9,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { authService } from '@/services/authService';
+import { useToast } from '@/hooks/use-toast';
 
 const forgotPasswordSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
@@ -20,6 +22,8 @@ const ForgotPassword = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [email, setEmail] = useState('');
+  const { toast } = useToast();
 
   const {
     register,
@@ -34,13 +38,19 @@ const ForgotPassword = () => {
     setIsLoading(true);
     
     try {
-      // Simulate API call - replace with actual backend integration
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Call backend API
+      const response = await authService.forgotPassword(data.email);
       
-      // Mock success - replace with actual password reset logic
+      setEmail(data.email);
       setIsSubmitted(true);
-    } catch (err) {
-      setError('Failed to send reset email. Please try again.');
+      
+      toast({
+        title: "Reset Link Sent!",
+        description: response.message || "If the email exists, a password reset link has been sent.",
+      });
+    } catch (err: any) {
+      const errorMessage = err.response?.data?.message || err.message || 'Failed to send reset email. Please try again.';
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -84,19 +94,24 @@ const ForgotPassword = () => {
                 <p className="text-sm text-gray-600">
                   Didn't receive the email?{' '}
                   <button
-                    onClick={() => setIsSubmitted(false)}
+                    onClick={() => {
+                      setIsSubmitted(false);
+                      setError('');
+                    }}
                     className="text-yellow-600 hover:text-yellow-700 font-medium"
                   >
                     Try again
                   </button>
                 </p>
                 
-                <Link
-                  to="/login"
-                  className="inline-block w-full bg-yellow-500 hover:bg-yellow-600 text-black font-semibold py-2 px-4 rounded-lg transition-colors"
+                <Button
+                  asChild
+                  className="w-full bg-yellow-500 hover:bg-yellow-600 text-black font-semibold"
                 >
-                  Back to Login
-                </Link>
+                  <Link to="/login">
+                    Back to Login
+                  </Link>
+                </Button>
               </div>
             </CardContent>
           </Card>
