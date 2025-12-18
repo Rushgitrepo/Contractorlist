@@ -1,8 +1,4 @@
-// MOCK MODE: Comment out the real API and use mock service
-// To enable real API, comment out the mock import and uncomment the api import
-
-// import api from './api';
-import mockContractorService from './contractorService.mock';
+import api from './api';
 import { ApiResponse, PaginatedResponse, SearchParams } from '@/types/api.types';
 import {
   Contractor,
@@ -17,9 +13,6 @@ import {
  */
 class ContractorService {
   private readonly BASE_PATH = '/contractors';
-  
-  // Set to true to use mock data (no backend required)
-  private useMock = true;
 
   /**
    * Get all contractors with filters and pagination
@@ -27,15 +20,6 @@ class ContractorService {
   async getContractors(
     params?: SearchParams & ContractorFilters
   ): Promise<PaginatedResponse<Contractor>> {
-    // Use mock service if enabled
-    if (this.useMock) {
-      return mockContractorService.getContractors(params);
-    }
-
-    // Real API implementation (commented out for demo)
-    throw new Error('Real API not configured. Using mock mode.');
-    
-    /* Uncomment for real API:
     try {
       const response = await api.get<PaginatedResponse<Contractor>>(this.BASE_PATH, {
         params,
@@ -44,29 +28,18 @@ class ContractorService {
     } catch (error: any) {
       throw error.response?.data || { success: false, message: 'Failed to fetch contractors' };
     }
-    */
   }
 
   /**
    * Get contractor by ID
    */
   async getContractorById(id: number): Promise<ApiResponse<Contractor>> {
-    // Use mock service if enabled
-    if (this.useMock) {
-      return mockContractorService.getContractorById(id);
-    }
-
-    // Real API implementation (commented out for demo)
-    throw new Error('Real API not configured. Using mock mode.');
-    
-    /* Uncomment for real API:
     try {
       const response = await api.get<ApiResponse<Contractor>>(`${this.BASE_PATH}/${id}`);
       return response.data;
     } catch (error: any) {
       throw error.response?.data || { success: false, message: 'Failed to fetch contractor' };
     }
-    */
   }
 
   /**

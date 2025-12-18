@@ -25,7 +25,7 @@ export interface RegisterData {
   email: string;
   password: string;
   role: 'contractor' | 'client' | 'vendor';
-  phone: string;
+  phone?: string;
   company?: string;
   // Contractor specific
   licenseNumber?: string;

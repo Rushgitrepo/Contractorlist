@@ -18,7 +18,6 @@ import {
 } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
-import SignupRoleModal from "@/components/SignupRoleModal";
 
 const loginSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
@@ -31,7 +30,6 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [isSignupModalOpen, setIsSignupModalOpen] = useState(false);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -286,22 +284,16 @@ const Login = () => {
 
             <div className="text-center text-sm text-gray-600">
               Don't have an account?{" "}
-              <button
-                onClick={() => setIsSignupModalOpen(true)}
+              <Link
+                to="/signup"
                 className="font-medium text-yellow-600 hover:text-yellow-700"
               >
                 Sign up
-              </button>
+              </Link>
             </div>
           </CardContent>
         </Card>
       </div>
-
-      {/* Signup Role Selection Modal */}
-      <SignupRoleModal 
-        isOpen={isSignupModalOpen} 
-        onClose={() => setIsSignupModalOpen(false)} 
-      />
     </div>
   );
 };
