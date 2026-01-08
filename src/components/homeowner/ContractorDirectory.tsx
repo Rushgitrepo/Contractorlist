@@ -477,24 +477,24 @@ const ContractorDirectory = () => {
   };
 
   return (
-    <div className="flex h-screen bg-gray-50/50">
+    <div className="flex h-screen bg-gray-50/50 dark:bg-slate-950/50">
       {/* Professional Sidebar - Folder Structure */}
-      <div className="w-80 bg-white border-r border-gray-200 shadow-lg flex flex-col">
+      <div className="w-80 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 shadow-lg flex flex-col">
         {/* Sidebar Header */}
-        <div className="p-6 border-b border-gray-100 bg-gradient-to-r from-yellow-50 to-orange-50">
-          <h2 className="text-xl font-bold text-gray-900 mb-2">Contractor Directory</h2>
-          <p className="text-sm text-gray-600">Browse by category</p>
+        <div className="p-6 border-b border-gray-100 dark:border-gray-800 bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-900/10 dark:to-orange-900/10">
+          <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Contractor Directory</h2>
+          <p className="text-sm text-gray-600 dark:text-gray-400">Browse by category</p>
         </div>
 
         {/* Search in Sidebar */}
-        <div className="p-4 border-b border-gray-100">
+        <div className="p-4 border-b border-gray-100 dark:border-gray-800">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 w-4 h-4" />
             <Input
               placeholder="Search contractors..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 h-10 text-sm border-gray-200 focus:border-orange-300 focus:ring-2 focus:ring-orange-100"
+              className="pl-10 h-10 text-sm border-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-white focus:border-orange-300 dark:focus:border-orange-600 focus:ring-2 focus:ring-orange-100 dark:focus:ring-orange-900/50"
             />
           </div>
         </div>
@@ -508,8 +508,8 @@ const ContractorDirectory = () => {
                 <div
                   className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all duration-200 ${
                     selectedCategory === category.name || selectedCategory === category.id
-                      ? 'bg-gradient-to-r from-orange-50 to-yellow-50 border border-orange-200 shadow-sm'
-                      : 'hover:bg-gray-50'
+                      ? 'bg-gradient-to-r from-orange-50 to-yellow-50 dark:from-orange-900/20 dark:to-yellow-900/20 border border-orange-200 dark:border-orange-800 shadow-sm'
+                      : 'hover:bg-gray-50 dark:hover:bg-gray-800'
                   }`}
                   onClick={() => {
                     if (category.subcategories) {
@@ -541,13 +541,13 @@ const ContractorDirectory = () => {
                   
                   <span className={`flex-1 font-medium ${
                     selectedCategory === category.name || selectedCategory === category.id
-                      ? 'text-orange-700'
-                      : 'text-gray-700'
+                      ? 'text-orange-700 dark:text-orange-400'
+                      : 'text-gray-700 dark:text-gray-300'
                   }`}>
                     {category.name}
                   </span>
                   
-                  <Badge className="bg-gray-100 text-gray-600 text-xs font-semibold">
+                  <Badge className="bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 text-xs font-semibold">
                     {category.count}
                   </Badge>
                 </div>
@@ -560,20 +560,20 @@ const ContractorDirectory = () => {
                         key={subcategory.id}
                         className={`flex items-center gap-3 p-2 rounded-lg cursor-pointer transition-all duration-200 ${
                           selectedCategory === subcategory.id
-                            ? 'bg-gradient-to-r from-orange-50 to-yellow-50 border border-orange-200 shadow-sm'
-                            : 'hover:bg-gray-50'
+                            ? 'bg-gradient-to-r from-orange-50 to-yellow-50 dark:from-orange-900/20 dark:to-yellow-900/20 border border-orange-200 dark:border-orange-800 shadow-sm'
+                            : 'hover:bg-gray-50 dark:hover:bg-gray-800'
                         }`}
                         onClick={() => setSelectedCategory(subcategory.id)}
                       >
                         <subcategory.icon className={`w-4 h-4 ${
-                          selectedCategory === subcategory.id ? 'text-orange-600' : 'text-gray-500'
+                          selectedCategory === subcategory.id ? 'text-orange-600 dark:text-orange-400' : 'text-gray-500 dark:text-gray-400'
                         }`} />
                         <span className={`flex-1 text-sm ${
-                          selectedCategory === subcategory.id ? 'text-orange-700 font-medium' : 'text-gray-600'
+                          selectedCategory === subcategory.id ? 'text-orange-700 dark:text-orange-400 font-medium' : 'text-gray-600 dark:text-gray-400'
                         }`}>
                           {subcategory.name}
                         </span>
-                        <Badge className="bg-gray-100 text-gray-600 text-xs">
+                        <Badge className="bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 text-xs">
                           {subcategory.count}
                         </Badge>
                       </div>
@@ -586,12 +586,12 @@ const ContractorDirectory = () => {
         </div>
 
         {/* Sidebar Footer */}
-        <div className="p-4 border-t border-gray-100 bg-gray-50">
-          <div className="flex items-center gap-2 text-sm text-gray-600 mb-2">
+        <div className="p-4 border-t border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-800">
+          <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 mb-2">
             <Heart className="w-4 h-4 text-red-500" />
             <span>Saved Contractors: {savedContractors.length}</span>
           </div>
-          <Button variant="outline" size="sm" className="w-full text-xs hover:bg-yellow-50 border-orange-200 text-orange-700">
+          <Button variant="outline" size="sm" className="w-full text-xs hover:bg-yellow-50 dark:hover:bg-yellow-900/20 border-orange-200 dark:border-orange-800 text-orange-700 dark:text-orange-400">
             View Saved List
           </Button>
         </div>
@@ -600,22 +600,22 @@ const ContractorDirectory = () => {
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Main Header */}
-        <div className="p-6 bg-white border-b border-gray-200 shadow-sm">
+        <div className="p-6 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 shadow-sm">
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-1">
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-1">
                 {selectedCategory === 'All Contractors' ? 'All Contractors' : 
                  categoryStructure.find(cat => cat.id === selectedCategory)?.name ||
                  categoryStructure.flatMap(cat => cat.subcategories || []).find(sub => sub.id === selectedCategory)?.name ||
                  selectedCategory}
               </h1>
-              <p className="text-gray-600">
+              <p className="text-gray-600 dark:text-gray-400">
                 {filteredContractors.length} verified professionals found
               </p>
             </div>
             
             <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2 text-sm text-gray-500">
+              <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
                 <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
                 <span>Live updates</span>
               </div>
@@ -658,12 +658,12 @@ const ContractorDirectory = () => {
             </div>
           ) : filteredContractors.length === 0 ? (
             <div className="text-center py-12">
-              <Users className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">No contractors found</h3>
-              <p className="text-gray-600 mb-4">
+              <Users className="w-16 h-16 text-gray-400 dark:text-gray-600 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">No contractors found</h3>
+              <p className="text-gray-600 dark:text-gray-400 mb-4">
                 Try adjusting your search or browse different categories
               </p>
-              <Button variant="outline" onClick={() => {setSearchQuery(''); setSelectedCategory('All Contractors');}}>
+              <Button variant="outline" onClick={() => {setSearchQuery(''); setSelectedCategory('All Contractors');}} className="dark:border-gray-700 dark:text-gray-300">
                 Clear Filters
               </Button>
             </div>
@@ -672,7 +672,7 @@ const ContractorDirectory = () => {
               {filteredContractors.map((contractor) => (
                 <Card 
                   key={contractor.id}
-                  className="hover:shadow-2xl transition-all duration-300 border-0 bg-white/90 backdrop-blur-sm group hover:scale-[1.02] cursor-pointer"
+                  className="hover:shadow-2xl transition-all duration-300 border-0 bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm group hover:scale-[1.02] cursor-pointer"
                 >
                   <CardContent className="p-6">
                     {/* Header */}
@@ -684,7 +684,7 @@ const ContractorDirectory = () => {
                         />
                         <div>
                           <div className="flex items-center gap-2 mb-1">
-                            <h3 className="font-bold text-base text-gray-900 group-hover:text-orange-600 transition-colors">
+                            <h3 className="font-bold text-base text-gray-900 dark:text-white group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors">
                               {contractor.name}
                             </h3>
                             {contractor.verified && (
@@ -696,10 +696,10 @@ const ContractorDirectory = () => {
                               </Badge>
                             )}
                           </div>
-                          <p className="text-xs text-gray-600 font-medium">
+                          <p className="text-xs text-gray-600 dark:text-gray-400 font-medium">
                             {contractor.trade} • {contractor.yearsExperience} years
                           </p>
-                          <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
+                          <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mt-1">
                             <MapPin className="w-3 h-3" />
                             <span>{contractor.distance}</span>
                             <span>•</span>
@@ -754,18 +754,18 @@ const ContractorDirectory = () => {
                     </div>
 
                     {/* Performance Metrics */}
-                    <div className="grid grid-cols-3 gap-3 mb-4 p-3 bg-gray-50 rounded-lg">
+                    <div className="grid grid-cols-3 gap-3 mb-4 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
                       <div className="text-center">
-                        <p className="text-sm font-bold text-gray-900">{contractor.completionRate}%</p>
-                        <p className="text-xs text-gray-600">Completion</p>
+                        <p className="text-sm font-bold text-gray-900 dark:text-white">{contractor.completionRate}%</p>
+                        <p className="text-xs text-gray-600 dark:text-gray-400">Completion</p>
                       </div>
                       <div className="text-center">
-                        <p className="text-sm font-bold text-gray-900">{contractor.onTimeRate}%</p>
-                        <p className="text-xs text-gray-600">On Time</p>
+                        <p className="text-sm font-bold text-gray-900 dark:text-white">{contractor.onTimeRate}%</p>
+                        <p className="text-xs text-gray-600 dark:text-gray-400">On Time</p>
                       </div>
                       <div className="text-center">
-                        <p className="text-sm font-bold text-gray-900">{contractor.projectsCompleted}</p>
-                        <p className="text-xs text-gray-600">Projects</p>
+                        <p className="text-sm font-bold text-gray-900 dark:text-white">{contractor.projectsCompleted}</p>
+                        <p className="text-xs text-gray-600 dark:text-gray-400">Projects</p>
                       </div>
                     </div>
 
@@ -797,12 +797,12 @@ const ContractorDirectory = () => {
                     </div>
 
                     {/* AI Insight */}
-                    <div className="mb-4 p-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-100">
+                    <div className="mb-4 p-3 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg border border-blue-100 dark:border-blue-900/50">
                       <div className="flex items-center gap-2 mb-1">
-                        <Bot className="w-3 h-3 text-blue-600" />
-                        <span className="text-xs font-bold text-blue-700 uppercase tracking-wide">AI Insight</span>
+                        <Bot className="w-3 h-3 text-blue-600 dark:text-blue-400" />
+                        <span className="text-xs font-bold text-blue-700 dark:text-blue-400 uppercase tracking-wide">AI Insight</span>
                       </div>
-                      <p className="text-xs text-blue-800 leading-relaxed">
+                      <p className="text-xs text-blue-800 dark:text-blue-300 leading-relaxed">
                         {contractor.aiInsight}
                       </p>
                     </div>

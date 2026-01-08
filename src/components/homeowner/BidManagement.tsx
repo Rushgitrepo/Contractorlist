@@ -254,24 +254,24 @@ const BidManagement = () => {
   const avgCost = bids.reduce((sum, bid) => sum + bid.cost, 0) / bids.length;
 
   return (
-    <div className="p-6 space-y-8 bg-gray-50/50 min-h-screen">
+    <div className="p-6 space-y-8 bg-gray-50/50 dark:bg-slate-950/50 min-h-screen">
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
         <div>
-          <div className="flex items-center gap-2 mb-2 text-sm text-gray-500">
+          <div className="flex items-center gap-2 mb-2 text-sm text-gray-500 dark:text-gray-400">
             <span>Projects</span>
             <span>/</span>
             <span>Kitchen Remodel</span>
             <span>/</span>
-            <span className="text-orange-600 font-medium">Bid Management</span>
+            <span className="text-orange-600 dark:text-orange-400 font-medium">Bid Management</span>
           </div>
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">
+          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">
             Bid Management
           </h1>
-          <p className="text-gray-600 text-lg">
+          <p className="text-gray-600 dark:text-gray-400 text-lg">
             Review and compare contractor proposals for your kitchen renovation
           </p>
-          <div className="flex items-center gap-4 mt-3 text-sm text-gray-500">
+          <div className="flex items-center gap-4 mt-3 text-sm text-gray-500 dark:text-gray-400">
             <div className="flex items-center gap-1">
               <Activity className="w-4 h-4 text-green-500" />
               <span>Real-time updates</span>
@@ -300,31 +300,31 @@ const BidManagement = () => {
       </div>
 
       {/* AI Market Insight */}
-      <Card className="bg-gradient-to-br from-orange-50 to-yellow-50 border-orange-200 shadow-lg">
+      <Card className="bg-gradient-to-br from-orange-50 to-yellow-50 dark:from-orange-900/20 dark:to-yellow-900/20 border-orange-200 dark:border-orange-800 shadow-lg">
         <CardContent className="p-6">
           <div className="flex items-start gap-4">
             <div className="p-3 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-xl shadow-md">
               <Bot className="w-6 h-6 text-white" />
             </div>
             <div className="flex-1">
-              <h3 className="text-lg font-bold text-orange-900 mb-2">
+              <h3 className="text-lg font-bold text-orange-900 dark:text-orange-300 mb-2">
                 AI Market Analysis
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                <div className="bg-white rounded-lg p-3 border border-orange-100">
-                  <p className="text-sm text-orange-700 font-medium">Market Average</p>
-                  <p className="text-xl font-bold text-orange-900">${(avgCost / 1000).toFixed(1)}K</p>
+                <div className="bg-white dark:bg-gray-800 rounded-lg p-3 border border-orange-100 dark:border-orange-900/50">
+                  <p className="text-sm text-orange-700 dark:text-orange-400 font-medium">Market Average</p>
+                  <p className="text-xl font-bold text-orange-900 dark:text-orange-300">${(avgCost / 1000).toFixed(1)}K</p>
                 </div>
-                <div className="bg-white rounded-lg p-3 border border-orange-100">
-                  <p className="text-sm text-orange-700 font-medium">Best Value</p>
-                  <p className="text-xl font-bold text-orange-900">Elite Renovations</p>
+                <div className="bg-white dark:bg-gray-800 rounded-lg p-3 border border-orange-100 dark:border-orange-900/50">
+                  <p className="text-sm text-orange-700 dark:text-orange-400 font-medium">Best Value</p>
+                  <p className="text-xl font-bold text-orange-900 dark:text-orange-300">Elite Renovations</p>
                 </div>
-                <div className="bg-white rounded-lg p-3 border border-orange-100">
-                  <p className="text-sm text-orange-700 font-medium">Savings Potential</p>
-                  <p className="text-xl font-bold text-green-600">$3,500</p>
+                <div className="bg-white dark:bg-gray-800 rounded-lg p-3 border border-orange-100 dark:border-orange-900/50">
+                  <p className="text-sm text-orange-700 dark:text-orange-400 font-medium">Savings Potential</p>
+                  <p className="text-xl font-bold text-green-600 dark:text-green-400">$3,500</p>
                 </div>
               </div>
-              <p className="text-sm text-orange-800 leading-relaxed">
+              <p className="text-sm text-orange-800 dark:text-orange-300 leading-relaxed">
                 Based on 247 similar kitchen projects in San Francisco, your bids are competitive. 
                 <span className="font-semibold"> Elite Renovations</span> offers the best balance of quality and value, 
                 while <span className="font-semibold">BuildRight</span> provides significant cost savings with good quality.
@@ -336,50 +336,50 @@ const BidManagement = () => {
 
       {/* Quick Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
+        <Card className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 border-blue-200 dark:border-blue-800">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-semibold text-blue-700">Total Bids</p>
-                <p className="text-2xl font-bold text-blue-900">{bids.length}</p>
+                <p className="text-sm font-semibold text-blue-700 dark:text-blue-400">Total Bids</p>
+                <p className="text-2xl font-bold text-blue-900 dark:text-blue-300">{bids.length}</p>
               </div>
-              <FileText className="w-8 h-8 text-blue-600" />
+              <FileText className="w-8 h-8 text-blue-600 dark:text-blue-400" />
             </div>
           </CardContent>
         </Card>
         
-        <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
+        <Card className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 border-green-200 dark:border-green-800">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-semibold text-green-700">Active</p>
-                <p className="text-2xl font-bold text-green-900">{bids.filter(b => b.status === 'active').length}</p>
+                <p className="text-sm font-semibold text-green-700 dark:text-green-400">Active</p>
+                <p className="text-2xl font-bold text-green-900 dark:text-green-300">{bids.filter(b => b.status === 'active').length}</p>
               </div>
-              <Activity className="w-8 h-8 text-green-600" />
+              <Activity className="w-8 h-8 text-green-600 dark:text-green-400" />
             </div>
           </CardContent>
         </Card>
         
-        <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200">
+        <Card className="bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20 border-orange-200 dark:border-orange-800">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-semibold text-orange-700">Avg Cost</p>
-                <p className="text-2xl font-bold text-orange-900">${(avgCost / 1000).toFixed(0)}K</p>
+                <p className="text-sm font-semibold text-orange-700 dark:text-orange-400">Avg Cost</p>
+                <p className="text-2xl font-bold text-orange-900 dark:text-orange-300">${(avgCost / 1000).toFixed(0)}K</p>
               </div>
-              <DollarSign className="w-8 h-8 text-orange-600" />
+              <DollarSign className="w-8 h-8 text-orange-600 dark:text-orange-400" />
             </div>
           </CardContent>
         </Card>
         
-        <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
+        <Card className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 border-purple-200 dark:border-purple-800">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-semibold text-purple-700">Avg Rating</p>
-                <p className="text-2xl font-bold text-purple-900">4.7★</p>
+                <p className="text-sm font-semibold text-purple-700 dark:text-purple-400">Avg Rating</p>
+                <p className="text-2xl font-bold text-purple-900 dark:text-purple-300">4.7★</p>
               </div>
-              <Star className="w-8 h-8 text-purple-600" />
+              <Star className="w-8 h-8 text-purple-600 dark:text-purple-400" />
             </div>
           </CardContent>
         </Card>
@@ -388,7 +388,7 @@ const BidManagement = () => {
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <TabsList className="grid w-full sm:w-auto grid-cols-4 bg-white border border-gray-200">
+          <TabsList className="grid w-full sm:w-auto grid-cols-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
             <TabsTrigger value="active" className="font-semibold">
               Active ({bids.filter(b => b.status === 'active').length})
             </TabsTrigger>
@@ -441,8 +441,8 @@ const BidManagement = () => {
               filteredBids.map((bid) => (
                 <Card 
                   key={bid.id}
-                  className={`cursor-pointer transition-all duration-300 hover:shadow-2xl border-0 bg-white/90 backdrop-blur-sm group hover:scale-[1.02] ${
-                    selectedBid === bid.id ? 'ring-2 ring-orange-400 shadow-xl bg-gradient-to-br from-orange-50 to-yellow-50' : ''
+                  className={`cursor-pointer transition-all duration-300 hover:shadow-2xl border-0 bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm group hover:scale-[1.02] ${
+                    selectedBid === bid.id ? 'ring-2 ring-orange-400 shadow-xl bg-gradient-to-br from-orange-50 to-yellow-50 dark:from-orange-900/20 dark:to-yellow-900/20' : ''
                   }`}
                   onClick={() => setSelectedBid(bid.id)}
                 >
@@ -456,7 +456,7 @@ const BidManagement = () => {
                         />
                         <div>
                           <div className="flex items-center gap-2 mb-1">
-                            <h3 className="font-bold text-base text-gray-900 group-hover:text-orange-600 transition-colors">
+                            <h3 className="font-bold text-base text-gray-900 dark:text-white group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors">
                               {bid.contractor}
                             </h3>
                             {bid.verified && (
@@ -468,7 +468,7 @@ const BidManagement = () => {
                               </Badge>
                             )}
                           </div>
-                          <div className="flex items-center gap-2 text-xs text-gray-600">
+                          <div className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
                             <div className="flex items-center gap-1">
                               <Star className="w-3 h-3 text-yellow-400 fill-current" />
                               <span className="font-semibold">{bid.rating}</span>
@@ -502,20 +502,20 @@ const BidManagement = () => {
                     </div>
 
                     {/* Cost & Timeline */}
-                    <div className="grid grid-cols-2 gap-4 mb-4 p-3 bg-gray-50 rounded-lg">
+                    <div className="grid grid-cols-2 gap-4 mb-4 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
                       <div>
-                        <p className="text-xs text-gray-600 font-medium">Total Cost</p>
-                        <p className="text-xl font-bold text-gray-900">${(bid.cost / 1000).toFixed(1)}K</p>
+                        <p className="text-xs text-gray-600 dark:text-gray-400 font-medium">Total Cost</p>
+                        <p className="text-xl font-bold text-gray-900 dark:text-white">${(bid.cost / 1000).toFixed(1)}K</p>
                         <p className={`text-xs font-semibold ${
-                          bid.changeType === 'positive' ? 'text-green-600' : 'text-red-600'
+                          bid.changeType === 'positive' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
                         }`}>
                           {bid.changeVsAvg > 0 ? '+' : ''}{bid.changeVsAvg}% vs avg
                         </p>
                       </div>
                       <div>
-                        <p className="text-xs text-gray-600 font-medium">Timeline</p>
-                        <p className="text-xl font-bold text-gray-900">{bid.timeline}</p>
-                        <p className="text-xs text-gray-600">
+                        <p className="text-xs text-gray-600 dark:text-gray-400 font-medium">Timeline</p>
+                        <p className="text-xl font-bold text-gray-900 dark:text-white">{bid.timeline}</p>
+                        <p className="text-xs text-gray-600 dark:text-gray-400">
                           {bid.responseTime} response
                         </p>
                       </div>
@@ -539,12 +539,12 @@ const BidManagement = () => {
                     </div>
 
                     {/* AI Insight */}
-                    <div className="mb-4 p-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-100">
+                    <div className="mb-4 p-3 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg border border-blue-100 dark:border-blue-900/50">
                       <div className="flex items-center gap-2 mb-1">
-                        <Bot className="w-3 h-3 text-blue-600" />
-                        <span className="text-xs font-bold text-blue-700 uppercase tracking-wide">AI Insight</span>
+                        <Bot className="w-3 h-3 text-blue-600 dark:text-blue-400" />
+                        <span className="text-xs font-bold text-blue-700 dark:text-blue-400 uppercase tracking-wide">AI Insight</span>
                       </div>
-                      <p className="text-xs text-blue-800 leading-relaxed">
+                      <p className="text-xs text-blue-800 dark:text-blue-300 leading-relaxed">
                         {bid.aiInsight}
                       </p>
                     </div>
@@ -574,10 +574,10 @@ const BidManagement = () => {
 
           {/* Detailed Comparison */}
           {filteredBids.length > 0 && (
-            <Card className="shadow-xl border-0 bg-white/90 backdrop-blur-sm">
-              <CardHeader className="bg-gradient-to-r from-gray-50 to-yellow-50/30 border-b border-gray-100">
+            <Card className="shadow-xl border-0 bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm">
+              <CardHeader className="bg-gradient-to-r from-gray-50 to-yellow-50/30 dark:from-gray-800 dark:to-yellow-900/10 border-b border-gray-100 dark:border-gray-800">
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-xl font-bold text-gray-900">
+                  <CardTitle className="text-xl font-bold text-gray-900 dark:text-white">
                     Detailed Analysis: {selectedBidData.contractor}
                   </CardTitle>
                   <div className="flex gap-2">
@@ -597,49 +597,49 @@ const BidManagement = () => {
                   {/* Contractor Info */}
                   <div className="space-y-6">
                     <div>
-                      <h4 className="text-base font-bold text-gray-900 mb-4">Contractor Details</h4>
+                      <h4 className="text-base font-bold text-gray-900 dark:text-white mb-4">Contractor Details</h4>
                       <div className="space-y-3">
                         <div className="flex items-center gap-3">
-                          <MapPin className="w-4 h-4 text-gray-500" />
-                          <span className="text-sm text-gray-700">{selectedBidData.location}</span>
+                          <MapPin className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                          <span className="text-sm text-gray-700 dark:text-gray-300">{selectedBidData.location}</span>
                         </div>
                         <div className="flex items-center gap-3">
-                          <Phone className="w-4 h-4 text-gray-500" />
-                          <span className="text-sm text-gray-700">{selectedBidData.phone}</span>
+                          <Phone className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                          <span className="text-sm text-gray-700 dark:text-gray-300">{selectedBidData.phone}</span>
                         </div>
                         <div className="flex items-center gap-3">
-                          <Mail className="w-4 h-4 text-gray-500" />
-                          <span className="text-sm text-gray-700">{selectedBidData.email}</span>
+                          <Mail className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                          <span className="text-sm text-gray-700 dark:text-gray-300">{selectedBidData.email}</span>
                         </div>
                         <div className="flex items-center gap-3">
                           <Shield className="w-4 h-4 text-green-500" />
-                          <span className="text-sm text-gray-700">License: {selectedBidData.licenseNumber}</span>
+                          <span className="text-sm text-gray-700 dark:text-gray-300">License: {selectedBidData.licenseNumber}</span>
                         </div>
                         <div className="flex items-center gap-3">
                           <Award className="w-4 h-4 text-blue-500" />
-                          <span className="text-sm text-gray-700">{selectedBidData.yearsExperience} years experience</span>
+                          <span className="text-sm text-gray-700 dark:text-gray-300">{selectedBidData.yearsExperience} years experience</span>
                         </div>
                       </div>
                     </div>
 
                     <div>
-                      <h4 className="text-base font-bold text-gray-900 mb-4">Performance Metrics</h4>
+                      <h4 className="text-base font-bold text-gray-900 dark:text-white mb-4">Performance Metrics</h4>
                       <div className="space-y-3">
                         <div className="flex justify-between items-center">
-                          <span className="text-sm text-gray-600">Completion Rate</span>
-                          <span className="text-sm font-semibold text-gray-900">{selectedBidData.completionRate}%</span>
+                          <span className="text-sm text-gray-600 dark:text-gray-400">Completion Rate</span>
+                          <span className="text-sm font-semibold text-gray-900 dark:text-white">{selectedBidData.completionRate}%</span>
                         </div>
                         <div className="flex justify-between items-center">
-                          <span className="text-sm text-gray-600">Projects Completed</span>
-                          <span className="text-sm font-semibold text-gray-900">{selectedBidData.projectsCompleted}</span>
+                          <span className="text-sm text-gray-600 dark:text-gray-400">Projects Completed</span>
+                          <span className="text-sm font-semibold text-gray-900 dark:text-white">{selectedBidData.projectsCompleted}</span>
                         </div>
                         <div className="flex justify-between items-center">
-                          <span className="text-sm text-gray-600">Response Time</span>
-                          <span className="text-sm font-semibold text-gray-900">{selectedBidData.responseTime}</span>
+                          <span className="text-sm text-gray-600 dark:text-gray-400">Response Time</span>
+                          <span className="text-sm font-semibold text-gray-900 dark:text-white">{selectedBidData.responseTime}</span>
                         </div>
                         <div className="flex justify-between items-center">
-                          <span className="text-sm text-gray-600">Bond Amount</span>
-                          <span className="text-sm font-semibold text-gray-900">{selectedBidData.bondAmount}</span>
+                          <span className="text-sm text-gray-600 dark:text-gray-400">Bond Amount</span>
+                          <span className="text-sm font-semibold text-gray-900 dark:text-white">{selectedBidData.bondAmount}</span>
                         </div>
                       </div>
                     </div>
@@ -648,53 +648,53 @@ const BidManagement = () => {
                   {/* Cost Breakdown */}
                   <div className="space-y-6">
                     <div>
-                      <h4 className="text-base font-bold text-gray-900 mb-4">Cost Breakdown</h4>
+                      <h4 className="text-base font-bold text-gray-900 dark:text-white mb-4">Cost Breakdown</h4>
                       <div className="space-y-3">
-                        <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                          <span className="text-sm text-gray-700">Materials</span>
-                          <span className="text-sm font-semibold text-gray-900">${selectedBidData.proposal.materials.toLocaleString()}</span>
+                        <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                          <span className="text-sm text-gray-700 dark:text-gray-300">Materials</span>
+                          <span className="text-sm font-semibold text-gray-900 dark:text-white">${selectedBidData.proposal.materials.toLocaleString()}</span>
                         </div>
-                        <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                          <span className="text-sm text-gray-700">Labor</span>
-                          <span className="text-sm font-semibold text-gray-900">${selectedBidData.proposal.labor.toLocaleString()}</span>
+                        <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                          <span className="text-sm text-gray-700 dark:text-gray-300">Labor</span>
+                          <span className="text-sm font-semibold text-gray-900 dark:text-white">${selectedBidData.proposal.labor.toLocaleString()}</span>
                         </div>
-                        <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                          <span className="text-sm text-gray-700">Permits</span>
-                          <span className="text-sm font-semibold text-gray-900">${selectedBidData.proposal.permits.toLocaleString()}</span>
+                        <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                          <span className="text-sm text-gray-700 dark:text-gray-300">Permits</span>
+                          <span className="text-sm font-semibold text-gray-900 dark:text-white">${selectedBidData.proposal.permits.toLocaleString()}</span>
                         </div>
-                        <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                          <span className="text-sm text-gray-700">Cleanup</span>
-                          <span className="text-sm font-semibold text-gray-900">${selectedBidData.proposal.cleanup.toLocaleString()}</span>
+                        <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                          <span className="text-sm text-gray-700 dark:text-gray-300">Cleanup</span>
+                          <span className="text-sm font-semibold text-gray-900 dark:text-white">${selectedBidData.proposal.cleanup.toLocaleString()}</span>
                         </div>
-                        <div className="flex justify-between items-center p-3 bg-gradient-to-r from-orange-50 to-yellow-50 rounded-lg border border-orange-200">
-                          <span className="text-sm font-bold text-orange-800">Total</span>
-                          <span className="text-lg font-bold text-orange-900">${selectedBidData.cost.toLocaleString()}</span>
+                        <div className="flex justify-between items-center p-3 bg-gradient-to-r from-orange-50 to-yellow-50 dark:from-orange-900/20 dark:to-yellow-900/20 rounded-lg border border-orange-200 dark:border-orange-800">
+                          <span className="text-sm font-bold text-orange-800 dark:text-orange-300">Total</span>
+                          <span className="text-lg font-bold text-orange-900 dark:text-orange-300">${selectedBidData.cost.toLocaleString()}</span>
                         </div>
                       </div>
                     </div>
 
                     <div>
-                      <h4 className="text-base font-bold text-gray-900 mb-4">Timeline</h4>
+                      <h4 className="text-base font-bold text-gray-900 dark:text-white mb-4">Timeline</h4>
                       <div className="space-y-3">
                         <div className="flex justify-between items-center">
-                          <span className="text-sm text-gray-600">Start Date</span>
-                          <span className="text-sm font-semibold text-gray-900">
+                          <span className="text-sm text-gray-600 dark:text-gray-400">Start Date</span>
+                          <span className="text-sm font-semibold text-gray-900 dark:text-white">
                             {new Date(selectedBidData.proposal.startDate).toLocaleDateString()}
                           </span>
                         </div>
                         <div className="flex justify-between items-center">
-                          <span className="text-sm text-gray-600">Completion Date</span>
-                          <span className="text-sm font-semibold text-gray-900">
+                          <span className="text-sm text-gray-600 dark:text-gray-400">Completion Date</span>
+                          <span className="text-sm font-semibold text-gray-900 dark:text-white">
                             {new Date(selectedBidData.proposal.completionDate).toLocaleDateString()}
                           </span>
                         </div>
                         <div className="flex justify-between items-center">
-                          <span className="text-sm text-gray-600">Duration</span>
-                          <span className="text-sm font-semibold text-gray-900">{selectedBidData.timeline}</span>
+                          <span className="text-sm text-gray-600 dark:text-gray-400">Duration</span>
+                          <span className="text-sm font-semibold text-gray-900 dark:text-white">{selectedBidData.timeline}</span>
                         </div>
                         <div className="flex justify-between items-center">
-                          <span className="text-sm text-gray-600">Warranty</span>
-                          <span className="text-sm font-semibold text-gray-900">{selectedBidData.proposal.warranty}</span>
+                          <span className="text-sm text-gray-600 dark:text-gray-400">Warranty</span>
+                          <span className="text-sm font-semibold text-gray-900 dark:text-white">{selectedBidData.proposal.warranty}</span>
                         </div>
                       </div>
                     </div>
@@ -703,36 +703,36 @@ const BidManagement = () => {
                   {/* Actions */}
                   <div className="space-y-6">
                     <div>
-                      <h4 className="text-base font-bold text-gray-900 mb-4">Quick Actions</h4>
+                      <h4 className="text-base font-bold text-gray-900 dark:text-white mb-4">Quick Actions</h4>
                       <div className="space-y-3">
                         <Button className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-semibold gap-2">
                           <ThumbsUp className="w-4 h-4" />
                           Accept This Bid
                         </Button>
-                        <Button variant="outline" className="w-full gap-2 hover:bg-yellow-50">
+                        <Button variant="outline" className="w-full gap-2 hover:bg-yellow-50 dark:hover:bg-yellow-900/20">
                           <MessageSquare className="w-4 h-4" />
                           Message Contractor
                         </Button>
-                        <Button variant="outline" className="w-full gap-2 hover:bg-yellow-50">
+                        <Button variant="outline" className="w-full gap-2 hover:bg-yellow-50 dark:hover:bg-yellow-900/20">
                           <Phone className="w-4 h-4" />
                           Schedule Call
                         </Button>
-                        <Button variant="outline" className="w-full text-red-600 hover:bg-red-50 border-red-200 gap-2">
+                        <Button variant="outline" className="w-full text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 border-red-200 dark:border-red-800 gap-2">
                           <ThumbsDown className="w-4 h-4" />
                           Decline Bid
                         </Button>
                       </div>
                     </div>
 
-                    <div className="p-4 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
+                    <div className="p-4 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
                       <div className="flex items-center gap-2 mb-2">
-                        <Zap className="w-4 h-4 text-blue-600" />
-                        <span className="text-sm font-bold text-blue-800">Smart Recommendation</span>
+                        <Zap className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                        <span className="text-sm font-bold text-blue-800 dark:text-blue-300">Smart Recommendation</span>
                       </div>
-                      <p className="text-xs text-blue-700 leading-relaxed mb-3">
+                      <p className="text-xs text-blue-700 dark:text-blue-400 leading-relaxed mb-3">
                         This contractor has completed 12 similar kitchen projects in your area with an average rating of 4.9/5.
                       </p>
-                      <Button size="sm" variant="outline" className="w-full text-blue-600 border-blue-200 hover:bg-blue-50">
+                      <Button size="sm" variant="outline" className="w-full text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-800 hover:bg-blue-50 dark:hover:bg-blue-900/20">
                         View Similar Projects
                       </Button>
                     </div>

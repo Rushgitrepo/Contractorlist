@@ -200,17 +200,17 @@ const MyProjects = () => {
   const timelineHealth = getTimelineHealth(selectedProjectData.timelineHealth);
 
   return (
-    <div className="p-6 space-y-8 bg-gray-50/50 min-h-screen">
+    <div className="p-6 space-y-8 bg-gray-50/50 dark:bg-slate-950/50 min-h-screen">
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
         <div>
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">
+          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">
             My Projects
           </h1>
-          <p className="text-gray-600 text-lg">
+          <p className="text-gray-600 dark:text-gray-400 text-lg">
             Track progress, manage budgets, and coordinate with contractors
           </p>
-          <div className="flex items-center gap-4 mt-3 text-sm text-gray-500">
+          <div className="flex items-center gap-4 mt-3 text-sm text-gray-500 dark:text-gray-400">
             <div className="flex items-center gap-1">
               <Activity className="w-4 h-4 text-green-500" />
               <span>Real-time updates</span>
@@ -240,57 +240,57 @@ const MyProjects = () => {
 
       {/* Project Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
+        <Card className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 border-blue-200 dark:border-blue-800">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-semibold text-blue-700">Active Projects</p>
-                <p className="text-3xl font-bold text-blue-900">3</p>
+                <p className="text-sm font-semibold text-blue-700 dark:text-blue-400">Active Projects</p>
+                <p className="text-3xl font-bold text-blue-900 dark:text-blue-300">3</p>
               </div>
-              <div className="p-3 bg-blue-200 rounded-full">
-                <Activity className="w-6 h-6 text-blue-700" />
+              <div className="p-3 bg-blue-200 dark:bg-blue-900/30 rounded-full">
+                <Activity className="w-6 h-6 text-blue-700 dark:text-blue-400" />
               </div>
             </div>
           </CardContent>
         </Card>
         
-        <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
+        <Card className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 border-green-200 dark:border-green-800">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-semibold text-green-700">Total Budget</p>
-                <p className="text-3xl font-bold text-green-900">$88K</p>
+                <p className="text-sm font-semibold text-green-700 dark:text-green-400">Total Budget</p>
+                <p className="text-3xl font-bold text-green-900 dark:text-green-300">$88K</p>
               </div>
-              <div className="p-3 bg-green-200 rounded-full">
-                <DollarSign className="w-6 h-6 text-green-700" />
+              <div className="p-3 bg-green-200 dark:bg-green-900/30 rounded-full">
+                <DollarSign className="w-6 h-6 text-green-700 dark:text-green-400" />
               </div>
             </div>
           </CardContent>
         </Card>
         
-        <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200">
+        <Card className="bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20 border-orange-200 dark:border-orange-800">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-semibold text-orange-700">Avg Progress</p>
-                <p className="text-3xl font-bold text-orange-900">33%</p>
+                <p className="text-sm font-semibold text-orange-700 dark:text-orange-400">Avg Progress</p>
+                <p className="text-3xl font-bold text-orange-900 dark:text-orange-300">33%</p>
               </div>
-              <div className="p-3 bg-orange-200 rounded-full">
-                <Target className="w-6 h-6 text-orange-700" />
+              <div className="p-3 bg-orange-200 dark:bg-orange-900/30 rounded-full">
+                <Target className="w-6 h-6 text-orange-700 dark:text-orange-400" />
               </div>
             </div>
           </CardContent>
         </Card>
         
-        <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
+        <Card className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 border-purple-200 dark:border-purple-800">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-semibold text-purple-700">On Schedule</p>
-                <p className="text-3xl font-bold text-purple-900">2/3</p>
+                <p className="text-sm font-semibold text-purple-700 dark:text-purple-400">On Schedule</p>
+                <p className="text-3xl font-bold text-purple-900 dark:text-purple-300">2/3</p>
               </div>
-              <div className="p-3 bg-purple-200 rounded-full">
-                <Clock className="w-6 h-6 text-purple-700" />
+              <div className="p-3 bg-purple-200 dark:bg-purple-900/30 rounded-full">
+                <Clock className="w-6 h-6 text-purple-700 dark:text-purple-400" />
               </div>
             </div>
           </CardContent>
@@ -301,7 +301,7 @@ const MyProjects = () => {
         {/* Project List */}
         <div className="lg:col-span-4 space-y-4">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-bold text-gray-900">Projects</h2>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white">Projects</h2>
             <Button variant="outline" size="sm" className="gap-2">
               <Filter className="w-4 h-4" />
               Filter
@@ -329,8 +329,8 @@ const MyProjects = () => {
                 key={project.id}
                 className={`cursor-pointer transition-all duration-200 hover:shadow-xl ${
                   selectedProject === project.id 
-                    ? 'ring-2 ring-orange-400 shadow-lg bg-gradient-to-r from-orange-50 to-yellow-50' 
-                    : 'hover:shadow-lg bg-white/90 backdrop-blur-sm'
+                    ? 'ring-2 ring-orange-400 shadow-lg bg-gradient-to-r from-orange-50 to-yellow-50 dark:from-orange-900/20 dark:to-yellow-900/20' 
+                    : 'hover:shadow-lg bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm'
                 }`}
                 onClick={() => setSelectedProject(project.id)}
               >
@@ -342,7 +342,7 @@ const MyProjects = () => {
                     />
                     <div className="flex-1 min-w-0">
                       <div className="flex justify-between items-start mb-2">
-                        <h3 className="font-bold text-base text-gray-900 truncate pr-2">
+                        <h3 className="font-bold text-base text-gray-900 dark:text-white truncate pr-2">
                           {project.name}
                         </h3>
                         <div className="flex gap-1">
@@ -351,10 +351,10 @@ const MyProjects = () => {
                           </Badge>
                         </div>
                       </div>
-                      <p className="text-xs text-gray-600 truncate mb-2 font-medium">
+                      <p className="text-xs text-gray-600 dark:text-gray-400 truncate mb-2 font-medium">
                         {project.projectId} • {project.contractor}
                       </p>
-                      <div className="flex items-center gap-3 text-xs text-gray-500 mb-3">
+                      <div className="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400 mb-3">
                         <div className="flex items-center gap-1">
                           <Calendar className="w-3 h-3" />
                           <span>{project.timeline}</span>
@@ -381,7 +381,7 @@ const MyProjects = () => {
                         style={{ width: `${project.progress}%` }}
                       />
                     </div>
-                    <div className="flex justify-between text-xs text-gray-500">
+                    <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
                       <span>Updated {project.lastUpdate}</span>
                       <Badge className={`${getPriorityColor(project.priority)} text-xs`}>
                         {project.priority}
@@ -396,19 +396,19 @@ const MyProjects = () => {
 
         {/* Project Details */}
         <div className="lg:col-span-8">
-          <Card className="h-full shadow-xl border-0 bg-white/90 backdrop-blur-sm">
-            <CardHeader className="border-b border-gray-100 bg-gradient-to-r from-gray-50 to-yellow-50/30">
+          <Card className="h-full shadow-xl border-0 bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm">
+            <CardHeader className="border-b border-gray-100 dark:border-gray-800 bg-gradient-to-r from-gray-50 to-yellow-50/30 dark:from-gray-800 dark:to-yellow-900/10">
               <div className="flex justify-between items-start">
                 <div className="flex items-center gap-4">
                   <div 
-                    className="w-20 h-20 rounded-xl bg-cover bg-center shadow-lg ring-4 ring-white"
+                    className="w-20 h-20 rounded-xl bg-cover bg-center shadow-lg ring-4 ring-white dark:ring-gray-800"
                     style={{ backgroundImage: `url(${selectedProjectData.image})` }}
                   />
                   <div>
-                    <CardTitle className="text-2xl font-bold text-gray-900 mb-1">
+                    <CardTitle className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
                       {selectedProjectData.name}
                     </CardTitle>
-                    <div className="flex items-center gap-4 text-sm text-gray-600 mb-2">
+                    <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400 mb-2">
                       <span className="flex items-center gap-1 font-medium">
                         <MapPin className="w-4 h-4" />
                         123 Maple Dr, Austin
@@ -448,20 +448,20 @@ const MyProjects = () => {
 
             <CardContent className="p-6">
               <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-                <TabsList className="grid w-full grid-cols-5 bg-gray-100">
-                  <TabsTrigger value="overview" className="font-semibold">Overview</TabsTrigger>
-                  <TabsTrigger value="timeline" className="font-semibold">Timeline</TabsTrigger>
-                  <TabsTrigger value="budget" className="font-semibold">Budget</TabsTrigger>
-                  <TabsTrigger value="documents" className="font-semibold">Documents</TabsTrigger>
-                  <TabsTrigger value="team" className="font-semibold">Team</TabsTrigger>
+                <TabsList className="grid w-full grid-cols-5 bg-gray-100 dark:bg-gray-800">
+                  <TabsTrigger value="overview" className="font-semibold text-gray-700 dark:text-gray-300 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700">Overview</TabsTrigger>
+                  <TabsTrigger value="timeline" className="font-semibold text-gray-700 dark:text-gray-300 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700">Timeline</TabsTrigger>
+                  <TabsTrigger value="budget" className="font-semibold text-gray-700 dark:text-gray-300 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700">Budget</TabsTrigger>
+                  <TabsTrigger value="documents" className="font-semibold text-gray-700 dark:text-gray-300 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700">Documents</TabsTrigger>
+                  <TabsTrigger value="team" className="font-semibold text-gray-700 dark:text-gray-300 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700">Team</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="overview" className="space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {/* Progress Widget */}
-                    <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200">
+                    <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-blue-200 dark:border-blue-800">
                       <CardHeader>
-                        <CardTitle className="text-base font-bold text-blue-900 flex items-center gap-2">
+                        <CardTitle className="text-base font-bold text-blue-900 dark:text-blue-300 flex items-center gap-2">
                           <Target className="w-5 h-5" />
                           Project Progress
                         </CardTitle>
@@ -471,14 +471,14 @@ const MyProjects = () => {
                           <div className="relative size-20 flex items-center justify-center">
                             <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
                               <path
-                                className="text-blue-200"
+                                className="text-blue-200 dark:text-blue-900"
                                 d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                                 fill="none"
                                 stroke="currentColor"
                                 strokeWidth="3"
                               />
                               <path
-                                className="text-blue-600"
+                                className="text-blue-600 dark:text-blue-400"
                                 d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                                 fill="none"
                                 stroke="currentColor"
@@ -486,18 +486,18 @@ const MyProjects = () => {
                                 strokeWidth="3"
                               />
                             </svg>
-                            <span className="absolute text-lg font-bold text-blue-900">
+                            <span className="absolute text-lg font-bold text-blue-900 dark:text-blue-300">
                               {selectedProjectData.progress}%
                             </span>
                           </div>
                           <div>
-                            <p className="text-lg font-bold text-blue-900 mb-1">
+                            <p className="text-lg font-bold text-blue-900 dark:text-blue-300 mb-1">
                               {selectedProjectData.phase}
                             </p>
-                            <p className="text-sm text-blue-700 mb-2">
+                            <p className="text-sm text-blue-700 dark:text-blue-400 mb-2">
                               Next: {selectedProjectData.nextMilestone}
                             </p>
-                            <p className="text-xs text-blue-600">
+                            <p className="text-xs text-blue-600 dark:text-blue-500">
                               Due: {new Date(selectedProjectData.milestoneDate).toLocaleDateString()}
                             </p>
                           </div>
@@ -506,33 +506,33 @@ const MyProjects = () => {
                         <div className="space-y-3">
                           <div className="flex items-center gap-3">
                             <CheckCircle className="w-5 h-5 text-green-500" />
-                            <span className="text-sm text-gray-700 line-through">Demolition Complete</span>
+                            <span className="text-sm text-gray-700 dark:text-gray-300 line-through">Demolition Complete</span>
                           </div>
                           <div className="flex items-center gap-3">
-                            <div className="w-5 h-5 rounded-full bg-blue-500 border-2 border-white shadow-sm" />
-                            <span className="text-sm font-semibold text-gray-900">Cabinet Installation</span>
+                            <div className="w-5 h-5 rounded-full bg-blue-500 dark:bg-blue-400 border-2 border-white dark:border-gray-800 shadow-sm" />
+                            <span className="text-sm font-semibold text-gray-900 dark:text-white">Cabinet Installation</span>
                           </div>
                           <div className="flex items-center gap-3">
-                            <div className="w-5 h-5 rounded-full bg-gray-300 border-2 border-white" />
-                            <span className="text-sm text-gray-600">Countertop Installation</span>
+                            <div className="w-5 h-5 rounded-full bg-gray-300 dark:bg-gray-600 border-2 border-white dark:border-gray-800" />
+                            <span className="text-sm text-gray-600 dark:text-gray-400">Countertop Installation</span>
                           </div>
                           <div className="flex items-center gap-3">
-                            <div className="w-5 h-5 rounded-full bg-gray-300 border-2 border-white" />
-                            <span className="text-sm text-gray-600">Final Inspection</span>
+                            <div className="w-5 h-5 rounded-full bg-gray-300 dark:bg-gray-600 border-2 border-white dark:border-gray-800" />
+                            <span className="text-sm text-gray-600 dark:text-gray-400">Final Inspection</span>
                           </div>
                         </div>
                       </CardContent>
                     </Card>
 
                     {/* Budget Widget */}
-                    <Card className="bg-gradient-to-br from-green-50 to-emerald-50 border-green-200">
+                    <Card className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-green-200 dark:border-green-800">
                       <CardHeader>
                         <div className="flex justify-between items-center">
-                          <CardTitle className="text-base font-bold text-green-900 flex items-center gap-2">
+                          <CardTitle className="text-base font-bold text-green-900 dark:text-green-300 flex items-center gap-2">
                             <DollarSign className="w-5 h-5" />
                             Budget Overview
                           </CardTitle>
-                          <Badge className="bg-green-100 text-green-700 font-semibold">
+                          <Badge className="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 font-semibold">
                             On Track
                           </Badge>
                         </div>
@@ -541,18 +541,18 @@ const MyProjects = () => {
                         <div className="space-y-4">
                           <div>
                             <div className="flex items-baseline gap-2 mb-2">
-                              <span className="text-2xl font-bold text-green-900">
+                              <span className="text-2xl font-bold text-green-900 dark:text-green-300">
                                 ${(selectedProjectData.spent / 1000).toFixed(1)}K
                               </span>
-                              <span className="text-sm text-green-700">
+                              <span className="text-sm text-green-700 dark:text-green-400">
                                 of ${(selectedProjectData.budget / 1000).toFixed(0)}K spent
                               </span>
                             </div>
                             
                             <div className="relative mb-4">
-                              <div className="w-full bg-green-100 rounded-full h-3 overflow-hidden">
+                              <div className="w-full bg-green-100 dark:bg-green-900/30 rounded-full h-3 overflow-hidden">
                                 <div 
-                                  className="bg-gradient-to-r from-green-400 to-emerald-500 h-full rounded-full transition-all duration-500" 
+                                  className="bg-gradient-to-r from-green-400 to-emerald-500 dark:from-green-500 dark:to-emerald-600 h-full rounded-full transition-all duration-500" 
                                   style={{ width: `${selectedProjectData.budgetUtilization}%` }}
                                 />
                               </div>
@@ -563,27 +563,27 @@ const MyProjects = () => {
                             <div className="flex items-center justify-between text-sm">
                               <div className="flex items-center gap-2">
                                 <div className="size-3 rounded-full bg-green-500" />
-                                <span className="text-gray-700">Materials</span>
+                                <span className="text-gray-700 dark:text-gray-300">Materials</span>
                               </div>
-                              <span className="font-semibold text-gray-900">$9,800</span>
+                              <span className="font-semibold text-gray-900 dark:text-white">$9,800</span>
                             </div>
                             <div className="flex items-center justify-between text-sm">
                               <div className="flex items-center gap-2">
                                 <div className="size-3 rounded-full bg-green-400" />
-                                <span className="text-gray-700">Labor</span>
+                                <span className="text-gray-700 dark:text-gray-300">Labor</span>
                               </div>
-                              <span className="font-semibold text-gray-900">$6,450</span>
+                              <span className="font-semibold text-gray-900 dark:text-white">$6,450</span>
                             </div>
                             <div className="flex items-center justify-between text-sm">
                               <div className="flex items-center gap-2">
                                 <div className="size-3 rounded-full bg-green-300" />
-                                <span className="text-gray-700">Remaining</span>
+                                <span className="text-gray-700 dark:text-gray-300">Remaining</span>
                               </div>
-                              <span className="font-semibold text-green-600">$8,750</span>
+                              <span className="font-semibold text-green-600 dark:text-green-400">$8,750</span>
                             </div>
                           </div>
 
-                          <Button variant="outline" className="w-full hover:bg-green-50 border-green-200 text-green-700">
+                          <Button variant="outline" className="w-full hover:bg-green-50 dark:hover:bg-green-900/20 border-green-200 dark:border-green-800 text-green-700 dark:text-green-400">
                             View Detailed Breakdown
                           </Button>
                         </div>
@@ -594,28 +594,28 @@ const MyProjects = () => {
                   {/* AI Insights & Activity */}
                   <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
                     {/* AI Insight */}
-                    <Card className="md:col-span-2 bg-gradient-to-br from-orange-50 to-yellow-50 border-orange-200">
+                    <Card className="md:col-span-2 bg-gradient-to-br from-orange-50 to-yellow-50 dark:from-orange-900/20 dark:to-yellow-900/20 border-orange-200 dark:border-orange-800">
                       <CardHeader>
-                        <CardTitle className="flex items-center gap-2 text-orange-900 text-base font-bold">
-                          <Zap className="w-5 h-5 text-orange-600" />
+                        <CardTitle className="flex items-center gap-2 text-orange-900 dark:text-orange-300 text-base font-bold">
+                          <Zap className="w-5 h-5 text-orange-600 dark:text-orange-400" />
                           AI Insights
                         </CardTitle>
                       </CardHeader>
                       <CardContent>
                         <div className="space-y-4">
-                          <div className="p-3 bg-white rounded-lg border border-orange-100">
-                            <p className="text-sm text-orange-800 font-medium mb-2">
+                          <div className="p-3 bg-white dark:bg-gray-800 rounded-lg border border-orange-100 dark:border-orange-900/50">
+                            <p className="text-sm text-orange-800 dark:text-orange-300 font-medium mb-2">
                               Timeline Optimization
                             </p>
-                            <p className="text-xs text-orange-700 leading-relaxed">
+                            <p className="text-xs text-orange-700 dark:text-orange-400 leading-relaxed">
                               Order countertops by Friday to maintain your 3-day lead. I found 3 suppliers with immediate availability.
                             </p>
                           </div>
-                          <div className="p-3 bg-white rounded-lg border border-orange-100">
-                            <p className="text-sm text-orange-800 font-medium mb-2">
+                          <div className="p-3 bg-white dark:bg-gray-800 rounded-lg border border-orange-100 dark:border-orange-900/50">
+                            <p className="text-sm text-orange-800 dark:text-orange-300 font-medium mb-2">
                               Budget Alert
                             </p>
-                            <p className="text-xs text-orange-700 leading-relaxed">
+                            <p className="text-xs text-orange-700 dark:text-orange-400 leading-relaxed">
                               You're 3% under budget so far. Consider upgrading to premium fixtures within remaining budget.
                             </p>
                           </div>
@@ -627,9 +627,9 @@ const MyProjects = () => {
                     </Card>
 
                     {/* Recent Activity */}
-                    <Card className="md:col-span-3">
+                    <Card className="md:col-span-3 bg-white dark:bg-slate-900">
                       <CardHeader>
-                        <CardTitle className="text-base font-bold text-gray-900 flex items-center gap-2">
+                        <CardTitle className="text-base font-bold text-gray-900 dark:text-white flex items-center gap-2">
                           <Activity className="w-5 h-5" />
                           Recent Activity
                         </CardTitle>
@@ -638,27 +638,27 @@ const MyProjects = () => {
                         <div className="space-y-4">
                           {recentActivity.slice(0, 4).map((activity, index) => (
                             <div key={index} className="flex gap-4 items-start">
-                              <div className={`bg-gray-50 p-2 rounded-lg ${activity.color}`}>
+                              <div className={`bg-gray-50 dark:bg-gray-800 p-2 rounded-lg ${activity.color}`}>
                                 <activity.icon className="w-4 h-4" />
                               </div>
                               <div className="flex-1">
-                                <p className="text-sm font-semibold text-gray-900">
+                                <p className="text-sm font-semibold text-gray-900 dark:text-white">
                                   {activity.title}
                                 </p>
-                                <p className="text-xs text-gray-600 mb-1">
+                                <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">
                                   {activity.description}
                                 </p>
-                                <p className="text-xs text-gray-500">
+                                <p className="text-xs text-gray-500 dark:text-gray-500">
                                   {activity.time} • {activity.project}
                                 </p>
                               </div>
-                              <Button size="sm" variant="outline" className="text-xs hover:bg-yellow-50">
+                              <Button size="sm" variant="outline" className="text-xs hover:bg-yellow-50 dark:hover:bg-yellow-900/20">
                                 View
                               </Button>
                             </div>
                           ))}
                         </div>
-                        <Button variant="outline" className="w-full mt-4 hover:bg-gray-50">
+                        <Button variant="outline" className="w-full mt-4 hover:bg-gray-50 dark:hover:bg-gray-800">
                           View All Activity
                         </Button>
                       </CardContent>
@@ -668,9 +668,9 @@ const MyProjects = () => {
 
                 <TabsContent value="timeline">
                   <div className="text-center py-12">
-                    <Calendar className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">Project Timeline</h3>
-                    <p className="text-gray-600">
+                    <Calendar className="w-16 h-16 text-gray-400 dark:text-gray-600 mx-auto mb-4" />
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Project Timeline</h3>
+                    <p className="text-gray-600 dark:text-gray-400">
                       Detailed project timeline and milestone tracking will be displayed here.
                     </p>
                   </div>
@@ -678,9 +678,9 @@ const MyProjects = () => {
 
                 <TabsContent value="budget">
                   <div className="text-center py-12">
-                    <BarChart3 className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">Budget Analysis</h3>
-                    <p className="text-gray-600">
+                    <BarChart3 className="w-16 h-16 text-gray-400 dark:text-gray-600 mx-auto mb-4" />
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Budget Analysis</h3>
+                    <p className="text-gray-600 dark:text-gray-400">
                       Comprehensive budget breakdown and financial tracking will be shown here.
                     </p>
                   </div>
@@ -688,9 +688,9 @@ const MyProjects = () => {
 
                 <TabsContent value="documents">
                   <div className="text-center py-12">
-                    <FileText className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">Project Documents</h3>
-                    <p className="text-gray-600">
+                    <FileText className="w-16 h-16 text-gray-400 dark:text-gray-600 mx-auto mb-4" />
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Project Documents</h3>
+                    <p className="text-gray-600 dark:text-gray-400">
                       Contracts, permits, invoices, and other project documents will be organized here.
                     </p>
                   </div>
@@ -698,9 +698,9 @@ const MyProjects = () => {
 
                 <TabsContent value="team">
                   <div className="text-center py-12">
-                    <Users className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">Project Team</h3>
-                    <p className="text-gray-600">
+                    <Users className="w-16 h-16 text-gray-400 dark:text-gray-600 mx-auto mb-4" />
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Project Team</h3>
+                    <p className="text-gray-600 dark:text-gray-400">
                       Contractor details, team members, and communication tools will be available here.
                     </p>
                   </div>

@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import { cn } from '@/lib/utils';
 import {
   AreaChart,
   Area,
@@ -219,7 +220,7 @@ const CleanOverview = () => {
           </div>
         </div>
 
-        {/* KPI Cards */}
+        {/* Enhanced KPI Cards with Animations */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {[
             {
@@ -228,7 +229,9 @@ const CleanOverview = () => {
               change: '+15.2%',
               trend: 'up',
               icon: DollarSign,
-              subtext: 'vs. last month'
+              subtext: 'vs. last month',
+              gradient: 'from-emerald-500 to-teal-600',
+              bgGradient: 'from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20'
             },
             {
               title: 'Active Projects',
@@ -236,7 +239,9 @@ const CleanOverview = () => {
               change: '+8.5%',
               trend: 'up',
               icon: Briefcase,
-              subtext: '4 completing soon'
+              subtext: '4 completing soon',
+              gradient: 'from-blue-500 to-cyan-600',
+              bgGradient: 'from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20'
             },
             {
               title: 'Team Capacity',
@@ -244,7 +249,9 @@ const CleanOverview = () => {
               change: '-2.1%',
               trend: 'down',
               icon: Users,
-              subtext: 'Across 12 teams'
+              subtext: 'Across 12 teams',
+              gradient: 'from-purple-500 to-pink-600',
+              bgGradient: 'from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20'
             },
             {
               title: 'Avg. Margin',
@@ -252,25 +259,35 @@ const CleanOverview = () => {
               change: '+1.2%',
               trend: 'up',
               icon: Layers,
-              subtext: 'Exceeds target (15%)'
+              subtext: 'Exceeds target (15%)',
+              gradient: 'from-yellow-500 to-orange-600',
+              bgGradient: 'from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20'
             }
           ].map((stat, i) => (
-            <Card key={i} className="border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-all duration-200">
-              <CardContent className="p-6">
+            <Card 
+              key={i} 
+              className="group border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-xl transition-all duration-300 hover:scale-[1.02] overflow-hidden relative"
+            >
+              {/* Animated gradient background */}
+              <div className={`absolute inset-0 bg-gradient-to-br ${stat.bgGradient} opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
+              
+              <CardContent className="p-6 relative z-10">
                 <div className="flex justify-between items-start">
-                  <div className="p-2 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
-                    <stat.icon className="w-5 h-5 text-yellow-600 dark:text-yellow-400" />
+                  <div className={`p-3 bg-gradient-to-br ${stat.gradient} rounded-xl shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+                    <stat.icon className="w-5 h-5 text-white" />
                   </div>
                   <Badge
                     variant="secondary"
-                    className={`${stat.trend === 'up' ? 'text-emerald-700 bg-emerald-50 dark:bg-emerald-900/20' : 'text-red-600 bg-red-50 dark:bg-red-900/20'} border-0 font-medium`}
+                    className={`${stat.trend === 'up' ? 'text-emerald-700 bg-emerald-50 dark:bg-emerald-900/20' : 'text-red-600 bg-red-50 dark:bg-red-900/20'} border-0 font-medium group-hover:scale-110 transition-transform duration-300`}
                   >
                     {stat.trend === 'up' ? <ArrowUpRight className="w-3 h-3 mr-1" /> : <ArrowDownRight className="w-3 h-3 mr-1" />}
                     {stat.change}
                   </Badge>
                 </div>
                 <div className="mt-4">
-                  <h3 className="text-3xl font-bold text-slate-900 dark:text-slate-50">{stat.value}</h3>
+                  <h3 className="text-3xl font-bold text-slate-900 dark:text-slate-50 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-slate-900 group-hover:to-slate-700 dark:group-hover:from-slate-100 dark:group-hover:to-slate-300 transition-all duration-300">
+                    {stat.value}
+                  </h3>
                   <div className="flex items-center mt-1 text-sm text-slate-500 dark:text-slate-400">
                     <span className="font-medium text-slate-700 dark:text-slate-300">{stat.title}</span>
                     <span className="mx-2">•</span>
@@ -285,10 +302,12 @@ const CleanOverview = () => {
         {/* Charts Section */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Revenue Chart */}
-          <Card className="lg:col-span-2 border-slate-200 dark:border-slate-800 shadow-sm">
+            <Card className="lg:col-span-2 border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-lg transition-all duration-300 group">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <div>
-                <CardTitle className="text-lg font-semibold text-slate-900 dark:text-slate-50">Revenue Performance</CardTitle>
+                <CardTitle className="text-lg font-semibold text-slate-900 dark:text-slate-50 group-hover:text-yellow-600 dark:group-hover:text-yellow-400 transition-colors">
+                  Revenue Performance
+                </CardTitle>
                 <CardDescription>Income trend over the last 12 months</CardDescription>
               </div>
               <div className="flex gap-2">
@@ -298,7 +317,10 @@ const CleanOverview = () => {
                     variant={timeRange === range ? 'secondary' : 'ghost'}
                     size="sm"
                     onClick={() => setTimeRange(range)}
-                    className="text-xs font-medium"
+                    className={cn(
+                      "text-xs font-medium transition-all duration-200",
+                      timeRange === range && "bg-yellow-500 hover:bg-yellow-600 text-black shadow-md"
+                    )}
                   >
                     {range.toUpperCase()}
                   </Button>
@@ -411,14 +433,19 @@ const CleanOverview = () => {
               </thead>
               <tbody className="bg-white dark:bg-slate-900 divide-y divide-slate-100 dark:divide-slate-800">
                 {recentProjects.map((project) => (
-                  <tr key={project.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                  <tr 
+                    key={project.id} 
+                    className="hover:bg-gradient-to-r hover:from-yellow-50/50 hover:to-orange-50/50 dark:hover:from-yellow-900/10 dark:hover:to-orange-900/10 transition-all duration-300 cursor-pointer group border-b border-slate-100 dark:border-slate-800"
+                  >
                     <td className="px-6 py-4 font-medium text-slate-900 dark:text-slate-100">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500">
+                        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center text-white shadow-sm group-hover:scale-110 transition-transform duration-300">
                           <Briefcase className="w-4 h-4" />
                         </div>
                         <div>
-                          <div className="font-semibold">{project.name}</div>
+                          <div className="font-semibold group-hover:text-yellow-600 dark:group-hover:text-yellow-400 transition-colors">
+                            {project.name}
+                          </div>
                           <div className="text-xs text-slate-500">{project.client}</div>
                         </div>
                       </div>
@@ -450,12 +477,27 @@ const CleanOverview = () => {
                     </td>
                     <td className="px-6 py-4 min-w-[150px]">
                       <div className="flex items-center gap-3">
-                        <Progress value={project.progress} className="h-1.5" />
-                        <span className="text-xs font-medium text-slate-700">{project.progress}%</span>
+                        <div className="flex-1 relative">
+                          <Progress 
+                            value={project.progress} 
+                            className="h-2 bg-slate-200 dark:bg-slate-700 group-hover:bg-slate-300 dark:group-hover:bg-slate-600 transition-colors" 
+                          />
+                          <div 
+                            className="absolute top-0 left-0 h-2 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full transition-all duration-500 group-hover:shadow-lg group-hover:shadow-yellow-500/50"
+                            style={{ width: `${project.progress}%` }}
+                          />
+                        </div>
+                        <span className="text-xs font-bold text-slate-700 dark:text-slate-300 group-hover:text-yellow-600 dark:group-hover:text-yellow-400 transition-colors min-w-[3rem]">
+                          {project.progress}%
+                        </span>
                       </div>
                     </td>
                     <td className="px-6 py-4 text-right">
-                      <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-slate-700">
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="h-8 w-8 text-slate-400 hover:text-yellow-600 hover:bg-yellow-50 dark:hover:bg-yellow-900/20 transition-all duration-300 group-hover:scale-110"
+                      >
                         <MoreHorizontal className="h-4 w-4" />
                       </Button>
                     </td>

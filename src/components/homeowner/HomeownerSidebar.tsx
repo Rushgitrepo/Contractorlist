@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
 import {
   LayoutDashboard,
   FolderOpen,
@@ -14,9 +15,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Home,
-  Bot,
-  Sparkles,
-  Zap
+  Crown
 } from 'lucide-react';
 
 interface HomeownerSidebarProps {
@@ -32,51 +31,58 @@ const HomeownerSidebar = ({ isOpen, onClose }: HomeownerSidebarProps) => {
     {
       icon: LayoutDashboard,
       label: 'Dashboard',
+      description: 'Overview & insights',
       path: '/homeowner-dashboard/overview',
       badge: null,
-      color: 'text-orange-600'
+      isPro: false
     },
     {
       icon: FolderOpen,
       label: 'My Projects',
+      description: 'Manage projects',
       path: '/homeowner-dashboard/projects',
       badge: '3',
-      color: 'text-green-600'
+      isPro: false
     },
     {
       icon: Gavel,
       label: 'Bid Management',
+      description: 'Review bids',
       path: '/homeowner-dashboard/bids',
       badge: '5',
-      color: 'text-purple-600'
+      isPro: false
     },
     {
       icon: Users,
       label: 'Contractor Directory',
+      description: 'Find contractors',
       path: '/homeowner-dashboard/contractors',
       badge: null,
-      color: 'text-blue-600'
+      isPro: false
     },
     {
       icon: MessageSquare,
       label: 'Messages',
+      description: 'Communications',
       path: '/homeowner-dashboard/messages',
       badge: '2',
-      color: 'text-pink-600'
+      isPro: false
     },
     {
       icon: Settings,
       label: 'Account Settings',
+      description: 'Account settings',
       path: '/homeowner-dashboard/settings',
       badge: null,
-      color: 'text-gray-600'
+      isPro: false
     },
     {
       icon: HelpCircle,
       label: 'Help & Support',
+      description: 'Get assistance',
       path: '/homeowner-dashboard/help',
       badge: null,
-      color: 'text-indigo-600'
+      isPro: false
     }
   ];
 
@@ -94,21 +100,21 @@ const HomeownerSidebar = ({ isOpen, onClose }: HomeownerSidebarProps) => {
 
       {/* Sidebar */}
       <div className={`
-        fixed top-0 left-0 h-full bg-white border-r border-gray-200 z-50 shadow-2xl transition-all duration-300 ease-in-out
+        fixed top-0 left-0 h-full bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 z-50 shadow-2xl transition-all duration-300 ease-in-out
         ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
         ${isCollapsed ? 'w-20' : 'w-80'}
         lg:relative lg:translate-x-0
       `}>
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-100 bg-gradient-to-r from-yellow-50 to-orange-50">
+        <div className="flex items-center justify-between p-6 border-b border-gray-100 dark:border-gray-800 bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-gray-800 dark:to-gray-900">
           {!isCollapsed && (
             <div className="flex items-center gap-3">
               <div className="size-10 rounded-xl bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center shadow-lg">
                 <Home className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h2 className="font-bold text-lg text-gray-900">ContractorsList</h2>
-                <p className="text-sm text-gray-600 font-medium">Homeowner Portal</p>
+                <h2 className="font-bold text-lg text-gray-900 dark:text-white">ContractorsList</h2>
+                <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">Homeowner Portal</p>
               </div>
             </div>
           )}
@@ -142,106 +148,113 @@ const HomeownerSidebar = ({ isOpen, onClose }: HomeownerSidebarProps) => {
 
         {/* User Profile */}
         {!isCollapsed && (
-          <div className="p-6 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-yellow-50/30">
+          <div className="p-6 border-b border-gray-100 dark:border-gray-800 bg-gradient-to-r from-gray-50 to-yellow-50/30 dark:from-gray-800 dark:to-gray-900/50">
             <div className="flex items-center gap-4">
-              <div className="size-12 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center text-white font-bold text-lg shadow-lg ring-4 ring-yellow-100">
+              <div className="size-12 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center text-white font-bold text-lg shadow-lg ring-4 ring-yellow-100 dark:ring-yellow-900/50">
                 A
               </div>
               <div className="flex flex-col overflow-hidden">
-                <p className="text-gray-900 text-base font-semibold truncate">Alex Johnson</p>
-                <p className="text-gray-600 text-sm truncate">Premium Homeowner</p>
+                <p className="text-gray-900 dark:text-white text-base font-semibold truncate">Alex Johnson</p>
+                <p className="text-gray-600 dark:text-gray-400 text-sm truncate">Premium Homeowner</p>
                 <div className="flex items-center gap-2 mt-1">
                   <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                  <span className="text-xs text-green-600 font-medium">Active</span>
+                  <span className="text-xs text-green-600 dark:text-green-400 font-medium">Active</span>
                 </div>
               </div>
             </div>
           </div>
         )}
 
-        {/* Navigation */}
+        {/* Enhanced Navigation */}
         <nav className="flex-1 overflow-y-auto p-4">
           <div className="space-y-2">
-            {menuItems.map((item) => (
-              <Link
-                key={item.path}
-                to={item.path}
-                onClick={() => {
-                  if (window.innerWidth < 1024) {
-                    onClose();
-                  }
-                }}
-                className={`
-                  group flex items-center gap-4 px-4 py-3.5 rounded-xl text-sm font-semibold transition-all duration-200 relative overflow-hidden
-                  ${isActive(item.path)
-                    ? 'bg-gradient-to-r from-yellow-50 to-orange-50 text-orange-700 shadow-lg border border-orange-200'
-                    : 'text-gray-700 hover:bg-gradient-to-r hover:from-gray-50 hover:to-yellow-50/50 hover:text-gray-900'
-                  }
-                  ${isCollapsed ? 'justify-center px-3' : ''}
-                `}
-              >
-                {isActive(item.path) && (
-                  <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-yellow-400 to-orange-500 rounded-r-full" />
-                )}
-                
-                <item.icon className={`w-6 h-6 flex-shrink-0 transition-all duration-200 ${
-                  isActive(item.path) 
-                    ? 'text-orange-600 scale-110' 
-                    : `${item.color} group-hover:scale-105`
-                }`} />
-                
-                {!isCollapsed && (
-                  <div className="flex items-center justify-between flex-1">
-                    <span className="flex-1 text-base">{item.label}</span>
-                    {item.badge && (
-                      <Badge 
-                        className={`
-                          text-xs px-2.5 py-1 font-bold transition-all duration-200 shadow-sm
-                          ${isActive(item.path)
-                            ? 'bg-orange-100 text-orange-700 border-orange-300'
-                            : 'bg-gray-100 text-gray-600 group-hover:bg-yellow-100 group-hover:text-yellow-700'
-                          }
-                        `}
-                      >
-                        {item.badge}
-                      </Badge>
-                    )}
+            {menuItems.map((item) => {
+              const active = isActive(item.path);
+              return (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  onClick={() => {
+                    if (window.innerWidth < 1024) {
+                      onClose();
+                    }
+                  }}
+                  className={cn(
+                    "group flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300 relative overflow-hidden",
+                    active
+                      ? "bg-gradient-to-r from-yellow-400 via-orange-500 to-yellow-500 text-black shadow-lg shadow-yellow-500/30 transform scale-[1.02]"
+                      : "text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-800 dark:hover:to-gray-700 hover:text-gray-900 dark:hover:text-white hover:shadow-md",
+                    isCollapsed ? 'justify-center px-3' : ''
+                  )}
+                >
+                  {/* Active indicator background animation */}
+                  {active && (
+                    <div className="absolute inset-0 bg-gradient-to-r from-yellow-400/20 to-orange-500/20 animate-pulse" />
+                  )}
+                  
+                  <div className={cn(
+                    "flex items-center justify-center w-5 h-5 transition-all duration-300 relative z-10",
+                    item.isPro && !active && "text-purple-500",
+                    active && "scale-110",
+                    "group-hover:scale-110"
+                  )}>
+                    <item.icon className={cn(
+                      "w-5 h-5 transition-transform duration-300",
+                      active && "drop-shadow-lg"
+                    )} />
                   </div>
-                )}
-              </Link>
-            ))}
+                  {!isCollapsed && (
+                    <>
+                      <div className="flex-1 min-w-0 relative z-10">
+                        <div className="flex items-center gap-2">
+                          <span className={cn(
+                            "truncate transition-all duration-300",
+                            active && "font-bold"
+                          )}>
+                            {item.label}
+                          </span>
+                          {item.isPro && (
+                            <Crown className={cn(
+                              "w-3 h-3 transition-transform duration-300",
+                              "group-hover:scale-125",
+                              active ? "text-black" : "text-purple-500"
+                            )} />
+                          )}
+                        </div>
+                        <p className={cn(
+                          "text-xs truncate transition-all duration-300",
+                          active ? "text-black/70" : "text-gray-500 dark:text-gray-400"
+                        )}>
+                          {item.description}
+                        </p>
+                      </div>
+                      {item.badge && (
+                        <Badge 
+                          variant={item.badge === 'Pro' ? 'default' : 'secondary'} 
+                          className={cn(
+                            "text-xs px-2 py-1 font-semibold transition-all duration-300 relative z-10",
+                            active && 'bg-black/20 text-black border-black/20 shadow-md',
+                            item.badge === 'Pro' && !active && "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300 group-hover:scale-110",
+                            item.badge === 'New' && !active && "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300 group-hover:scale-110 animate-pulse",
+                            !active && !['Pro', 'New'].includes(item.badge) && "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 group-hover:scale-105"
+                          )}
+                        >
+                          {item.badge}
+                        </Badge>
+                      )}
+                    </>
+                  )}
+                  {active && (
+                    <>
+                      <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-black rounded-r-full shadow-lg" />
+                      <div className="absolute right-2 top-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-black rounded-full animate-ping" />
+                    </>
+                  )}
+                </Link>
+              );
+            })}
           </div>
         </nav>
-
-        {/* AI Assistant Footer */}
-        {!isCollapsed && (
-          <div className="p-4 border-t border-gray-100">
-            <div className="bg-gradient-to-br from-yellow-50 via-orange-50 to-red-50 rounded-2xl p-5 border border-orange-200 shadow-lg">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="p-2.5 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-xl shadow-md">
-                  <Bot className="w-5 h-5 text-white" />
-                </div>
-                <div className="flex-1">
-                  <span className="text-base font-bold text-gray-900">AI Assistant</span>
-                  <Badge className="ml-2 bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-xs border-0 shadow-sm">
-                    <Sparkles className="w-3 h-3 mr-1" />
-                    Pro
-                  </Badge>
-                </div>
-              </div>
-              <p className="text-sm text-gray-700 mb-4 leading-relaxed font-medium">
-                Get intelligent insights for project planning and contractor selection
-              </p>
-              <Button 
-                size="sm" 
-                className="w-full bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-200 border-0"
-              >
-                <Zap className="w-4 h-4 mr-2" />
-                Ask AI Assistant
-              </Button>
-            </div>
-          </div>
-        )}
       </div>
     </>
   );

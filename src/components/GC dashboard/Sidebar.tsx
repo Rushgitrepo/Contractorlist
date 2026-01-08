@@ -176,29 +176,51 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
         to={item.href}
         onClick={onClose}
         className={cn(
-          "group flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 relative",
+          "group flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300 relative overflow-hidden",
           isActive
-            ? "bg-gradient-to-r from-yellow-400 to-orange-500 text-black shadow-lg transform scale-[1.02]"
-            : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white",
+            ? "bg-gradient-to-r from-yellow-400 via-orange-500 to-yellow-500 text-black shadow-lg shadow-yellow-500/30 transform scale-[1.02]"
+            : "text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-800 dark:hover:to-gray-700 hover:text-gray-900 dark:hover:text-white hover:shadow-md",
           isCollapsed ? 'justify-center px-3' : ''
         )}
       >
+        {/* Active indicator background animation */}
+        {isActive && (
+          <div className="absolute inset-0 bg-gradient-to-r from-yellow-400/20 to-orange-500/20 animate-pulse" />
+        )}
+        
         <div className={cn(
-          "flex items-center justify-center w-5 h-5 transition-colors",
-          item.isPro && !isActive && "text-purple-500"
+          "flex items-center justify-center w-5 h-5 transition-all duration-300 relative z-10",
+          item.isPro && !isActive && "text-purple-500",
+          isActive && "scale-110",
+          "group-hover:scale-110"
         )}>
-          <item.icon className="w-5 h-5" />
+          <item.icon className={cn(
+            "w-5 h-5 transition-transform duration-300",
+            isActive && "drop-shadow-lg"
+          )} />
         </div>
         {!isCollapsed && (
           <>
-            <div className="flex-1 min-w-0">
+            <div className="flex-1 min-w-0 relative z-10">
               <div className="flex items-center gap-2">
-                <span className="truncate">{item.name}</span>
+                <span className={cn(
+                  "truncate transition-all duration-300",
+                  isActive && "font-bold"
+                )}>
+                  {item.name}
+                </span>
                 {item.isPro && (
-                  <Crown className="w-3 h-3 text-purple-500" />
+                  <Crown className={cn(
+                    "w-3 h-3 transition-transform duration-300",
+                    "group-hover:scale-125",
+                    isActive ? "text-black" : "text-purple-500"
+                  )} />
                 )}
               </div>
-              <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+              <p className={cn(
+                "text-xs truncate transition-all duration-300",
+                isActive ? "text-black/70" : "text-gray-500 dark:text-gray-400"
+              )}>
                 {item.description}
               </p>
             </div>
@@ -206,11 +228,11 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
               <Badge 
                 variant={item.badge === 'Pro' ? 'default' : 'secondary'} 
                 className={cn(
-                  "text-xs px-2 py-1 font-semibold",
-                  isActive && 'bg-black/20 text-black border-black/20',
-                  item.badge === 'Pro' && !isActive && "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300",
-                  item.badge === 'New' && !isActive && "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300",
-                  !isActive && !['Pro', 'New'].includes(item.badge) && "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
+                  "text-xs px-2 py-1 font-semibold transition-all duration-300 relative z-10",
+                  isActive && 'bg-black/20 text-black border-black/20 shadow-md',
+                  item.badge === 'Pro' && !isActive && "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300 group-hover:scale-110",
+                  item.badge === 'New' && !isActive && "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300 group-hover:scale-110 animate-pulse",
+                  !isActive && !['Pro', 'New'].includes(item.badge) && "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 group-hover:scale-105"
                 )}
               >
                 {item.badge}
@@ -219,7 +241,10 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
           </>
         )}
         {isActive && (
-          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-black rounded-r-full" />
+          <>
+            <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-black rounded-r-full shadow-lg" />
+            <div className="absolute right-2 top-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-black rounded-full animate-ping" />
+          </>
         )}
       </Link>
     );
@@ -237,7 +262,7 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
 
       {/* Sidebar */}
       <aside className={cn(
-        "fixed lg:static inset-y-0 left-0 z-50 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border-r border-gray-200/50 dark:border-gray-700/50 transform transition-all duration-300 ease-out flex flex-col shadow-xl lg:shadow-none",
+        "fixed lg:static inset-y-0 left-0 z-50 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border-r border-gray-200/50 dark:border-gray-700/50 transform transition-all duration-500 ease-out flex flex-col shadow-xl lg:shadow-lg",
         isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0",
         isCollapsed ? "w-16" : "w-72"
       )}>
@@ -340,124 +365,6 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
           <div className="space-y-1">
             {bottomItems.map((item) => renderNavItem(item))}
           </div>
-
-          {!isCollapsed && (
-            <>
-              {/* User profile */}
-              <div className="flex items-center gap-3 p-3 rounded-xl bg-gray-50 dark:bg-gray-800/50 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer transition-colors">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white shadow-sm">
-                  <span className="text-sm font-bold">AC</span>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-semibold text-gray-900 dark:text-white truncate">
-                      Acme Construction
-                    </span>
-                    <Crown className="w-3 h-3 text-purple-500" />
-                  </div>
-                  <span className="text-xs text-gray-500 dark:text-gray-400">
-                    Enterprise Plan
-                  </span>
-                </div>
-                <ChevronRight className="w-4 h-4 text-gray-400" />
-              </div>
-
-              {/* Enhanced AI Assistant Footer */}
-              <div className="bg-gradient-to-br from-gray-900 to-black rounded-2xl p-5 border border-gray-700 shadow-2xl overflow-hidden relative">
-                <div className="absolute -right-6 -top-6 w-24 h-24 bg-gradient-to-br from-yellow-400/20 to-orange-500/20 rounded-full blur-2xl"></div>
-                <div className="absolute -left-4 bottom-4 w-16 h-16 bg-blue-500/10 rounded-full blur-xl"></div>
-                
-                <div className="relative z-10">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center shadow-lg">
-                      <Bot className="w-5 h-5 text-black" />
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-bold text-white">AI Copilot</span>
-                        <Badge className="bg-gradient-to-r from-yellow-400 to-orange-500 text-black text-xs px-2 py-0.5 font-bold">
-                          Pro
-                        </Badge>
-                      </div>
-                      <div className="flex items-center gap-1 mt-1">
-                        <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                        <span className="text-xs text-gray-400">Active & Learning</span>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-3 mb-4">
-                    <div className="flex items-center justify-between text-xs">
-                      <div className="flex items-center gap-2">
-                        <TrendingUp className="w-3 h-3 text-green-400" />
-                        <span className="text-gray-300">Revenue Growth</span>
-                      </div>
-                      <span className="font-bold text-green-400">+15.2%</span>
-                    </div>
-                    <div className="flex items-center justify-between text-xs">
-                      <div className="flex items-center gap-2">
-                        <DollarSign className="w-3 h-3 text-blue-400" />
-                        <span className="text-gray-300">Total Revenue</span>
-                      </div>
-                      <span className="font-bold text-blue-400">$12.5M</span>
-                    </div>
-                    <div className="flex items-center justify-between text-xs">
-                      <div className="flex items-center gap-2">
-                        <Building2 className="w-3 h-3 text-purple-400" />
-                        <span className="text-gray-300">Active Projects</span>
-                      </div>
-                      <span className="font-bold text-purple-400">24</span>
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Button 
-                      size="sm" 
-                      className="w-full bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-black text-xs font-bold shadow-lg"
-                    >
-                      <Zap className="w-3 h-3 mr-2" />
-                      Open AI Copilot
-                    </Button>
-                    <div className="grid grid-cols-2 gap-2">
-                      <Button variant="outline" size="sm" className="text-xs border-gray-600 text-gray-300 hover:bg-gray-800">
-                        <TrendingUp className="w-3 h-3 mr-1" />
-                        Optimize
-                      </Button>
-                      <Button variant="outline" size="sm" className="text-xs border-gray-600 text-gray-300 hover:bg-gray-800">
-                        <Target className="w-3 h-3 mr-1" />
-                        Find Leads
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              
-              {/* Quick Stats */}
-              <div className="grid grid-cols-3 gap-2 text-center">
-                <div className="p-2 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                  <div className="flex items-center justify-center gap-1 text-green-600 mb-1">
-                    <Star className="w-3 h-3" />
-                    <span className="text-sm font-bold">4.9</span>
-                  </div>
-                  <p className="text-xs text-gray-600 dark:text-gray-400">Rating</p>
-                </div>
-                <div className="p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                  <div className="flex items-center justify-center gap-1 text-blue-600 mb-1">
-                    <Award className="w-3 h-3" />
-                    <span className="text-sm font-bold">87%</span>
-                  </div>
-                  <p className="text-xs text-gray-600 dark:text-gray-400">Capacity</p>
-                </div>
-                <div className="p-2 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
-                  <div className="flex items-center justify-center gap-1 text-orange-600 mb-1">
-                    <Building2 className="w-3 h-3" />
-                    <span className="text-sm font-bold">24</span>
-                  </div>
-                  <p className="text-xs text-gray-600 dark:text-gray-400">Projects</p>
-                </div>
-              </div>
-            </>
-          )}
         </div>
       </aside>
     </>
