@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { 
-  Check, 
-  User, 
-  Building2, 
-  Briefcase, 
+import {
+  Check,
+  User,
+  Building2,
+  Briefcase,
   Target,
   HardHat,
   Store,
@@ -24,6 +24,9 @@ import {
   HelpCircle,
   Package,
   CheckCircle2,
+  Loader2,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -36,6 +39,8 @@ const SignupMultiStep = () => {
   const { toast } = useToast();
   const [currentStep, setCurrentStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const [formData, setFormData] = useState({
     email: "",
@@ -52,11 +57,115 @@ const SignupMultiStep = () => {
     receiveUpdates: false,
     trades: [] as string[],
     goals: [] as string[],
+
+    // Additional fields
+    role: "",
+    yearsInBusiness: 0,
+    projectSizeRange: "",
+    serviceArea: "",
+    businessType: "",
+    deliveryRadius: 0,
+    minOrderValue: "",
+    offerCreditTerms: false,
+    projectType: "",
+    budget: "",
+    timeline: "",
+    propertySize: "",
+    financingStatus: "",
   });
 
   const [otpSent, setOtpSent] = useState(false);
   const [otpVerified, setOtpVerified] = useState(false);
   const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
+
+  // SMS OTP State
+  const [smsOtp, setSmsOtp] = useState("");
+  const [smsSent, setSmsSent] = useState(false);
+  const [smsVerified, setSmsVerified] = useState(false);
+  const [isVerifyingSms, setIsVerifyingSms] = useState(false);
+
+  const handleSendEmailOtp = async () => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!formData.email || !emailRegex.test(formData.email)) {
+      toast({ title: "Invalid Email", description: "Please enter a valid email address first", variant: "destructive" });
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      // Check availability first to avoid sending OTP to taken email
+      const check = await authService.checkEmail(formData.email);
+      if (check.exists) {
+        toast({ title: "Email Taken", description: "This email is already registered", variant: "destructive" });
+        return;
+      }
+
+      await authService.sendEmailOtp(formData.email);
+      setOtpSent(true);
+      toast({ title: "OTP Sent", description: "Please check your email for the verification code" });
+    } catch (error: any) {
+      toast({ title: "Error", description: error.message || "Failed to send OTP", variant: "destructive" });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleVerifyEmailOtp = async () => {
+    if (!formData.otp) {
+      toast({ title: "OTP Required", description: "Please enter the verification code", variant: "destructive" });
+      return;
+    }
+
+    try {
+      setIsVerifyingOtp(true);
+      await authService.verifyEmailOtp(formData.email, formData.otp);
+      setOtpVerified(true);
+      toast({ title: "Verified", description: "Email verified successfully", className: "bg-green-500 text-white" });
+    } catch (error: any) {
+      toast({ title: "Verification Failed", description: error.message || "Invalid code", variant: "destructive" });
+    } finally {
+      setIsVerifyingOtp(false);
+    }
+  };
+
+  const handleSendSmsOtp = async () => {
+    // US Phone Check: Must start with +1 and have 10 digits
+    // More flexible regex: Allow +1 or just 10 digits
+    const phone = formData.phone.trim();
+    if (!/^\+1\d{10}$/.test(phone)) {
+      toast({ title: "Invalid Phone Format", description: "Please use US format: +1 followed by 10 digits (e.g., +15551234567)", variant: "destructive" });
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      await authService.sendSmsOtp(formData.phone);
+      setSmsSent(true);
+      toast({ title: "SMS Sent", description: "Please check your phone for the verification code" });
+    } catch (error: any) {
+      toast({ title: "Error", description: error.message || "Failed to send SMS", variant: "destructive" });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleVerifySmsOtp = async () => {
+    if (!smsOtp) {
+      toast({ title: "OTP Required", description: "Please enter the verification code", variant: "destructive" });
+      return;
+    }
+
+    try {
+      setIsVerifyingSms(true);
+      await authService.verifySmsOtp(formData.phone, smsOtp);
+      setSmsVerified(true);
+      toast({ title: "Verified", description: "Phone verified successfully", className: "bg-green-500 text-white" });
+    } catch (error: any) {
+      toast({ title: "Verification Failed", description: error.message || "Invalid code", variant: "destructive" });
+    } finally {
+      setIsVerifyingSms(false);
+    }
+  };
 
   const steps = [
     { number: 1, title: "Register", icon: User, completed: currentStep > 1 },
@@ -65,11 +174,103 @@ const SignupMultiStep = () => {
     { number: 4, title: "Your Goals", icon: Target, completed: currentStep > 4 },
   ];
 
-  const handleNext = () => {
-    if (currentStep < 4) {
-      setCurrentStep(currentStep + 1);
-    } else {
-      handleSubmit();
+  const validateStep = async (step: number) => {
+    if (step === 1) {
+      if (!formData.firstName || !formData.lastName || !formData.email || !formData.password || !formData.confirmPassword) {
+        toast({ title: "Missing Information", description: "Please fill in all required fields marked with *", variant: "destructive" });
+        return false;
+      }
+
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(formData.email)) {
+        toast({ title: "Invalid Email", description: "Please enter a valid email address", variant: "destructive" });
+        return false;
+      }
+
+      if (formData.password !== formData.confirmPassword) {
+        toast({ title: "Password Mismatch", description: "Passwords do not match", variant: "destructive" });
+        return false;
+      }
+
+      // Check Password Complexity
+      // At least 8 chars, 1 uppercase, 1 lowercase, 1 number
+      const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])/;
+      if (formData.password.length < 8) {
+        toast({ title: "Weak Password", description: "Password must be at least 8 characters long", variant: "destructive" });
+        return false;
+      }
+      if (!passwordRegex.test(formData.password)) {
+        toast({ title: "Weak Password", description: "Password must contain at least one uppercase letter, one lowercase letter, and one number", variant: "destructive" });
+        return false;
+      }
+
+      // Check Email Availability asynchronously
+      try {
+        setIsLoading(true);
+        const check = await authService.checkEmail(formData.email);
+        if (check.exists) {
+          toast({ title: "Email Taken", description: "This email address is already registered. Please login or use another email.", variant: "destructive" });
+          return false;
+        }
+      } catch (error) {
+        console.error("Email check failed", error);
+        // Fallback: allow to proceed if check fails? Or block?
+        // Blocking is safer to avoid frustration later.
+        toast({ title: "Network Error", description: "Could not verify email availability. Please check your connection.", variant: "destructive" });
+        return false;
+      } finally {
+        setIsLoading(false);
+      }
+
+      if (!otpVerified) {
+        toast({ title: "Email Unverified", description: "Please verify your email address to continue", variant: "destructive" });
+        return false;
+      }
+    }
+
+    if (step === 2) {
+      if (!formData.workType) {
+        toast({ title: "Selection Required", description: "Please select a work type", variant: "destructive" });
+        return false;
+      }
+
+      const commonFields = !formData.address || !formData.phone || !formData.role;
+      let specificFields = false;
+
+      if (formData.workType === 'client') {
+        specificFields = !formData.projectType || !formData.budget || !formData.timeline || !formData.financingStatus;
+      } else if (formData.workType === 'general-contractor') {
+        specificFields = !formData.companyName || !formData.companySize || !formData.yearsInBusiness || !formData.projectSizeRange;
+      } else if (formData.workType === 'subcontractor') {
+        specificFields = !formData.companyName || !formData.companySize || !formData.yearsInBusiness || !formData.serviceArea;
+      } else if (formData.workType === 'supplier') {
+        specificFields = !formData.companyName || !formData.companySize || !formData.businessType || !formData.deliveryRadius || !formData.yearsInBusiness || !formData.minOrderValue;
+      }
+
+      if (commonFields || specificFields) {
+        toast({ title: "Missing Information", description: "Please fill in all required company details marked with *", variant: "destructive" });
+        return false;
+      }
+
+      // Enforce US Phone Format before proceeding
+      const phoneRegex = /^\+1\d{10}$/;
+      if (!phoneRegex.test(formData.phone.trim())) {
+        toast({ title: "Invalid Phone Format", description: "Phone number must be in US format: +1 followed by 10 digits (e.g., +15551234567)", variant: "destructive" });
+        return false;
+      }
+    }
+
+    return true;
+  };
+
+  const handleNext = async () => {
+    const isValid = await validateStep(currentStep);
+    if (isValid) {
+      if (currentStep < 4) {
+        setCurrentStep(currentStep + 1);
+      } else {
+        handleSubmit();
+      }
     }
   };
 
@@ -93,10 +294,10 @@ const SignupMultiStep = () => {
     try {
       // TODO: Implement actual OTP sending API call
       // await api.post('/auth/send-otp', { phone: formData.phone });
-      
+
       // Simulating OTP send
       await new Promise(resolve => setTimeout(resolve, 1000));
-      
+
       setOtpSent(true);
       toast({
         title: "OTP Sent!",
@@ -127,10 +328,10 @@ const SignupMultiStep = () => {
     try {
       // TODO: Implement actual OTP verification API call
       // await api.post('/auth/verify-otp', { phone: formData.phone, otp: formData.otp });
-      
+
       // Simulating OTP verification
       await new Promise(resolve => setTimeout(resolve, 1000));
-      
+
       setOtpVerified(true);
       toast({
         title: "Phone Verified!",
@@ -158,15 +359,40 @@ const SignupMultiStep = () => {
       };
 
       await authService.register({
-        name: `${formData.firstName} ${formData.lastName}`,
+        firstName: formData.firstName,
+        lastName: formData.lastName,
         email: formData.email,
         password: formData.password,
-        role: roleMap[formData.workType] as any,
+        workType: formData.workType as any,
         phone: formData.phone,
-        company: formData.companyName,
-        businessAddress: formData.address,
-        specialties: formData.trades,
-      });
+
+        // Common Fields
+        companyName: formData.companyName,
+        companySize: formData.companySize,
+        address: formData.address,
+        role: formData.role, // role within company
+        yearsInBusiness: formData.yearsInBusiness,
+
+        // Contractor Specific
+        projectSizeRange: formData.projectSizeRange,
+        serviceArea: formData.serviceArea,
+
+        // Supplier Specific
+        businessType: formData.businessType,
+        deliveryRadius: formData.deliveryRadius,
+        minOrderValue: formData.minOrderValue,
+        offerCreditTerms: formData.offerCreditTerms,
+
+        // Client Specific
+        projectType: formData.projectType,
+        budgetRange: formData.budget, // mapping 'budget' state to 'budgetRange' api field if needed, or rename state
+        timeline: formData.timeline,
+        propertySize: formData.propertySize,
+        financingStatus: formData.financingStatus,
+
+        trades: formData.trades,
+        goals: formData.goals,
+      } as any);
 
       toast({
         title: "Account Created Successfully!",
@@ -175,9 +401,20 @@ const SignupMultiStep = () => {
 
       navigate("/login");
     } catch (error: any) {
+      console.error('Registration Error:', error);
+
+      let errorMessage = "Please try again";
+
+      if (error.errors && Array.isArray(error.errors) && error.errors.length > 0) {
+        // Display the first validation error message
+        errorMessage = error.errors[0].message;
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+
       toast({
         title: "Registration Failed",
-        description: error.message || "Please try again",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
@@ -284,22 +521,20 @@ const SignupMultiStep = () => {
               )}
               <div className="flex items-center gap-3">
                 <div
-                  className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold text-base transition-all flex-shrink-0 ${
-                    step.completed
-                      ? "bg-white text-yellow-500 shadow-md"
-                      : currentStep === step.number
+                  className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold text-base transition-all flex-shrink-0 ${step.completed
+                    ? "bg-white text-yellow-500 shadow-md"
+                    : currentStep === step.number
                       ? "bg-gray-900 text-white shadow-md"
                       : "bg-white/20 text-white/70"
-                  }`}
+                    }`}
                 >
                   {step.completed ? <Check className="w-5 h-5" /> : step.number}
                 </div>
                 <h3
-                  className={`font-medium text-sm ${
-                    currentStep === step.number || step.completed
-                      ? "text-white"
-                      : "text-white/70"
-                  }`}
+                  className={`font-medium text-sm ${currentStep === step.number || step.completed
+                    ? "text-white"
+                    : "text-white/70"
+                    }`}
                 >
                   {step.title}
                 </h3>
@@ -320,7 +555,7 @@ const SignupMultiStep = () => {
       <div className="flex-1 bg-gray-50 p-12 overflow-y-auto">
         <div className="max-w-3xl mx-auto">
           <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
-            
+
             {/* Step 1: Register */}
             {currentStep === 1 && (
               <div className="space-y-8">
@@ -375,6 +610,56 @@ const SignupMultiStep = () => {
                           className="pl-10 h-11"
                         />
                       </div>
+
+                      {/* OTP Section */}
+                      {otpVerified ? (
+                        <div className="mt-2 flex items-center gap-2 text-green-600 bg-green-50 p-2 rounded-md">
+                          <CheckCircle2 className="w-5 h-5" />
+                          <span className="text-sm font-medium">Email Verified</span>
+                        </div>
+                      ) : (
+                        <div className="mt-2 space-y-3">
+                          {!otpSent ? (
+                            <Button
+                              type="button"
+                              onClick={handleSendEmailOtp}
+                              disabled={isLoading || !formData.email}
+                              variant="outline"
+                              className="w-full"
+                            >
+                              {isLoading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Mail className="w-4 h-4 mr-2" />}
+                              Verify Email
+                            </Button>
+                          ) : (
+                            <div className="space-y-2">
+                              <div className="flex gap-2">
+                                <Input
+                                  placeholder="Enter 6-digit code"
+                                  value={formData.otp}
+                                  onChange={(e) => setFormData({ ...formData, otp: e.target.value })}
+                                  maxLength={6}
+                                  className="tracking-widest"
+                                />
+                                <Button
+                                  type="button"
+                                  onClick={handleVerifyEmailOtp}
+                                  disabled={isVerifyingOtp}
+                                  className="bg-green-600 hover:bg-green-700 text-white"
+                                >
+                                  {isVerifyingOtp ? "Verifying..." : "Verify"}
+                                </Button>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={handleSendEmailOtp}
+                                className="text-xs text-blue-600 hover:underline"
+                              >
+                                Resend Code
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
 
                     <div className="col-span-2">
@@ -383,12 +668,23 @@ const SignupMultiStep = () => {
                         <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                         <Input
                           id="password"
-                          type="password"
+                          type={showPassword ? "text" : "password"}
                           placeholder="Create a strong password"
                           value={formData.password}
                           onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                          className="pl-10 h-11"
+                          className="pl-10 pr-10 h-11"
                         />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none"
+                        >
+                          {showPassword ? (
+                            <EyeOff className="w-4 h-4" />
+                          ) : (
+                            <Eye className="w-4 h-4" />
+                          )}
+                        </button>
                       </div>
                       <p className="text-xs text-gray-500 mt-2 flex items-center gap-1">
                         <span className="w-1.5 h-1.5 bg-gray-400 rounded-full"></span>
@@ -402,12 +698,23 @@ const SignupMultiStep = () => {
                         <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                         <Input
                           id="confirmPassword"
-                          type="password"
+                          type={showConfirmPassword ? "text" : "password"}
                           placeholder="Confirm your password"
                           value={formData.confirmPassword}
                           onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-                          className="pl-10 h-11"
+                          className="pl-10 pr-10 h-11"
                         />
+                        <button
+                          type="button"
+                          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none"
+                        >
+                          {showConfirmPassword ? (
+                            <EyeOff className="w-4 h-4" />
+                          ) : (
+                            <Eye className="w-4 h-4" />
+                          )}
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -458,11 +765,10 @@ const SignupMultiStep = () => {
                           key={type.value}
                           type="button"
                           onClick={() => setFormData({ ...formData, workType: type.value })}
-                          className={`p-5 border-2 rounded-xl text-center transition-all flex flex-col items-center gap-2 ${
-                            formData.workType === type.value
-                              ? "border-teal-500 bg-teal-50"
-                              : "border-gray-300 hover:border-gray-400 bg-white"
-                          }`}
+                          className={`p-5 border-2 rounded-xl text-center transition-all flex flex-col items-center gap-2 ${formData.workType === type.value
+                            ? "border-teal-500 bg-teal-50"
+                            : "border-gray-300 hover:border-gray-400 bg-white"
+                            }`}
                         >
                           <Icon className={`w-8 h-8 ${formData.workType === type.value ? "text-teal-600" : "text-gray-400"}`} />
                           <span className={`text-xs font-semibold ${formData.workType === type.value ? "text-teal-700" : "text-gray-600"}`}>
@@ -500,10 +806,14 @@ const SignupMultiStep = () => {
                         <Input
                           placeholder="Years in Business *"
                           type="number"
+                          value={formData.yearsInBusiness || ''}
+                          onChange={(e) => setFormData({ ...formData, yearsInBusiness: parseInt(e.target.value) || 0 })}
                           className="bg-gray-50"
                         />
                         <Input
                           placeholder="Service Area (City/Region) *"
+                          value={formData.serviceArea || ''}
+                          onChange={(e) => setFormData({ ...formData, serviceArea: e.target.value })}
                           className="bg-gray-50"
                         />
                       </div>
@@ -522,7 +832,10 @@ const SignupMultiStep = () => {
                     <div className="border-t pt-6 space-y-4">
                       <h3 className="text-base font-semibold text-gray-900 mb-4">Contact Details</h3>
                       <div className="grid grid-cols-2 gap-4">
-                        <select className="w-full h-10 rounded-md border border-gray-300 bg-gray-50 px-3 text-sm">
+                        <select
+                          value={formData.role || ''}
+                          onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+                          className="w-full h-10 rounded-md border border-gray-300 bg-gray-50 px-3 text-sm">
                           <option value="">Role *</option>
                           <option value="owner">Owner</option>
                           <option value="manager">Manager</option>
@@ -537,56 +850,47 @@ const SignupMultiStep = () => {
                             value={formData.phone}
                             onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                             className="bg-gray-50 pl-10"
-                            disabled={otpVerified}
+                            disabled={smsVerified}
                           />
-                          {otpVerified && (
+                          {smsVerified && (
                             <CheckCircle2 className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-green-500" />
                           )}
                         </div>
-                        {!otpVerified && formData.phone && formData.phone.length >= 10 && (
+
+                        {!smsVerified && formData.phone && formData.phone.length >= 10 && (
                           <div className="col-span-2">
-                            <Button
-                              type="button"
-                              onClick={handleSendOtp}
-                              disabled={isLoading || otpSent}
-                              className="w-full bg-teal-500 hover:bg-teal-600 text-white"
-                            >
-                              {otpSent ? "OTP Sent" : "Send OTP"}
-                            </Button>
-                          </div>
-                        )}
-                        {otpSent && !otpVerified && (
-                          <>
-                            <div className="col-span-2">
-                              <Input
-                                placeholder="Enter 6-digit OTP *"
-                                type="text"
-                                maxLength={6}
-                                value={formData.otp}
-                                onChange={(e) => setFormData({ ...formData, otp: e.target.value.replace(/\D/g, '') })}
-                                className="bg-gray-50 text-center text-lg tracking-widest"
-                              />
-                            </div>
-                            <div className="col-span-2 flex gap-2">
+                            {!smsSent ? (
                               <Button
                                 type="button"
-                                onClick={handleVerifyOtp}
-                                disabled={isVerifyingOtp || formData.otp.length !== 6}
-                                className="flex-1 bg-green-500 hover:bg-green-600 text-white"
-                              >
-                                {isVerifyingOtp ? "Verifying..." : "Verify OTP"}
-                              </Button>
-                              <Button
-                                type="button"
-                                onClick={handleSendOtp}
+                                onClick={handleSendSmsOtp}
                                 disabled={isLoading}
-                                variant="outline"
-                                className="flex-1"
+                                className="w-full bg-teal-600 text-white"
                               >
-                                Resend OTP
+                                {isLoading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : "Verify Phone Number"}
                               </Button>
-                            </div>
-                          </>
+                            ) : (
+                              <div className="space-y-2">
+                                <div className="flex gap-2">
+                                  <Input
+                                    placeholder="Enter SMS Code"
+                                    value={smsOtp}
+                                    onChange={(e) => setSmsOtp(e.target.value)}
+                                    maxLength={6}
+                                    className="tracking-widest text-center"
+                                  />
+                                  <Button
+                                    type="button"
+                                    onClick={handleVerifySmsOtp}
+                                    disabled={isVerifyingSms}
+                                    className="bg-green-600 text-white"
+                                  >
+                                    {isVerifyingSms ? "..." : "Verify"}
+                                  </Button>
+                                </div>
+                                <button type="button" onClick={handleSendSmsOtp} className="text-xs text-blue-500 underline">Resend Code</button>
+                              </div>
+                            )}
+                          </div>
                         )}
                       </div>
                     </div>
@@ -619,9 +923,14 @@ const SignupMultiStep = () => {
                         <Input
                           placeholder="Years in Business *"
                           type="number"
+                          value={formData.yearsInBusiness || ''}
+                          onChange={(e) => setFormData({ ...formData, yearsInBusiness: parseInt(e.target.value) || 0 })}
                           className="bg-gray-50"
                         />
-                        <select className="w-full h-10 rounded-md border border-gray-300 bg-gray-50 px-3 text-sm">
+                        <select
+                          value={formData.projectSizeRange || ''}
+                          onChange={(e) => setFormData({ ...formData, projectSizeRange: e.target.value })}
+                          className="w-full h-10 rounded-md border border-gray-300 bg-gray-50 px-3 text-sm">
                           <option value="">Project Size Range *</option>
                           <option value="under-500k">Under $500K</option>
                           <option value="500k-2m">$500K - $2M</option>
@@ -644,7 +953,10 @@ const SignupMultiStep = () => {
                     <div className="border-t pt-6 space-y-4">
                       <h3 className="text-base font-semibold text-gray-900 mb-4">Contact Details</h3>
                       <div className="grid grid-cols-2 gap-4">
-                        <select className="w-full h-10 rounded-md border border-gray-300 bg-gray-50 px-3 text-sm">
+                        <select
+                          value={formData.role || ''}
+                          onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+                          className="w-full h-10 rounded-md border border-gray-300 bg-gray-50 px-3 text-sm">
                           <option value="">Role *</option>
                           <option value="owner">Owner</option>
                           <option value="project-manager">Project Manager</option>
@@ -659,13 +971,13 @@ const SignupMultiStep = () => {
                             value={formData.phone}
                             onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                             className="bg-gray-50 pl-10"
-                            disabled={otpVerified}
+                            disabled={false}
                           />
                           {otpVerified && (
                             <CheckCircle2 className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-green-500" />
                           )}
                         </div>
-                        {!otpVerified && formData.phone && formData.phone.length >= 10 && (
+                        {!true && formData.phone && formData.phone.length >= 10 && (
                           <div className="col-span-2">
                             <Button
                               type="button"
@@ -677,7 +989,7 @@ const SignupMultiStep = () => {
                             </Button>
                           </div>
                         )}
-                        {otpSent && !otpVerified && (
+                        {otpSent && !true && (
                           <>
                             <div className="col-span-2">
                               <Input
@@ -738,7 +1050,10 @@ const SignupMultiStep = () => {
                           <option value="51-200">51-200 employees</option>
                           <option value="200+">200+ employees</option>
                         </select>
-                        <select className="w-full h-10 rounded-md border border-gray-300 bg-gray-50 px-3 text-sm">
+                        <select
+                          value={formData.businessType || ''}
+                          onChange={(e) => setFormData({ ...formData, businessType: e.target.value })}
+                          className="w-full h-10 rounded-md border border-gray-300 bg-gray-50 px-3 text-sm">
                           <option value="">Business Type *</option>
                           <option value="manufacturer">Manufacturer</option>
                           <option value="distributor">Distributor</option>
@@ -748,21 +1063,29 @@ const SignupMultiStep = () => {
                         <Input
                           placeholder="Years in Business *"
                           type="number"
+                          value={formData.yearsInBusiness || ''}
+                          onChange={(e) => setFormData({ ...formData, yearsInBusiness: parseInt(e.target.value) || 0 })}
                           className="bg-gray-50"
                         />
                         <Input
                           placeholder="Delivery Radius (miles) *"
                           type="number"
+                          value={formData.deliveryRadius || ''}
+                          onChange={(e) => setFormData({ ...formData, deliveryRadius: parseInt(e.target.value) || 0 })}
                           className="bg-gray-50"
                         />
                         <Input
                           placeholder="Minimum Order Value *"
+                          value={formData.minOrderValue || ''}
+                          onChange={(e) => setFormData({ ...formData, minOrderValue: e.target.value })}
                           className="bg-gray-50"
                         />
                         <div className="col-span-2">
                           <label className="flex items-center gap-3 cursor-pointer p-4 border-2 border-gray-200 rounded-lg hover:border-teal-300">
                             <input
                               type="checkbox"
+                              checked={!!formData.offerCreditTerms}
+                              onChange={(e) => setFormData({ ...formData, offerCreditTerms: e.target.checked })}
                               className="rounded border-gray-300 text-teal-500 focus:ring-teal-500"
                             />
                             <span className="font-medium text-gray-700">Offer Credit Terms</span>
@@ -784,12 +1107,14 @@ const SignupMultiStep = () => {
                     <div className="border-t pt-6 space-y-4">
                       <h3 className="text-base font-semibold text-gray-900 mb-4">Contact Details</h3>
                       <div className="grid grid-cols-2 gap-4">
-                        <select className="w-full h-10 rounded-md border border-gray-300 bg-gray-50 px-3 text-sm">
+                        <select
+                          value={formData.role || ''}
+                          onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+                          className="w-full h-10 rounded-md border border-gray-300 bg-gray-50 px-3 text-sm">
                           <option value="">Role *</option>
                           <option value="owner">Owner</option>
                           <option value="sales-manager">Sales Manager</option>
-                          <option value="account-manager">Account Manager</option>
-                          <option value="operations-manager">Operations Manager</option>
+                          <option value="account-rep">Account Representative</option>
                         </select>
                         <div className="relative">
                           <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 z-10" />
@@ -799,56 +1124,46 @@ const SignupMultiStep = () => {
                             value={formData.phone}
                             onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                             className="bg-gray-50 pl-10"
-                            disabled={otpVerified}
+                            disabled={smsVerified}
                           />
                           {otpVerified && (
                             <CheckCircle2 className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-green-500" />
                           )}
                         </div>
-                        {!otpVerified && formData.phone && formData.phone.length >= 10 && (
+                        {!smsVerified && formData.phone && formData.phone.length >= 10 && (
                           <div className="col-span-2">
-                            <Button
-                              type="button"
-                              onClick={handleSendOtp}
-                              disabled={isLoading || otpSent}
-                              className="w-full bg-teal-500 hover:bg-teal-600 text-white"
-                            >
-                              {otpSent ? "OTP Sent" : "Send OTP"}
-                            </Button>
-                          </div>
-                        )}
-                        {otpSent && !otpVerified && (
-                          <>
-                            <div className="col-span-2">
-                              <Input
-                                placeholder="Enter 6-digit OTP *"
-                                type="text"
-                                maxLength={6}
-                                value={formData.otp}
-                                onChange={(e) => setFormData({ ...formData, otp: e.target.value.replace(/\D/g, '') })}
-                                className="bg-gray-50 text-center text-lg tracking-widest"
-                              />
-                            </div>
-                            <div className="col-span-2 flex gap-2">
+                            {!smsSent ? (
                               <Button
                                 type="button"
-                                onClick={handleVerifyOtp}
-                                disabled={isVerifyingOtp || formData.otp.length !== 6}
-                                className="flex-1 bg-green-500 hover:bg-green-600 text-white"
-                              >
-                                {isVerifyingOtp ? "Verifying..." : "Verify OTP"}
-                              </Button>
-                              <Button
-                                type="button"
-                                onClick={handleSendOtp}
+                                onClick={handleSendSmsOtp}
                                 disabled={isLoading}
-                                variant="outline"
-                                className="flex-1"
+                                className="w-full bg-teal-600 text-white"
                               >
-                                Resend OTP
+                                {isLoading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : "Verify Phone Number (SMS)"}
                               </Button>
-                            </div>
-                          </>
+                            ) : (
+                              <div className="space-y-2">
+                                <div className="flex gap-2">
+                                  <Input
+                                    placeholder="Enter SMS Code"
+                                    value={smsOtp}
+                                    onChange={(e) => setSmsOtp(e.target.value)}
+                                    maxLength={6}
+                                    className="tracking-widest text-center"
+                                  />
+                                  <Button
+                                    type="button"
+                                    onClick={handleVerifySmsOtp}
+                                    disabled={isVerifyingSms}
+                                    className="bg-green-600 text-white"
+                                  >
+                                    {isVerifyingSms ? "..." : "Verify"}
+                                  </Button>
+                                </div>
+                                <button type="button" onClick={handleSendSmsOtp} className="text-xs text-blue-500 underline">Resend Code</button>
+                              </div>
+                            )}
+                          </div>
                         )}
                       </div>
                     </div>
@@ -859,25 +1174,29 @@ const SignupMultiStep = () => {
                 {formData.workType === "client" && (
                   <>
                     <div className="border-t pt-6 space-y-4">
-                      <h3 className="text-base font-semibold text-gray-900 mb-4">Project Info</h3>
+                      <h3 className="text-base font-semibold text-gray-900 mb-4">Project Details</h3>
                       <div className="grid grid-cols-2 gap-4">
-                        <select className="w-full h-10 rounded-md border border-gray-300 bg-gray-50 px-3 text-sm">
+                        <select
+                          value={formData.projectType || ''}
+                          onChange={(e) => setFormData({ ...formData, projectType: e.target.value })}
+                          className="w-full h-10 rounded-md border border-gray-300 bg-gray-50 px-3 text-sm">
                           <option value="">Project Type *</option>
                           <option value="residential">Residential</option>
                           <option value="commercial">Commercial</option>
-                          <option value="industrial">Industrial</option>
                           <option value="renovation">Renovation</option>
+                          <option value="new-construction">New Construction</option>
                         </select>
-                        <select className="w-full h-10 rounded-md border border-gray-300 bg-gray-50 px-3 text-sm">
+                        <select
+                          value={formData.budget || ''}
+                          onChange={(e) => setFormData({ ...formData, budget: e.target.value })}
+                          className="w-full h-10 rounded-md border border-gray-300 bg-gray-50 px-3 text-sm">
                           <option value="">Budget Range *</option>
-                          <option value="under-50k">Under $50,000</option>
-                          <option value="50k-100k">$50,000 - $100,000</option>
-                          <option value="100k-250k">$100,000 - $250,000</option>
-                          <option value="250k-500k">$250,000 - $500,000</option>
-                          <option value="500k-1m">$500,000 - $1,000,000</option>
                           <option value="over-1m">Over $1,000,000</option>
                         </select>
-                        <select className="w-full h-10 rounded-md border border-gray-300 bg-gray-50 px-3 text-sm">
+                        <select
+                          value={formData.timeline || ''}
+                          onChange={(e) => setFormData({ ...formData, timeline: e.target.value })}
+                          className="w-full h-10 rounded-md border border-gray-300 bg-gray-50 px-3 text-sm">
                           <option value="">Timeline *</option>
                           <option value="immediate">Immediate (Within 1 month)</option>
                           <option value="1-3-months">1-3 months</option>
@@ -888,6 +1207,8 @@ const SignupMultiStep = () => {
                         <Input
                           placeholder="Property Size (sq ft)"
                           type="number"
+                          value={formData.propertySize || ''}
+                          onChange={(e) => setFormData({ ...formData, propertySize: e.target.value })}
                           className="bg-gray-50"
                         />
                         <Input
@@ -896,7 +1217,10 @@ const SignupMultiStep = () => {
                           onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
                           className="bg-gray-50"
                         />
-                        <select className="w-full h-10 rounded-md border border-gray-300 bg-gray-50 px-3 text-sm">
+                        <select
+                          value={formData.financingStatus || ''}
+                          onChange={(e) => setFormData({ ...formData, financingStatus: e.target.value })}
+                          className="w-full h-10 rounded-md border border-gray-300 bg-gray-50 px-3 text-sm">
                           <option value="">Financing Status *</option>
                           <option value="secured">Financing Secured</option>
                           <option value="in-progress">In Progress</option>
@@ -919,7 +1243,10 @@ const SignupMultiStep = () => {
                     <div className="border-t pt-6 space-y-4">
                       <h3 className="text-base font-semibold text-gray-900 mb-4">Contact Details</h3>
                       <div className="grid grid-cols-2 gap-4">
-                        <select className="w-full h-10 rounded-md border border-gray-300 bg-gray-50 px-3 text-sm">
+                        <select
+                          value={formData.role || ''}
+                          onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+                          className="w-full h-10 rounded-md border border-gray-300 bg-gray-50 px-3 text-sm">
                           <option value="">Role *</option>
                           <option value="owner">Owner</option>
                           <option value="property-manager">Property Manager</option>
@@ -929,61 +1256,52 @@ const SignupMultiStep = () => {
                         <div className="relative">
                           <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 z-10" />
                           <Input
-                            placeholder="Phone Number *"
+                            placeholder="Phone Number (+1...)"
                             type="tel"
                             value={formData.phone}
                             onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                             className="bg-gray-50 pl-10"
-                            disabled={otpVerified}
+                            disabled={smsVerified}
                           />
-                          {otpVerified && (
+                          {smsVerified && (
                             <CheckCircle2 className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-green-500" />
                           )}
                         </div>
-                        {!otpVerified && formData.phone && formData.phone.length >= 10 && (
+
+                        {!smsVerified && formData.phone && formData.phone.length >= 10 && (
                           <div className="col-span-2">
-                            <Button
-                              type="button"
-                              onClick={handleSendOtp}
-                              disabled={isLoading || otpSent}
-                              className="w-full bg-teal-500 hover:bg-teal-600 text-white"
-                            >
-                              {otpSent ? "OTP Sent" : "Send OTP"}
-                            </Button>
-                          </div>
-                        )}
-                        {otpSent && !otpVerified && (
-                          <>
-                            <div className="col-span-2">
-                              <Input
-                                placeholder="Enter 6-digit OTP *"
-                                type="text"
-                                maxLength={6}
-                                value={formData.otp}
-                                onChange={(e) => setFormData({ ...formData, otp: e.target.value.replace(/\D/g, '') })}
-                                className="bg-gray-50 text-center text-lg tracking-widest"
-                              />
-                            </div>
-                            <div className="col-span-2 flex gap-2">
+                            {!smsSent ? (
                               <Button
                                 type="button"
-                                onClick={handleVerifyOtp}
-                                disabled={isVerifyingOtp || formData.otp.length !== 6}
-                                className="flex-1 bg-green-500 hover:bg-green-600 text-white"
-                              >
-                                {isVerifyingOtp ? "Verifying..." : "Verify OTP"}
-                              </Button>
-                              <Button
-                                type="button"
-                                onClick={handleSendOtp}
+                                onClick={handleSendSmsOtp}
                                 disabled={isLoading}
-                                variant="outline"
-                                className="flex-1"
+                                className="w-full bg-teal-600 text-white"
                               >
-                                Resend OTP
+                                {isLoading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : "Verify Phone Number (SMS)"}
                               </Button>
-                            </div>
-                          </>
+                            ) : (
+                              <div className="space-y-2">
+                                <div className="flex gap-2">
+                                  <Input
+                                    placeholder="Enter SMS Code"
+                                    value={smsOtp}
+                                    onChange={(e) => setSmsOtp(e.target.value)}
+                                    maxLength={6}
+                                    className="tracking-widest text-center"
+                                  />
+                                  <Button
+                                    type="button"
+                                    onClick={handleVerifySmsOtp}
+                                    disabled={isVerifyingSms}
+                                    className="bg-green-600 text-white"
+                                  >
+                                    {isVerifyingSms ? "..." : "Verify"}
+                                  </Button>
+                                </div>
+                                <button type="button" onClick={handleSendSmsOtp} className="text-xs text-blue-500 underline">Resend Code</button>
+                              </div>
+                            )}
+                          </div>
                         )}
                       </div>
                     </div>
@@ -999,18 +1317,18 @@ const SignupMultiStep = () => {
               <div className="space-y-6">
                 <div>
                   <h2 className="text-3xl font-bold text-gray-900 mb-2">
-                    {formData.workType === "client" ? "Project Interests" : 
-                     formData.workType === "supplier" ? "Product Categories" : 
-                     "Company Trades"}
+                    {formData.workType === "client" ? "Project Interests" :
+                      formData.workType === "supplier" ? "Product Categories" :
+                        "Company Trades"}
                   </h2>
                   <p className="text-gray-600">
-                    {formData.workType === "client" 
-                      ? "What type of projects are you interested in?" 
+                    {formData.workType === "client"
+                      ? "What type of projects are you interested in?"
                       : formData.workType === "supplier"
-                      ? "Select the product categories you supply"
-                      : formData.workType === "general-contractor"
-                      ? "Select the types of construction projects you handle"
-                      : "Select the trades your company specializes in"}
+                        ? "Select the product categories you supply"
+                        : formData.workType === "general-contractor"
+                          ? "Select the types of construction projects you handle"
+                          : "Select the trades your company specializes in"}
                   </p>
                 </div>
 

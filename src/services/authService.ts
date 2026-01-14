@@ -18,14 +18,16 @@ class AuthService {
    */
   async register(data: RegisterData): Promise<ApiResponse<AuthResponse>> {
     try {
+      // Assuming RegisterData now contains firstName and lastName instead of a single name field.
+      // The 'data' object will be sent as-is to the API.
       const response = await api.post<ApiResponse<AuthResponse>>('/auth/register', data);
-      
+
       if (response.data.success) {
         localStorage.setItem('token', response.data.data.token);
         localStorage.setItem('refreshToken', response.data.data.refreshToken);
         localStorage.setItem('user', JSON.stringify(response.data.data.user));
       }
-      
+
       return response.data;
     } catch (error: any) {
       throw error.response?.data || { success: false, message: 'Registration failed' };
@@ -38,13 +40,13 @@ class AuthService {
   async login(data: LoginData): Promise<ApiResponse<AuthResponse>> {
     try {
       const response = await api.post<ApiResponse<AuthResponse>>('/auth/login', data);
-      
+
       if (response.data.success) {
         localStorage.setItem('token', response.data.data.token);
         localStorage.setItem('refreshToken', response.data.data.refreshToken);
         localStorage.setItem('user', JSON.stringify(response.data.data.user));
       }
-      
+
       return response.data;
     } catch (error: any) {
       throw error.response?.data || { success: false, message: 'Login failed' };
@@ -57,11 +59,11 @@ class AuthService {
   async getProfile(): Promise<ApiResponse<User>> {
     try {
       const response = await api.get<ApiResponse<User>>('/auth/profile');
-      
+
       if (response.data.success) {
         localStorage.setItem('user', JSON.stringify(response.data.data));
       }
-      
+
       return response.data;
     } catch (error: any) {
       throw error.response?.data || { success: false, message: 'Failed to fetch profile' };
@@ -74,12 +76,12 @@ class AuthService {
   async updateProfile(data: UpdateProfileData): Promise<ApiResponse<User>> {
     try {
       const response = await api.put<ApiResponse<User>>('/auth/profile', data);
-      
+
       if (response.data.success) {
         // Update stored user data
         localStorage.setItem('user', JSON.stringify(response.data.data));
       }
-      
+
       return response.data;
     } catch (error: any) {
       throw error.response?.data || { success: false, message: 'Failed to update profile' };
@@ -182,6 +184,53 @@ class AuthService {
    */
   getToken(): string | null {
     return localStorage.getItem('token');
+  }
+  /**
+   * Check if email exists
+   */
+  async checkEmail(email: string): Promise<{ success: boolean; exists: boolean; message: string }> {
+    try {
+      const response = await api.post('/auth/check-email', { email });
+      return response.data;
+    } catch (error: any) {
+      throw error.response?.data || { success: false, message: 'Failed to check email' };
+    }
+  }
+
+  async sendEmailOtp(email: string): Promise<{ success: boolean; message: string }> {
+    try {
+      const response = await api.post('/auth/send-email-otp', { email });
+      return response.data;
+    } catch (error: any) {
+      throw error.response?.data || { success: false, message: 'Failed to send OTP' };
+    }
+  }
+
+  async verifyEmailOtp(email: string, code: string): Promise<{ success: boolean; message: string }> {
+    try {
+      const response = await api.post('/auth/verify-email-otp', { email, code });
+      return response.data;
+    } catch (error: any) {
+      throw error.response?.data || { success: false, message: 'Failed to verify OTP' };
+    }
+  }
+
+  async sendSmsOtp(phone: string): Promise<{ success: boolean; message: string }> {
+    try {
+      const response = await api.post('/auth/send-sms-otp', { phone });
+      return response.data;
+    } catch (error: any) {
+      throw error.response?.data || { success: false, message: 'Failed to send SMS OTP' };
+    }
+  }
+
+  async verifySmsOtp(phone: string, code: string): Promise<{ success: boolean; message: string }> {
+    try {
+      const response = await api.post('/auth/verify-sms-otp', { phone, code });
+      return response.data;
+    } catch (error: any) {
+      throw error.response?.data || { success: false, message: 'Failed to verify SMS OTP' };
+    }
   }
 }
 
