@@ -37,6 +37,23 @@ import {
   Users,
   BarChart3,
   CreditCard,
+  Home,
+  Search,
+  HelpCircle,
+  Star,
+  CheckCircle,
+  Shield,
+  ClipboardCheck,
+  Wrench,
+  PenTool,
+  Globe,
+  HeadphonesIcon,
+  Target,
+  Building2,
+  Package,
+  Truck,
+  Network,
+  TrendingUp,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useState } from "react";
@@ -142,299 +159,401 @@ const ReduxHeader = () => {
           </Link>
 
           {/* Navigation */}
-          <nav className="hidden md:flex items-center space-x-6 text-base font-medium flex-1 justify-center">
-            {/* Get Our Services Dropdown */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  className="flex items-center space-x-2 p-0 h-auto text-base font-medium text-black hover:text-yellow-500 transition-colors hover:bg-transparent focus:bg-transparent active:bg-transparent"
-                >
-                  <span>Get Our Services</span>
-                  <ChevronDown className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="w-64">
-                <DropdownMenuLabel className="text-sm font-semibold text-gray-700">
-                  Our Services
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                  <Link
-                    to="/services/bid-management"
-                    className="flex items-center space-x-3 p-3 cursor-pointer hover:bg-yellow-50"
-                  >
-                    <FileText className="h-5 w-5 text-yellow-600" />
-                    <div>
-                      <div className="font-medium">Bid Management</div>
-                      <div className="text-xs text-gray-500">
-                        Streamlined bidding processes
-                      </div>
-                    </div>
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link
-                    to="/services/cost-estimating"
-                    className="flex items-center space-x-3 p-3 cursor-pointer hover:bg-yellow-50"
-                  >
-                    <Calculator className="h-5 w-5 text-yellow-600" />
-                    <div>
-                      <div className="font-medium">Cost Estimating</div>
-                      <div className="text-xs text-gray-500">
-                        Accurate project cost analysis
-                      </div>
-                    </div>
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link
-                    to="/services/tenders-management"
-                    className="flex items-center space-x-3 p-3 cursor-pointer hover:bg-yellow-50"
-                  >
-                    <ClipboardList className="h-5 w-5 text-yellow-600" />
-                    <div>
-                      <div className="font-medium">Tenders Management</div>
-                      <div className="text-xs text-gray-500">
-                        Efficient tender processes
-                      </div>
-                    </div>
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link
-                    to="/services/procurement-pre-contract"
-                    className="flex items-center space-x-3 p-3 cursor-pointer hover:bg-yellow-50"
-                  >
-                    <ShoppingCart className="h-5 w-5 text-yellow-600" />
-                    <div>
-                      <div className="font-medium">
-                        Procurement & Pre-Contract Management
-                      </div>
-                      <div className="text-xs text-gray-500">
-                        Strategic procurement solutions
-                      </div>
-                    </div>
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                  <Link
-                    to="/services"
-                    className="flex items-center space-x-3 p-3 cursor-pointer hover:bg-yellow-50 bg-gray-50"
-                  >
-                    <Plus className="h-5 w-5 text-yellow-600" />
-                    <div>
-                      <div className="font-medium text-yellow-600">
-                        View More
-                      </div>
-                      <div className="text-xs text-gray-500">
-                        Explore all our services
-                      </div>
-                    </div>
-                  </Link>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-
-            {/* Our Products Dropdown */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  className="flex items-center space-x-2 p-0 h-auto text-base font-medium text-black hover:text-yellow-500 transition-colors hover:bg-transparent focus:bg-transparent active:bg-transparent"
-                >
-                  <span>Our Products</span>
-                  <ChevronDown className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="w-72">
-                <DropdownMenuLabel className="text-sm font-semibold text-gray-700">
-                  Our AI Products
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                  <Link
-                    to="/products/ai-quantity-takeoff"
-                    className="flex items-center space-x-3 p-3 cursor-pointer hover:bg-yellow-50"
-                  >
-                    <Calculator className="h-5 w-5 text-blue-600" />
-                    <div>
-                      <div className="font-medium">AI Quantity Take Off</div>
-                      <div className="text-xs text-gray-500">
-                        Automated quantity takeoff with AI
-                      </div>
-                    </div>
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link
-                    to="/products/ai-cost-estimation"
-                    className="flex items-center space-x-3 p-3 cursor-pointer hover:bg-yellow-50"
-                  >
-                    <DollarSign className="h-5 w-5 text-green-600" />
-                    <div>
-                      <div className="font-medium">AI Cost Estimation</div>
-                      <div className="text-xs text-gray-500">
-                        Intelligent cost estimation
-                      </div>
-                    </div>
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link
-                    to="/products/ai-chatbot"
-                    className="flex items-center space-x-3 p-3 cursor-pointer hover:bg-yellow-50"
-                  >
-                    <MessageCircle className="h-5 w-5 text-purple-600" />
-                    <div>
-                      <div className="font-medium">AI Chat Bot</div>
-                      <div className="text-xs text-gray-500">
-                        24/7 intelligent customer support
-                      </div>
-                    </div>
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link
-                    to="/products/ai-virtual-assistant"
-                    className="flex items-center space-x-3 p-3 cursor-pointer hover:bg-yellow-50"
-                  >
-                    <Bot className="h-5 w-5 text-orange-600" />
-                    <div>
-                      <div className="font-medium">AI Virtual Assistant</div>
-                      <div className="text-xs text-gray-500">
-                        Comprehensive AI project assistant
-                      </div>
-                    </div>
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                  <Link
-                    to="/products"
-                    className="flex items-center space-x-3 p-3 cursor-pointer hover:bg-yellow-50 bg-gray-50"
-                  >
-                    <Plus className="h-5 w-5 text-yellow-600" />
-                    <div>
-                      <div className="font-medium text-yellow-600">
-                        View All Products
-                      </div>
-                      <div className="text-xs text-gray-500">
-                        Explore our complete AI suite
-                      </div>
-                    </div>
-                  </Link>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-
-            {/* Company Dropdown */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  className="flex items-center space-x-2 p-0 h-auto text-base font-medium text-black hover:text-yellow-500 transition-colors hover:bg-transparent focus:bg-transparent active:bg-transparent"
-                >
-                  <span>Company</span>
-                  <ChevronDown className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="w-64">
-                <DropdownMenuLabel className="text-sm font-semibold text-gray-700">
-                  About Our Company
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                  <Link
-                    to="/about-us"
-                    className="flex items-center space-x-3 p-3 cursor-pointer hover:bg-yellow-50"
-                  >
-                    <Users className="h-5 w-5 text-yellow-600" />
-                    <div>
-                      <div className="font-medium">About Us</div>
-                      <div className="text-xs text-gray-500">
-                        Our story, mission, and values
-                      </div>
-                    </div>
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link
-                    to="/case-studies"
-                    className="flex items-center space-x-3 p-3 cursor-pointer hover:bg-yellow-50"
-                  >
-                    <BookOpen className="h-5 w-5 text-yellow-600" />
-                    <div>
-                      <div className="font-medium">Case Studies</div>
-                      <div className="text-xs text-gray-500">
-                        Real project success stories and results
-                      </div>
-                    </div>
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link
-                    to="/videos"
-                    className="flex items-center space-x-3 p-3 cursor-pointer hover:bg-yellow-50"
-                  >
-                    <Play className="h-5 w-5 text-yellow-600" />
-                    <div>
-                      <div className="font-medium">Videos</div>
-                      <div className="text-xs text-gray-500">
-                        Project showcases and company insights
-                      </div>
-                    </div>
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link
-                    to="/articles"
-                    className="flex items-center space-x-3 p-3 cursor-pointer hover:bg-yellow-50"
-                  >
-                    <FileTextIcon className="h-5 w-5 text-yellow-600" />
-                    <div>
-                      <div className="font-medium">Articles</div>
-                      <div className="text-xs text-gray-500">
-                        Expert insights and industry trends
-                      </div>
-                    </div>
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link
-                    to="/glossary"
-                    className="flex items-center space-x-3 p-3 cursor-pointer hover:bg-yellow-50"
-                  >
-                    <BookOpenIcon className="h-5 w-5 text-yellow-600" />
-                    <div>
-                      <div className="font-medium">Glossary</div>
-                      <div className="text-xs text-gray-500">
-                        Complete construction terminology guide
-                      </div>
-                    </div>
-                  </Link>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-
+          <nav className="hidden md:flex items-center gap-6 text-base font-medium flex-1 justify-center">
             <Link
               to="/contractors"
-              className="text-black hover:text-yellow-500 transition-colors font-medium"
+              className="text-black hover:text-yellow-500 transition-colors font-medium px-2"
             >
               Find Contractors
             </Link>
+            <Link
+              to="/projects"
+              className="text-black hover:text-yellow-500 transition-colors font-medium px-2"
+            >
+              Find Projects
+            </Link>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="group inline-flex h-10 w-max items-center justify-center focus:outline-none disabled:pointer-events-none disabled:opacity-50 px-2 text-base font-medium text-black hover:text-yellow-500 hover:bg-gray-50 rounded-lg transition-colors bg-transparent data-[state=open]:bg-gray-50">
+                  For Contractors
+                  <ChevronDown className="relative top-[1px] ml-1 h-3 w-3 transition duration-200 group-data-[state=open]:rotate-180" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-[600px] p-0 shadow-2xl border border-gray-200 rounded-xl overflow-hidden">
+                <div className="bg-white">
+                  {/* Two Column Layout */}
+                  <div className="grid grid-cols-2 divide-x divide-gray-200">
+                    {/* PRODUCTS Section */}
+                    <div className="p-6">
+                      <div className="flex items-center gap-2 mb-6">
+                        <Wrench className="w-5 h-5 text-gray-600" />
+                        <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wide">Products</h3>
+                      </div>
+                      <div className="space-y-4">
+                        <Link to="/products" className="block group">
+                          <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-orange-50 transition-colors">
+                            <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center flex-shrink-0 group-hover:bg-orange-200 transition-colors">
+                              <Target className="w-5 h-5 text-orange-600" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h4 className="text-sm font-semibold text-gray-900 mb-1 group-hover:text-orange-600 transition-colors">AI Powered Project Finder</h4>
+                              <p className="text-xs text-gray-600 leading-relaxed">Discover and win more projects with AI</p>
+                            </div>
+                          </div>
+                        </Link>
+                        <Link to="/products/ai-quantity-takeoff" className="block group">
+                          <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-orange-50 transition-colors">
+                            <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center flex-shrink-0 group-hover:bg-orange-200 transition-colors">
+                              <Calculator className="w-5 h-5 text-orange-600" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h4 className="text-sm font-semibold text-gray-900 mb-1 group-hover:text-orange-600 transition-colors">AI Digital Takeoff & Estimating</h4>
+                              <p className="text-xs text-gray-600 leading-relaxed">Accurate estimates in minutes, not hours</p>
+                            </div>
+                          </div>
+                        </Link>
+                        <Link to="/products/ai-chatbot" className="block group">
+                          <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-orange-50 transition-colors">
+                            <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center flex-shrink-0 group-hover:bg-orange-200 transition-colors">
+                              <Bot className="w-5 h-5 text-orange-600" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h4 className="text-sm font-semibold text-gray-900 mb-1 group-hover:text-orange-600 transition-colors">AI Assistant for Contractors</h4>
+                              <p className="text-xs text-gray-600 leading-relaxed">Your 24/7 intelligent business assistant</p>
+                            </div>
+                          </div>
+                        </Link>
+                      </div>
+                    </div>
+
+                    {/* SERVICES Section */}
+                    <div className="p-6">
+                      <div className="flex items-center gap-2 mb-6">
+                        <ClipboardList className="w-5 h-5 text-gray-600" />
+                        <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wide">Services</h3>
+                      </div>
+                      <div className="space-y-4">
+                        <Link to="/services" className="block group">
+                          <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                            <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0 group-hover:bg-gray-200 transition-colors">
+                              <Users className="w-5 h-5 text-gray-600" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h4 className="text-sm font-semibold text-gray-900 mb-1 group-hover:text-gray-700 transition-colors">Hire a Dedicated Estimator</h4>
+                              <p className="text-xs text-gray-600 leading-relaxed">Expert estimators on demand</p>
+                            </div>
+                          </div>
+                        </Link>
+                        <Link to="/services" className="block group">
+                          <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                            <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0 group-hover:bg-gray-200 transition-colors">
+                              <PenTool className="w-5 h-5 text-gray-600" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h4 className="text-sm font-semibold text-gray-900 mb-1 group-hover:text-gray-700 transition-colors">Hire a Dedicated Architect</h4>
+                              <p className="text-xs text-gray-600 leading-relaxed">Professional architectural services</p>
+                            </div>
+                          </div>
+                        </Link>
+                        <Link to="/services" className="block group">
+                          <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                            <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0 group-hover:bg-gray-200 transition-colors">
+                              <Globe className="w-5 h-5 text-gray-600" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h4 className="text-sm font-semibold text-gray-900 mb-1 group-hover:text-gray-700 transition-colors">Web Design, SEO & Local Marketing</h4>
+                              <p className="text-xs text-gray-600 leading-relaxed">Grow your online presence</p>
+                            </div>
+                          </div>
+                        </Link>
+                        <Link to="/contact-us" className="block group">
+                          <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                            <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0 group-hover:bg-gray-200 transition-colors">
+                              <HeadphonesIcon className="w-5 h-5 text-gray-600" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h4 className="text-sm font-semibold text-gray-900 mb-1 group-hover:text-gray-700 transition-colors">24/7 Technical Support</h4>
+                              <p className="text-xs text-gray-600 leading-relaxed">Round-the-clock assistance</p>
+                            </div>
+                          </div>
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* CTA Section */}
+                  <div className="bg-gradient-to-r from-orange-50 to-yellow-50 border-t border-gray-200 px-6 py-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-base font-bold text-gray-900 mb-1">Ready to grow your business?</p>
+                        <p className="text-sm text-gray-600">Start your free trial today</p>
+                      </div>
+                      <Link to="/signup">
+                        <Button className="bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600 text-white font-semibold px-6 py-2 rounded-lg shadow-md transition-colors">
+                          Get Started
+                        </Button>
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="group inline-flex h-10 w-max items-center justify-center focus:outline-none disabled:pointer-events-none disabled:opacity-50 px-2 text-base font-medium text-black hover:text-yellow-500 hover:bg-gray-50 rounded-lg transition-colors bg-transparent data-[state=open]:bg-gray-50">
+                  For Homeowners
+                  <ChevronDown className="relative top-[1px] ml-1 h-3 w-3 transition duration-200 group-data-[state=open]:rotate-180" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-[600px] p-0 shadow-2xl border border-gray-200 rounded-xl overflow-hidden">
+                <div className="bg-white">
+                  {/* Two Column Layout */}
+                  <div className="grid grid-cols-2 divide-x divide-gray-200">
+                    {/* FIND & COMPARE Section */}
+                    <div className="p-6">
+                      <div className="flex items-center gap-2 mb-6">
+                        <Search className="w-5 h-5 text-orange-600" />
+                        <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wide">Find & Compare</h3>
+                      </div>
+                      <div className="space-y-4">
+                        <Link to="/contractors" className="block group">
+                          <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-orange-50 transition-colors">
+                            <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center flex-shrink-0 group-hover:bg-orange-200 transition-colors">
+                              <Search className="w-5 h-5 text-orange-600" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h4 className="text-sm font-semibold text-gray-900 mb-1 group-hover:text-orange-600 transition-colors">Find Local Contractors</h4>
+                              <p className="text-xs text-gray-600 leading-relaxed">Connect with verified pros in your area</p>
+                            </div>
+                          </div>
+                        </Link>
+                        <Link to="/contractors" className="block group">
+                          <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-orange-50 transition-colors">
+                            <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center flex-shrink-0 group-hover:bg-orange-200 transition-colors">
+                              <ClipboardCheck className="w-5 h-5 text-orange-600" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h4 className="text-sm font-semibold text-gray-900 mb-1 group-hover:text-orange-600 transition-colors">Get Instant Quotes</h4>
+                              <p className="text-xs text-gray-600 leading-relaxed">Compare prices from multiple contractors</p>
+                            </div>
+                          </div>
+                        </Link>
+                        <Link to="/contractors" className="block group">
+                          <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-orange-50 transition-colors">
+                            <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center flex-shrink-0 group-hover:bg-orange-200 transition-colors">
+                              <Star className="w-5 h-5 text-orange-600" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h4 className="text-sm font-semibold text-gray-900 mb-1 group-hover:text-orange-600 transition-colors">Verified Reviews</h4>
+                              <p className="text-xs text-gray-600 leading-relaxed">Read authentic customer feedback</p>
+                            </div>
+                          </div>
+                        </Link>
+                      </div>
+                    </div>
+
+                    {/* SUPPORT SERVICES Section */}
+                    <div className="p-6">
+                      <div className="flex items-center gap-2 mb-6">
+                        <Home className="w-5 h-5 text-gray-600" />
+                        <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wide">Support Services</h3>
+                      </div>
+                      <div className="space-y-4">
+                        <Link to="/contact-us" className="block group">
+                          <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                            <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0 group-hover:bg-gray-200 transition-colors">
+                              <MessageCircle className="w-5 h-5 text-gray-600" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h4 className="text-sm font-semibold text-gray-900 mb-1 group-hover:text-gray-700 transition-colors">Project Consultation</h4>
+                              <p className="text-xs text-gray-600 leading-relaxed">Free expert advice for your project</p>
+                            </div>
+                          </div>
+                        </Link>
+                        <Link to="/contractors" className="block group">
+                          <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                            <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0 group-hover:bg-gray-200 transition-colors">
+                              <Shield className="w-5 h-5 text-gray-600" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h4 className="text-sm font-semibold text-gray-900 mb-1 group-hover:text-gray-700 transition-colors">Contractor Verification</h4>
+                              <p className="text-xs text-gray-600 leading-relaxed">Background checks & license verification</p>
+                            </div>
+                          </div>
+                        </Link>
+                        {isAuthenticated ? (
+                          <Link to="/homeowner-dashboard" className="block group">
+                            <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                              <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0 group-hover:bg-gray-200 transition-colors">
+                                <ClipboardList className="w-5 h-5 text-gray-600" />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <h4 className="text-sm font-semibold text-gray-900 mb-1 group-hover:text-gray-700 transition-colors">Project Management</h4>
+                                <p className="text-xs text-gray-600 leading-relaxed">Track your project from start to finish</p>
+                              </div>
+                            </div>
+                          </Link>
+                        ) : (
+                          <Link to="/signup" className="block group">
+                            <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                              <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0 group-hover:bg-gray-200 transition-colors">
+                                <ClipboardList className="w-5 h-5 text-gray-600" />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <h4 className="text-sm font-semibold text-gray-900 mb-1 group-hover:text-gray-700 transition-colors">Project Management</h4>
+                                <p className="text-xs text-gray-600 leading-relaxed">Track your project from start to finish</p>
+                              </div>
+                            </div>
+                          </Link>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* CTA Section */}
+                  <div className="bg-gray-50 border-t border-gray-200 px-6 py-4">
+                    <div className="flex items-center justify-between">
+                      <p className="text-sm font-medium text-gray-900">Ready to start your project? Find trusted contractors today</p>
+                      <Link to="/contractors">
+                        <Button className="bg-orange-500 hover:bg-orange-600 text-white font-semibold px-6 py-2 rounded-lg shadow-md transition-colors">
+                          Find Contractors
+                        </Button>
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="group inline-flex h-10 w-max items-center justify-center focus:outline-none disabled:pointer-events-none disabled:opacity-50 px-2 text-base font-medium text-black hover:text-yellow-500 hover:bg-gray-50 rounded-lg transition-colors bg-transparent data-[state=open]:bg-gray-50">
+                  For Supplier
+                  <ChevronDown className="relative top-[1px] ml-1 h-3 w-3 transition duration-200 group-data-[state=open]:rotate-180" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-[600px] p-0 shadow-2xl border border-gray-200 rounded-xl overflow-hidden">
+                <div className="bg-white">
+                  {/* Two Column Layout */}
+                  <div className="grid grid-cols-2 divide-x divide-gray-200">
+                    {/* PRODUCTS Section */}
+                    <div className="p-6">
+                      <div className="flex items-center gap-2 mb-6">
+                        <Package className="w-5 h-5 text-orange-600" />
+                        <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wide">Products</h3>
+                      </div>
+                      <div className="space-y-4">
+                        <Link to="/products" className="block group">
+                          <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-orange-50 transition-colors">
+                            <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center flex-shrink-0 group-hover:bg-orange-200 transition-colors">
+                              <Target className="w-5 h-5 text-orange-600" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h4 className="text-sm font-semibold text-gray-900 mb-1 group-hover:text-orange-600 transition-colors">Project Opportunities</h4>
+                              <p className="text-xs text-gray-600 leading-relaxed">Discover construction projects needing supplies</p>
+                            </div>
+                          </div>
+                        </Link>
+                        <Link to="/products" className="block group">
+                          <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-orange-50 transition-colors">
+                            <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center flex-shrink-0 group-hover:bg-orange-200 transition-colors">
+                              <Network className="w-5 h-5 text-orange-600" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h4 className="text-sm font-semibold text-gray-900 mb-1 group-hover:text-orange-600 transition-colors">Supplier Network</h4>
+                              <p className="text-xs text-gray-600 leading-relaxed">Connect with contractors and builders</p>
+                            </div>
+                          </div>
+                        </Link>
+                        <Link to="/products" className="block group">
+                          <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-orange-50 transition-colors">
+                            <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center flex-shrink-0 group-hover:bg-orange-200 transition-colors">
+                              <TrendingUp className="w-5 h-5 text-orange-600" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h4 className="text-sm font-semibold text-gray-900 mb-1 group-hover:text-orange-600 transition-colors">Business Growth Tools</h4>
+                              <p className="text-xs text-gray-600 leading-relaxed">Tools to expand your supply business</p>
+                            </div>
+                          </div>
+                        </Link>
+                      </div>
+                    </div>
+
+                    {/* SERVICES Section */}
+                    <div className="p-6">
+                      <div className="flex items-center gap-2 mb-6">
+                        <Truck className="w-5 h-5 text-gray-600" />
+                        <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wide">Services</h3>
+                      </div>
+                      <div className="space-y-4">
+                        <Link to="/services" className="block group">
+                          <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                            <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0 group-hover:bg-gray-200 transition-colors">
+                              <ShoppingCart className="w-5 h-5 text-gray-600" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h4 className="text-sm font-semibold text-gray-900 mb-1 group-hover:text-gray-700 transition-colors">Bid Management</h4>
+                              <p className="text-xs text-gray-600 leading-relaxed">Manage quotes and bids efficiently</p>
+                            </div>
+                          </div>
+                        </Link>
+                        <Link to="/services" className="block group">
+                          <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                            <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0 group-hover:bg-gray-200 transition-colors">
+                              <FileText className="w-5 h-5 text-gray-600" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h4 className="text-sm font-semibold text-gray-900 mb-1 group-hover:text-gray-700 transition-colors">Inventory Management</h4>
+                              <p className="text-xs text-gray-600 leading-relaxed">Track and manage your inventory</p>
+                            </div>
+                          </div>
+                        </Link>
+                        <Link to="/services" className="block group">
+                          <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                            <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0 group-hover:bg-gray-200 transition-colors">
+                              <Globe className="w-5 h-5 text-gray-600" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h4 className="text-sm font-semibold text-gray-900 mb-1 group-hover:text-gray-700 transition-colors">Digital Marketing</h4>
+                              <p className="text-xs text-gray-600 leading-relaxed">Promote your supply business online</p>
+                            </div>
+                          </div>
+                        </Link>
+                        <Link to="/contact-us" className="block group">
+                          <div className="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                            <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0 group-hover:bg-gray-200 transition-colors">
+                              <HeadphonesIcon className="w-5 h-5 text-gray-600" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h4 className="text-sm font-semibold text-gray-900 mb-1 group-hover:text-gray-700 transition-colors">24/7 Support</h4>
+                              <p className="text-xs text-gray-600 leading-relaxed">Round-the-clock assistance</p>
+                            </div>
+                          </div>
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* CTA Section */}
+                  <div className="bg-gradient-to-r from-orange-50 to-yellow-50 border-t border-gray-200 px-6 py-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-base font-bold text-gray-900 mb-1">Ready to grow your supply business?</p>
+                        <p className="text-sm text-gray-600">Join our supplier network today</p>
+                      </div>
+                      <Link to="/signup">
+                        <Button className="bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600 text-white font-semibold px-6 py-2 rounded-lg shadow-md transition-colors">
+                          Get Started
+                        </Button>
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </nav>
 
           {/* Right side actions */}
           <div className="hidden md:flex items-center space-x-4 flex-shrink-0">
-            <Link
-              to="/join-network"
-              className="px-6 py-2 rounded bg-yellow-400 hover:bg-yellow-300 text-black font-semibold shadow transition-colors"
-              style={{ boxShadow: "0 2px 8px rgba(255,221,51,0.08)" }}
-            >
-              Join Our Network
-            </Link>
 
             {isAuthenticated ? (
               <DropdownMenu>
@@ -527,10 +646,12 @@ const ReduxHeader = () => {
             ) : (
               <Link
                 to="/login"
-                className="flex items-center text-black hover:text-yellow-500 transition-colors"
+                className="flex items-center gap-2 px-5 py-2 rounded-lg bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-black font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 relative overflow-hidden group"
+                style={{ boxShadow: "0 4px 15px rgba(255, 193, 7, 0.3)" }}
               >
-                <User className="w-4 h-4 mr-1" />
-                Sign in
+                <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <User className="w-4 h-4 relative z-10" />
+                <span className="relative z-10">Sign in</span>
               </Link>
             )}
           </div>
@@ -563,27 +684,6 @@ const ReduxHeader = () => {
           <div className="md:hidden border-t border-gray-200 py-4">
             <div className="flex flex-col space-y-4">
               <Link
-                to="/services"
-                className="text-black hover:text-yellow-500 transition-colors px-4 py-2"
-                onClick={() => dispatch(closeMobileMenu())}
-              >
-                Get Our Services
-              </Link>
-              <Link
-                to="/products"
-                className="text-black hover:text-yellow-500 transition-colors px-4 py-2"
-                onClick={() => dispatch(closeMobileMenu())}
-              >
-                Our Products
-              </Link>
-              <Link
-                to="/about-us"
-                className="text-black hover:text-yellow-500 transition-colors px-4 py-2"
-                onClick={() => dispatch(closeMobileMenu())}
-              >
-                Company
-              </Link>
-              <Link
                 to="/contractors"
                 className="text-black hover:text-yellow-500 transition-colors px-4 py-2"
                 onClick={() => dispatch(closeMobileMenu())}
@@ -591,12 +691,198 @@ const ReduxHeader = () => {
                 Find Contractors
               </Link>
               <Link
-                to="/join-network"
-                className="mx-4 px-6 py-2 rounded bg-yellow-400 hover:bg-yellow-300 text-black font-semibold shadow transition-colors text-center"
+                to="/projects"
+                className="text-black hover:text-yellow-500 transition-colors px-4 py-2"
                 onClick={() => dispatch(closeMobileMenu())}
               >
-                Join Our Network
+                Find Projects
               </Link>
+              <div className="px-4">
+                <button
+                  onClick={() => handleDropdownToggle("contractors")}
+                  className="w-full flex items-center justify-between text-black hover:text-yellow-500 transition-colors py-2"
+                >
+                  <span className="font-medium">For Contractors</span>
+                  <ChevronDown
+                    className={`h-4 w-4 transition-transform ${
+                      activeDropdown === "contractors" ? "rotate-180" : ""
+                    }`}
+                  />
+                </button>
+                {activeDropdown === "contractors" && (
+                  <div className="ml-4 mt-2 space-y-2 border-l-2 border-gray-200 pl-4">
+                    <Link
+                      to="/products"
+                      className="block text-gray-700 hover:text-yellow-500 transition-colors py-2"
+                      onClick={() => dispatch(closeMobileMenu())}
+                    >
+                      AI Powered Project Finder
+                    </Link>
+                    <Link
+                      to="/products/ai-quantity-takeoff"
+                      className="block text-gray-700 hover:text-yellow-500 transition-colors py-2"
+                      onClick={() => dispatch(closeMobileMenu())}
+                    >
+                      AI Digital Takeoff & Estimating
+                    </Link>
+                    <Link
+                      to="/products/ai-chatbot"
+                      className="block text-gray-700 hover:text-yellow-500 transition-colors py-2"
+                      onClick={() => dispatch(closeMobileMenu())}
+                    >
+                      AI Assistant for Contractors
+                    </Link>
+                    <Link
+                      to="/services"
+                      className="block text-gray-700 hover:text-yellow-500 transition-colors py-2"
+                      onClick={() => dispatch(closeMobileMenu())}
+                    >
+                      Hire a Dedicated Estimator
+                    </Link>
+                    <Link
+                      to="/services"
+                      className="block text-gray-700 hover:text-yellow-500 transition-colors py-2"
+                      onClick={() => dispatch(closeMobileMenu())}
+                    >
+                      Hire a Dedicated Architect
+                    </Link>
+                    <Link
+                      to="/services"
+                      className="block text-gray-700 hover:text-yellow-500 transition-colors py-2"
+                      onClick={() => dispatch(closeMobileMenu())}
+                    >
+                      Web Design, SEO & Local Marketing
+                    </Link>
+                    <Link
+                      to="/contact-us"
+                      className="block text-gray-700 hover:text-yellow-500 transition-colors py-2"
+                      onClick={() => dispatch(closeMobileMenu())}
+                    >
+                      24/7 Technical Support
+                    </Link>
+                  </div>
+                )}
+              </div>
+              <div className="px-4">
+                <button
+                  onClick={() => handleDropdownToggle("homeowners")}
+                  className="w-full flex items-center justify-between text-black hover:text-yellow-500 transition-colors py-2"
+                >
+                  <span className="font-medium">For Homeowners</span>
+                  <ChevronDown
+                    className={`h-4 w-4 transition-transform ${
+                      activeDropdown === "homeowners" ? "rotate-180" : ""
+                    }`}
+                  />
+                </button>
+                {activeDropdown === "homeowners" && (
+                  <div className="ml-4 mt-2 space-y-2 border-l-2 border-gray-200 pl-4">
+                    <Link
+                      to="/contractors"
+                      className="block text-gray-700 hover:text-yellow-500 transition-colors py-2"
+                      onClick={() => dispatch(closeMobileMenu())}
+                    >
+                      Find Contractors
+                    </Link>
+                    <Link
+                      to="/join-network"
+                      className="block text-gray-700 hover:text-yellow-500 transition-colors py-2"
+                      onClick={() => dispatch(closeMobileMenu())}
+                    >
+                      Post a Project
+                    </Link>
+                    {isAuthenticated && (
+                      <Link
+                        to="/homeowner-dashboard"
+                        className="block text-gray-700 hover:text-yellow-500 transition-colors py-2"
+                        onClick={() => dispatch(closeMobileMenu())}
+                      >
+                        My Dashboard
+                      </Link>
+                    )}
+                    <Link
+                      to="/signup"
+                      className="block text-gray-700 hover:text-yellow-500 transition-colors py-2"
+                      onClick={() => dispatch(closeMobileMenu())}
+                    >
+                      Join as Homeowner
+                    </Link>
+                    <Link
+                      to="/contact-us"
+                      className="block text-gray-700 hover:text-yellow-500 transition-colors py-2"
+                      onClick={() => dispatch(closeMobileMenu())}
+                    >
+                      Help & Support
+                    </Link>
+                  </div>
+                )}
+              </div>
+              <div className="px-4">
+                <button
+                  onClick={() => handleDropdownToggle("supplier")}
+                  className="w-full flex items-center justify-between text-black hover:text-yellow-500 transition-colors py-2"
+                >
+                  <span className="font-medium">For Supplier</span>
+                  <ChevronDown
+                    className={`h-4 w-4 transition-transform ${
+                      activeDropdown === "supplier" ? "rotate-180" : ""
+                    }`}
+                  />
+                </button>
+                {activeDropdown === "supplier" && (
+                  <div className="ml-4 mt-2 space-y-2 border-l-2 border-gray-200 pl-4">
+                    <Link
+                      to="/products"
+                      className="block text-gray-700 hover:text-yellow-500 transition-colors py-2"
+                      onClick={() => dispatch(closeMobileMenu())}
+                    >
+                      Project Opportunities
+                    </Link>
+                    <Link
+                      to="/products"
+                      className="block text-gray-700 hover:text-yellow-500 transition-colors py-2"
+                      onClick={() => dispatch(closeMobileMenu())}
+                    >
+                      Supplier Network
+                    </Link>
+                    <Link
+                      to="/products"
+                      className="block text-gray-700 hover:text-yellow-500 transition-colors py-2"
+                      onClick={() => dispatch(closeMobileMenu())}
+                    >
+                      Business Growth Tools
+                    </Link>
+                    <Link
+                      to="/services"
+                      className="block text-gray-700 hover:text-yellow-500 transition-colors py-2"
+                      onClick={() => dispatch(closeMobileMenu())}
+                    >
+                      Bid Management
+                    </Link>
+                    <Link
+                      to="/services"
+                      className="block text-gray-700 hover:text-yellow-500 transition-colors py-2"
+                      onClick={() => dispatch(closeMobileMenu())}
+                    >
+                      Inventory Management
+                    </Link>
+                    <Link
+                      to="/services"
+                      className="block text-gray-700 hover:text-yellow-500 transition-colors py-2"
+                      onClick={() => dispatch(closeMobileMenu())}
+                    >
+                      Digital Marketing
+                    </Link>
+                    <Link
+                      to="/contact-us"
+                      className="block text-gray-700 hover:text-yellow-500 transition-colors py-2"
+                      onClick={() => dispatch(closeMobileMenu())}
+                    >
+                      24/7 Support
+                    </Link>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         )}

@@ -1,5 +1,7 @@
 import ReduxHeader from "@/components/ReduxHeader";
 import HeroSection from "@/components/HeroSection";
+import RoleSelectionSection from "@/components/RoleSelectionSection";
+import PopularCategoriesSection from "@/components/PopularCategoriesSection";
 import PartnersSection from "@/components/PartnersSection";
 import AboutSection from "@/components/AboutSection";
 import SolutionsSection from "@/components/SolutionsSection";
@@ -12,7 +14,9 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       <ReduxHeader />
       <HeroSection />
+      <RoleSelectionSection />
       <PartnersSection />
+      <PopularCategoriesSection />
       <AboutSection />
       <ContractorSection />
       <SolutionsSection />

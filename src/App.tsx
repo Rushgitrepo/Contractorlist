@@ -42,6 +42,7 @@ import ServeCommercialCompanies from "./pages/ServeCommercialCompanies";
 import Contractors from "./pages/Contractors";
 import ContractorDetails from "./pages/ContractorDetails";
 import CompanyDetails from "./pages/CompanyDetails";
+import Projects from "./pages/Projects";
 import ContactUs from "./pages/ContactUs";
 import GCDashboard from "./pages/GCDashboard";
 import SubcontractorDashboard from "./pages/SubcontractorDashboard";
@@ -131,6 +132,7 @@ const AppRoutes = () => {
         <Route path="/contractors/:id" element={<ContractorDetails />} />
             <Route path="/companies/:id" element={<CompanyDetails />} />
             <Route path="/contractor/update/:token" element={<ContractorUpdate />} />
+        <Route path="/projects" element={<Projects />} />
         <Route path="/contact-us" element={<ContactUs />} />
         <Route path="/gc-dashboard/*" element={<GCDashboard />} />
         <Route path="/subcontractor-dashboard/*" element={<SubcontractorDashboard />} />
