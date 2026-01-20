@@ -14,6 +14,7 @@ import {
   HeadphonesIcon,
   TrendingUp,
   Shield,
+  ClipboardList,
 } from "lucide-react";
 
 const PopularCategoriesSection = () => {
@@ -22,27 +23,27 @@ const PopularCategoriesSection = () => {
   const tabs = [
     {
       id: "ai-powered-project",
-      label: "AI-Powered Project",
+      label: "AI-Powered Project Prospecting",
       icon: Sparkles,
     },
     {
       id: "ai-digital",
-      label: "AI Digital",
+      label: "AI Digital Solutions",
       icon: Zap,
     },
     {
       id: "ai-assistant",
-      label: "AI Assistant",
+      label: "AI Assistant for Contractors",
       icon: Users,
     },
     {
       id: "web-design",
-      label: "Web Design",
+      label: "Professional Web Design",
       icon: Globe,
     },
     {
       id: "technical",
-      label: "24/7 Technical",
+      label: "24/7 Technical Support",
       icon: HeadphonesIcon,
     },
   ];
@@ -73,7 +74,7 @@ const PopularCategoriesSection = () => {
           title: "Company Tracking",
           description:
             "Follow specific Developers or Architects and get instant notifications for new project announcements",
-          icon: Building2,
+          icon: ClipboardList,
         },
       ],
     },
@@ -205,107 +206,71 @@ const PopularCategoriesSection = () => {
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header Section */}
         <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-orange-50 rounded-full mb-4 shadow-sm">
-            <Sparkles className="w-3.5 h-3.5 text-orange-600" />
-            <span className="text-xs font-semibold text-orange-600">
-              Pre-Construction & Market Intelligence
-            </span>
-          </div>
-          <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4 leading-tight">
+          <h2 className="text-3xl sm:text-4xl font-bold mb-4 leading-tight">
             AI-Powered Tools to{" "}
             <span className="text-orange-600">Win More Projects</span>
           </h2>
-          <p className="text-base text-gray-600 max-w-2xl mx-auto">
-            From discovering leads to submitting bids, our intelligent platform
-            streamlines every step of your pre-construction workflow.
-          </p>
         </div>
 
-        {/* Tabs Navigation */}
-        <div className="flex flex-wrap justify-center gap-2 mb-10 pb-4 border-b border-gray-200">
-          {tabs.map((tab) => {
-            const TabIcon = tab.icon;
-            const isActive = activeTab === tab.id;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`group flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ${
-                  isActive
-                    ? "bg-gradient-to-r from-yellow-400 to-orange-500 text-black shadow-md"
-                    : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-200"
-                }`}
-              >
-                <TabIcon className="w-4 h-4" />
-                <span>{tab.label}</span>
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Main Content Area */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-12">
-          {/* Large Left Card */}
-          <div className="lg:col-span-2">
-            <div className="bg-white rounded-xl p-8 shadow-lg border border-gray-200 hover:shadow-xl hover:border-orange-300 transition-all duration-300 h-full">
-              <div className="flex items-start gap-6">
-                {/* Icon Section */}
-                <div
-                  className={`flex-shrink-0 bg-gradient-to-br ${currentServices.main.gradient} rounded-xl p-4 shadow-md`}
-                >
-                  {(() => {
-                    const Icon = currentServices.main.icon;
-                    return <Icon className="w-8 h-8 text-white" strokeWidth={2} />;
-                  })()}
-                </div>
-
-                {/* Content Section */}
-                <div className="flex-1">
-                  <h3 className="text-2xl font-bold text-gray-900 mb-3 leading-tight">
-                    {currentServices.main.title}
-                  </h3>
-                  <p className="text-sm text-gray-700 leading-relaxed mb-6">
-                    {currentServices.main.description}
-                  </p>
-                  
-                  {/* Button */}
-                  <Link
-                    to="/products"
-                    className="inline-flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-black font-semibold text-sm rounded-full shadow-md hover:shadow-lg transition-all duration-200 group"
+        {/* Main Content Area - Left Buttons, Right Cards */}
+        <div className="bg-[#f5f5f0] rounded-2xl p-6 sm:p-8 mb-12">
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+            {/* Left Side - Vertical Button Stack */}
+            <div className="lg:col-span-2 space-y-3" id="left-buttons-container">
+              {tabs.map((tab) => {
+                const TabIcon = tab.icon;
+                const isActive = activeTab === tab.id;
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`w-full flex items-center gap-3 px-5 py-4 rounded-xl text-left font-semibold transition-all duration-300 shadow-sm ${
+                      isActive
+                        ? "bg-gradient-to-r from-yellow-400 to-orange-500 text-white shadow-lg"
+                        : "bg-white text-orange-600 hover:bg-orange-50 border border-orange-200"
+                    }`}
                   >
-                    <span>Learn More</span>
-                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                  </Link>
-                </div>
+                    <TabIcon className="w-5 h-5 flex-shrink-0" />
+                    <span className="text-sm sm:text-base">{tab.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Right Side - Three Image Cards Only */}
+            <div className="lg:col-span-3 flex items-stretch h-full">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full h-full">
+                {currentServices.cards.map((card, index) => {
+                  // Use appropriate images for each card matching the image description
+                  const cardImages = [
+                    "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=400&h=400&fit=crop", // Construction workers with woman in green blazer
+                    "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=400&h=400&fit=crop", // Business meeting - two men in suits
+                    "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=400&h=400&fit=crop", // Clipboard with track record
+                  ];
+                  
+                  return (
+                    <div
+                      key={index}
+                      className="bg-[#f5f5f0] rounded-xl overflow-hidden shadow-md border border-gray-200 hover:shadow-lg transition-all duration-300 group flex flex-col"
+                      style={{ height: '100%' }}
+                    >
+                      <div className="flex-1 relative overflow-hidden bg-white min-h-0">
+                        <img
+                          src={cardImages[index] || "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=400&h=400&fit=crop"}
+                          alt={card.title}
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                        />
+                      </div>
+                      <div className="p-4 bg-[#f5f5f0] flex-shrink-0">
+                        <h4 className="text-sm font-bold text-orange-600 text-center">
+                          {card.title}
+                        </h4>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
-          </div>
-
-          {/* Right Column - Three Smaller Cards */}
-          <div className="lg:col-span-1 space-y-4">
-            {currentServices.cards.map((card, index) => {
-              const CardIcon = card.icon;
-              return (
-                <div
-                  key={index}
-                  className="bg-white rounded-lg p-5 shadow-md border border-gray-200 hover:shadow-lg hover:border-orange-300 transition-all duration-300 group"
-                >
-                  <div className="flex items-start gap-3">
-                    <div className="bg-orange-50 rounded-lg p-2.5 flex-shrink-0 group-hover:bg-orange-100 transition-colors">
-                      <CardIcon className="w-5 h-5 text-orange-600" />
-                    </div>
-                    <div>
-                      <h4 className="text-base font-bold text-gray-900 mb-1.5 group-hover:text-orange-600 transition-colors">
-                        {card.title}
-                      </h4>
-                      <p className="text-xs text-gray-600 leading-relaxed">
-                        {card.description}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
           </div>
         </div>
 

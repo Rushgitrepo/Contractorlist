@@ -27,147 +27,307 @@ import {
   FileText,
   Settings,
   Box,
+  Scissors,
+  Package,
 } from "lucide-react";
 
 const PartnersSection = () => {
-  const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  const [activeCategory, setActiveCategory] = useState<string | null>("Plumbers");
   
-  const scrollRight = () => {
-    const container = document.getElementById('category-scroll-container');
+  const scrollRight = (rowId: string) => {
+    const container = document.getElementById(`category-scroll-container-${rowId}`);
     if (container) {
       container.scrollBy({ left: 200, behavior: 'smooth' });
     }
   };
 
-  const scrollLeft = () => {
-    const container = document.getElementById('category-scroll-container');
+  const scrollLeft = (rowId: string) => {
+    const container = document.getElementById(`category-scroll-container-${rowId}`);
     if (container) {
       container.scrollBy({ left: -200, behavior: 'smooth' });
     }
   };
 
+  // All 30 categories for 2 rows (15 each)
+  const allCategories = [
+    {
+      name: "Cleaners",
+      icon: Sparkles,
+      color: "text-gray-700",
+    },
+    {
+      name: "Handymen",
+      icon: Wrench,
+      color: "text-gray-700",
+    },
+    {
+      name: "Landscapers",
+      icon: TreePine,
+      color: "text-gray-700",
+    },
+    {
+      name: "Movers",
+      icon: Package,
+      color: "text-gray-700",
+    },
+    {
+      name: "Plumbers",
+      icon: Droplets,
+      color: "text-gray-700",
+    },
+    {
+      name: "Electrical pros",
+      icon: Zap,
+      color: "text-gray-700",
+    },
+    {
+      name: "Painters",
+      icon: Paintbrush,
+      color: "text-gray-700",
+    },
+    {
+      name: "HVA",
+      icon: Wind,
+      color: "text-gray-700",
+    },
+    {
+      name: "Roofing",
+      icon: Home,
+      color: "text-gray-700",
+    },
+    {
+      name: "Carpentry",
+      icon: Hammer,
+      color: "text-gray-700",
+    },
+    {
+      name: "Flooring",
+      icon: Layers,
+      color: "text-gray-700",
+    },
+    {
+      name: "Drywall",
+      icon: Building2,
+      color: "text-gray-700",
+    },
+    {
+      name: "Concrete",
+      icon: Shield,
+      color: "text-gray-700",
+    },
+    {
+      name: "Masonry",
+      icon: HardHat,
+      color: "text-gray-700",
+    },
+    {
+      name: "Insulation",
+      icon: Box,
+      color: "text-gray-700",
+    },
+    {
+      name: "Windows",
+      icon: Home,
+      color: "text-gray-700",
+    },
+    {
+      name: "Doors",
+      icon: Car,
+      color: "text-gray-700",
+    },
+    {
+      name: "Siding",
+      icon: Gauge,
+      color: "text-gray-700",
+    },
+    {
+      name: "Gutters",
+      icon: Droplets,
+      color: "text-gray-700",
+    },
+    {
+      name: "Decking",
+      icon: Building2,
+      color: "text-gray-700",
+    },
+    {
+      name: "Fencing",
+      icon: TreePine,
+      color: "text-gray-700",
+    },
+    {
+      name: "Paving",
+      icon: Car,
+      color: "text-gray-700",
+    },
+    {
+      name: "Demolition",
+      icon: Hammer,
+      color: "text-gray-700",
+    },
+    {
+      name: "Excavation",
+      icon: HardHat,
+      color: "text-gray-700",
+    },
+    {
+      name: "Foundation",
+      icon: Building2,
+      color: "text-gray-700",
+    },
+    {
+      name: "Welding",
+      icon: Zap,
+      color: "text-gray-700",
+    },
+    {
+      name: "Tiling",
+      icon: Layers,
+      color: "text-gray-700",
+    },
+    {
+      name: "Countertops",
+      icon: Settings,
+      color: "text-gray-700",
+    },
+    {
+      name: "Cabinetry",
+      icon: Box,
+      color: "text-gray-700",
+    },
+    {
+      name: "Appliances",
+      icon: Power,
+      color: "text-gray-700",
+    },
+  ];
+
+  // Split into 2 rows of 15 each
+  const firstRowCategories = allCategories.slice(0, 15);
+  const secondRowCategories = allCategories.slice(15, 30);
+
   const categories = [
     {
-      name: "roofing contractors near me",
+      name: "roofing contractors",
       icon: Home,
       color: "text-orange-600",
       bgColor: "bg-orange-50",
       image: "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=800&h=600&fit=crop",
     },
     {
-      name: "asbestos abatement near me",
+      name: "asbestos abatement",
       icon: Shield,
       color: "text-red-600",
       bgColor: "bg-red-50",
       image: "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=800&h=600&fit=crop",
     },
     {
-      name: "basement leak repair near me",
+      name: "basement leak repair",
       icon: Droplets,
       color: "text-blue-600",
       bgColor: "bg-blue-50",
       image: "https://images.unsplash.com/photo-1621905251918-48416bd8575a?w=800&h=600&fit=crop",
     },
     {
-      name: "basement waterproofing near me",
+      name: "basement waterproofing",
       icon: Layers,
       color: "text-blue-600",
       bgColor: "bg-blue-50",
       image: "https://images.unsplash.com/photo-1621905251918-48416bd8575a?w=800&h=600&fit=crop",
     },
     {
-      name: "new roofing installation near me",
+      name: "new roofing installation",
       icon: Hammer,
       color: "text-orange-600",
       bgColor: "bg-orange-50",
       image: "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=800&h=600&fit=crop",
     },
     {
-      name: "garage remodeling near me",
+      name: "garage remodeling",
       icon: Building2,
       color: "text-gray-600",
       bgColor: "bg-gray-50",
       image: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&h=600&fit=crop",
     },
     {
-      name: "awning contractors near me",
+      name: "awning contractors",
       icon: Car,
       color: "text-orange-600",
       bgColor: "bg-orange-50",
       image: "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=800&h=600&fit=crop",
     },
     {
-      name: "repair home audio near me",
+      name: "repair home audio",
       icon: Radio,
       color: "text-purple-600",
       bgColor: "bg-purple-50",
       image: "https://images.unsplash.com/photo-1563297007-0686b8b4a8c7?w=800&h=600&fit=crop",
     },
     {
-      name: "repair patio furniture near me",
+      name: "repair patio furniture",
       icon: Sofa,
       color: "text-green-600",
       bgColor: "bg-green-50",
       image: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop",
     },
     {
-      name: "plumbing contractor near me",
+      name: "plumbing contractor",
       icon: Wrench,
       color: "text-blue-600",
       bgColor: "bg-blue-50",
       image: "https://images.unsplash.com/photo-1621905251918-48416bd8575a?w=800&h=600&fit=crop",
     },
     {
-      name: "power washing near me",
+      name: "power washing",
       icon: Power,
       color: "text-yellow-600",
       bgColor: "bg-yellow-50",
       image: "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=800&h=600&fit=crop",
     },
     {
-      name: "recliner repair near me",
+      name: "recliner repair",
       icon: Settings,
       color: "text-green-600",
       bgColor: "bg-green-50",
       image: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop",
     },
     {
-      name: "basement remodeling near me",
+      name: "basement remodeling",
       icon: HardHat,
       color: "text-gray-600",
       bgColor: "bg-gray-50",
       image: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&h=600&fit=crop",
     },
     {
-      name: "roof siding near me",
+      name: "roof siding",
       icon: Gauge,
       color: "text-orange-600",
       bgColor: "bg-orange-50",
       image: "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=800&h=600&fit=crop",
     },
     {
-      name: "facade repair near me",
+      name: "facade repair",
       icon: Paintbrush,
       color: "text-gray-600",
       bgColor: "bg-gray-50",
       image: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&h=600&fit=crop",
     },
     {
-      name: "electrical contractors near me",
+      name: "electrical contractors",
       icon: Zap,
       color: "text-yellow-600",
       bgColor: "bg-yellow-50",
       image: "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=800&h=600&fit=crop",
     },
     {
-      name: "HVAC contractors near me",
+      name: "HVAC contractors",
       icon: Wind,
       color: "text-blue-600",
       bgColor: "bg-blue-50",
       image: "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=800&h=600&fit=crop",
     },
     {
-      name: "painting contractors near me",
+      name: "painting contractors",
       icon: Palette,
       color: "text-orange-600",
       bgColor: "bg-orange-50",
@@ -242,130 +402,115 @@ const PartnersSection = () => {
 
         {/* Title */}
         <div className="text-center mb-8">
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-2">
-            <span className="text-gray-900">Popular Construction Professional </span>
-            <span className="text-orange-600">Categories</span>
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-2">
+            <span className="text-gray-900">Popular Construction </span>
+            <span className="text-orange-600">Professional Categories</span>
           </h2>
-          <p className="text-gray-600 text-base sm:text-lg mt-2">
-            Explore our comprehensive directory of verified construction professionals
-          </p>
         </div>
 
-        {/* Horizontal Category Navigation Bar */}
-        <div className="mb-8 relative">
-          <button 
-            onClick={scrollLeft}
-            className="absolute left-0 top-1/2 -translate-y-1/2 flex items-center justify-center w-10 h-10 rounded-full bg-white border border-gray-200 hover:bg-gray-50 shadow-md z-10"
-          >
-            <ChevronLeft className="w-5 h-5 text-gray-600" />
-          </button>
-          <div 
-            id="category-scroll-container"
-            className="flex items-center gap-6 overflow-x-auto pb-4 scrollbar-hide scroll-smooth px-12" 
-            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-          >
-            <style>{`
-              .scrollbar-hide::-webkit-scrollbar {
-                display: none;
-              }
-            `}</style>
-            {categories.slice(0, 18).map((category, index) => {
-              const IconComponent = category.icon;
-              const isActive = activeCategory === category.name || (activeCategory === null && index === 0);
-              return (
-                <button
-                  key={index}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    setActiveCategory(category.name);
-                  }}
-                  className={`flex flex-col items-center gap-2 min-w-[80px] pb-2 transition-all duration-200 flex-shrink-0 ${
-                    isActive ? "opacity-100" : "opacity-70 hover:opacity-100"
-                  }`}
-                >
-                  <div
-                    className={`${category.bgColor} w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-200 hover:opacity-90`}
-                    style={{
-                      transform: isActive ? "scale(1.1)" : "scale(1)",
-                      boxShadow: isActive ? "0 4px 12px rgba(0,0,0,0.15)" : "none"
+        {/* Beige Container with Categories - 2 Rows */}
+        <div className="bg-[#f5f5f0] rounded-2xl p-6 sm:p-8 shadow-md mb-8">
+          <style>{`
+            .scrollbar-hide::-webkit-scrollbar {
+              display: none;
+            }
+          `}</style>
+          
+          {/* First Row */}
+          <div className="relative mb-4">
+            <div 
+              id="category-scroll-container-row1"
+              className="flex items-center gap-6 sm:gap-8 overflow-x-auto pb-4 scrollbar-hide scroll-smooth pr-12" 
+              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+            >
+              {firstRowCategories.map((category, index) => {
+                const IconComponent = category.icon;
+                const isActive = activeCategory === category.name;
+                return (
+                  <button
+                    key={`row1-${index}`}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setActiveCategory(category.name);
                     }}
+                    className="flex flex-col items-center gap-3 min-w-[80px] flex-shrink-0 transition-all duration-200"
                   >
                     <IconComponent
-                      className={`w-6 h-6 ${category.color}`}
+                      className={`w-8 h-8 ${isActive ? "text-orange-600" : "text-gray-700"}`}
                       strokeWidth={2}
                     />
-                  </div>
-                  <span
-                    className={`text-xs font-medium text-center leading-tight px-1 ${
-                      isActive
-                        ? "text-orange-600 font-semibold"
-                        : "text-gray-700"
-                    }`}
-                  >
-                    {category.name.replace(" near me", "")}
-                  </span>
-                  {isActive && (
-                    <div className="w-full h-0.5 bg-orange-600 rounded-full mt-1"></div>
-                  )}
-                </button>
-              );
-            })}
+                    <span
+                      className={`text-sm text-center leading-tight ${
+                        isActive
+                          ? "text-orange-600 font-bold"
+                          : "text-gray-700 font-medium"
+                      }`}
+                    >
+                      {category.name}
+                    </span>
+                    {isActive && (
+                      <div className="w-full h-1 bg-orange-600 rounded-full mt-1"></div>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+            <button 
+              onClick={() => scrollRight('row1')}
+              className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center justify-center w-8 h-8 rounded-full bg-gray-200 hover:bg-gray-300 transition-colors z-10"
+            >
+              <ChevronRight className="w-5 h-5 text-gray-700" />
+            </button>
           </div>
-          <button 
-            onClick={scrollRight}
-            className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center justify-center w-10 h-10 rounded-full bg-white border border-gray-200 hover:bg-gray-50 shadow-md z-10"
-          >
-            <ChevronRight className="w-5 h-5 text-gray-600" />
-          </button>
-        </div>
 
-        {/* Featured Service Cards Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          {featuredServices.map((category, index) => {
-            const IconComponent = category.icon;
-            return (
-              <Link
-                key={`${category.name}-${index}`}
-                to={`/contractors?service=${encodeURIComponent(
-                  category.name.replace(" near me", "")
-                )}`}
-                className="group relative overflow-hidden rounded-xl aspect-[4/3] shadow-md hover:shadow-xl transition-all duration-300 cursor-pointer"
-              >
-                {/* Background Image */}
-                <div 
-                  className="absolute inset-0 bg-cover bg-center transition-transform duration-300 group-hover:scale-110"
-                  style={{
-                    backgroundImage: category.image ? `url(${category.image})` : 'linear-gradient(to bottom right, #f3f4f6, #e5e7eb)'
-                  }}
-                >
-                  {/* Overlay for better text readability */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent"></div>
-                </div>
-                
-                {/* Icon overlay */}
-                <div className="absolute top-4 right-4">
-                  <div className={`${category.bgColor} w-12 h-12 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+          {/* Second Row */}
+          <div className="relative">
+            <div 
+              id="category-scroll-container-row2"
+              className="flex items-center gap-6 sm:gap-8 overflow-x-auto pb-4 scrollbar-hide scroll-smooth pr-12" 
+              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+            >
+              {secondRowCategories.map((category, index) => {
+                const IconComponent = category.icon;
+                const isActive = activeCategory === category.name;
+                return (
+                  <button
+                    key={`row2-${index}`}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setActiveCategory(category.name);
+                    }}
+                    className="flex flex-col items-center gap-3 min-w-[80px] flex-shrink-0 transition-all duration-200"
+                  >
                     <IconComponent
-                      className={`w-6 h-6 ${category.color}`}
+                      className={`w-8 h-8 ${isActive ? "text-orange-600" : "text-gray-700"}`}
                       strokeWidth={2}
                     />
-                  </div>
-                </div>
-                
-                {/* Text overlay */}
-                <div className="absolute bottom-0 left-0 right-0 p-4">
-                  <p className="text-white font-semibold text-sm sm:text-base drop-shadow-lg">
-                    {category.name.replace(" near me", "")}
-                  </p>
-                </div>
-              </Link>
-            );
-          })}
+                    <span
+                      className={`text-sm text-center leading-tight ${
+                        isActive
+                          ? "text-orange-600 font-bold"
+                          : "text-gray-700 font-medium"
+                      }`}
+                    >
+                      {category.name}
+                    </span>
+                    {isActive && (
+                      <div className="w-full h-1 bg-orange-600 rounded-full mt-1"></div>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+            <button 
+              onClick={() => scrollRight('row2')}
+              className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center justify-center w-8 h-8 rounded-full bg-gray-200 hover:bg-gray-300 transition-colors z-10"
+            >
+              <ChevronRight className="w-5 h-5 text-gray-700" />
+            </button>
+          </div>
         </div>
 
-
-        {/* Bottom divider */}
-        <div className="mt-16 border-t-2 border-gray-200" />
       </div>
     </div>
   );
