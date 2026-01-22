@@ -4,33 +4,21 @@ import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
-  LayoutDashboard,
-  BarChart3,
   Building2,
-  Users,
   MessageSquare,
-  FileText,
-  Calendar,
-  Search,
-  Gavel,
-  Building,
-  Megaphone,
   FolderOpen,
-  Bot,
-  Zap,
+  FileText,
+  Users,
+  Search,
+  Building,
   Settings,
   HelpCircle,
   X,
   ChevronRight,
   ChevronLeft,
-  Crown,
-  Sparkles,
-  Activity,
-  DollarSign,
-  TrendingUp,
-  Star,
-  Award,
-  Target
+  ChevronDown,
+  ChevronUp,
+  LayoutDashboard
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -40,114 +28,48 @@ interface SidebarProps {
 
 const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [expandedSections, setExpandedSections] = useState<{ [key: string]: boolean }>({
+    myprojects: false
+  });
   const location = useLocation();
+
+  const toggleSection = (section: string) => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [section]: !prev[section]
+    }));
+  };
 
   const navigationItems = [
     { 
       name: 'Overview', 
       href: '/gc-dashboard/overview', 
       icon: LayoutDashboard,
-      badge: null,
       description: 'Dashboard home'
-    },
-    { 
-      name: 'Analytics', 
-      href: '/gc-dashboard/analytics', 
-      icon: BarChart3,
-      badge: null,
-      description: 'Performance metrics'
-    },
-    { 
-      name: 'Projects', 
-      href: '/gc-dashboard/projects', 
-      icon: Building2,
-      badge: '24',
-      description: 'Active projects'
-    },
-    { 
-      name: 'Team', 
-      href: '/gc-dashboard/team', 
-      icon: Users,
-      badge: null,
-      description: 'Team management'
-    },
-    { 
-      name: 'Communications', 
-      href: '/gc-dashboard/communications', 
-      icon: MessageSquare,
-      badge: '8',
-      description: 'Messages & updates'
-    },
-    { 
-      name: 'Documents', 
-      href: '/gc-dashboard/documents', 
-      icon: FileText,
-      badge: null,
-      description: 'Project documents'
-    },
-    { 
-      name: 'Calendar', 
-      href: '/gc-dashboard/calendar', 
-      icon: Calendar,
-      badge: null,
-      description: 'Schedule & meetings'
-    },
-  ];
-
-  const businessItems = [
-    { 
-      name: 'Project Discovery', 
-      href: '/gc-dashboard/project-discovery', 
-      icon: Search,
-      badge: 'New',
-      description: 'Find opportunities'
-    },
-    { 
-      name: 'Bid Board', 
-      href: '/gc-dashboard/bid-board', 
-      icon: Gavel,
-      badge: '12',
-      description: 'Active bids'
-    },
-    { 
-      name: 'Directory', 
-      href: '/gc-dashboard/directory', 
-      icon: Building,
-      badge: null,
-      description: 'Contractor network'
-    },
-    { 
-      name: 'Marketing', 
-      href: '/gc-dashboard/marketing', 
-      icon: Megaphone,
-      badge: null,
-      description: 'Promote services'
     },
     { 
       name: 'My Projects', 
       href: '/gc-dashboard/my-projects', 
       icon: FolderOpen,
-      badge: null,
-      description: 'Personal projects'
-    },
-  ];
-
-  const aiItems = [
-    { 
-      name: 'AI Takeoff', 
-      href: '/gc-dashboard/ai-takeoff', 
-      icon: Bot,
-      badge: 'Pro',
-      description: 'Smart estimations',
-      isPro: true
+      description: 'Manage projects, bid, invite team & documents'
     },
     { 
-      name: 'AI Copilot', 
-      href: '/gc-dashboard/ai-copilot', 
-      icon: Zap,
-      badge: 'Pro',
-      description: 'AI assistant',
-      isPro: true
+      name: 'Communication', 
+      href: '/gc-dashboard/communications', 
+      icon: MessageSquare,
+      description: 'Messages & updates'
+    },
+    { 
+      name: 'Project Discovery', 
+      href: '/gc-dashboard/project-discovery', 
+      icon: Search,
+      description: 'Find homeowner projects'
+    },
+    { 
+      name: 'Sub Contractor Directory', 
+      href: '/gc-dashboard/directory', 
+      icon: Building,
+      description: 'Find subcontractors'
     },
   ];
 
@@ -156,20 +78,92 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
       name: 'Settings', 
       href: '/gc-dashboard/settings', 
       icon: Settings,
-      badge: null,
       description: 'Account settings'
     },
     { 
-      name: 'Help & Support', 
+      name: 'Support', 
       href: '/gc-dashboard/help', 
       icon: HelpCircle,
-      badge: null,
       description: 'Get assistance'
     },
   ];
 
   const renderNavItem = (item: any) => {
-    const isActive = location.pathname === item.href;
+    const sectionKey = item.name?.toLowerCase().replace(/\s+/g, '') || '';
+    const isActive = location.pathname === item.href || 
+      (item.subItems && item.subItems.some((sub: any) => location.pathname === sub.href));
+    const isExpanded = expandedSections[sectionKey] || false;
+
+    if (item.hasSubmenu) {
+      return (
+        <div key={item.name}>
+          <button
+            onClick={() => toggleSection(sectionKey)}
+            className={cn(
+              "group w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300 relative overflow-hidden",
+              isActive
+                ? "bg-yellow-400 dark:bg-yellow-500 text-gray-900 shadow-md"
+                : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white",
+              isCollapsed ? 'justify-center px-3' : ''
+            )}
+          >
+            <item.icon className={cn(
+              "w-5 h-5 transition-all duration-300 relative z-10",
+              isActive && "scale-110"
+            )} />
+            {!isCollapsed && (
+              <>
+                <div className="flex-1 min-w-0 relative z-10 text-left">
+                  <div className="flex items-center justify-between">
+                    <span className={cn(
+                      "truncate transition-all duration-300",
+                      isActive && "font-bold"
+                    )}>
+                      {item.name}
+                    </span>
+                    {isExpanded ? (
+                      <ChevronUp className="w-4 h-4" />
+                    ) : (
+                      <ChevronDown className="w-4 h-4" />
+                    )}
+                  </div>
+                  <p className={cn(
+                    "text-xs truncate transition-all duration-300",
+                    isActive ? "text-gray-800" : "text-gray-500 dark:text-gray-400"
+                  )}>
+                    {item.description}
+                  </p>
+                </div>
+              </>
+            )}
+          </button>
+          {!isCollapsed && isExpanded && item.subItems && (
+            <div className="ml-4 mt-1 space-y-1 border-l-2 border-gray-200 dark:border-gray-700 pl-4">
+              {item.subItems.map((subItem: any) => {
+                const isSubActive = location.pathname === subItem.href;
+                return (
+                  <Link
+                    key={subItem.name}
+                    to={subItem.href}
+                    onClick={onClose}
+                    className={cn(
+                      "group flex items-center gap-3 px-4 py-2 rounded-lg text-sm transition-all duration-300",
+                      isSubActive
+                        ? "bg-yellow-100 dark:bg-yellow-900/30 text-gray-900 dark:text-white font-medium"
+                        : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white"
+                    )}
+                  >
+                    <subItem.icon className="w-4 h-4" />
+                    <span>{subItem.name}</span>
+                  </Link>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      );
+    }
+
     return (
       <Link
         key={item.name}
@@ -178,27 +172,15 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
         className={cn(
           "group flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300 relative overflow-hidden",
           isActive
-            ? "bg-gradient-to-r from-yellow-400 via-orange-500 to-yellow-500 text-black shadow-lg shadow-yellow-500/30 transform scale-[1.02]"
-            : "text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-800 dark:hover:to-gray-700 hover:text-gray-900 dark:hover:text-white hover:shadow-md",
+            ? "bg-yellow-400 dark:bg-yellow-500 text-gray-900 shadow-md"
+            : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white",
           isCollapsed ? 'justify-center px-3' : ''
         )}
       >
-        {/* Active indicator background animation */}
-        {isActive && (
-          <div className="absolute inset-0 bg-gradient-to-r from-yellow-400/20 to-orange-500/20 animate-pulse" />
-        )}
-        
-        <div className={cn(
-          "flex items-center justify-center w-5 h-5 transition-all duration-300 relative z-10",
-          item.isPro && !isActive && "text-purple-500",
-          isActive && "scale-110",
-          "group-hover:scale-110"
-        )}>
-          <item.icon className={cn(
-            "w-5 h-5 transition-transform duration-300",
-            isActive && "drop-shadow-lg"
-          )} />
-        </div>
+        <item.icon className={cn(
+          "w-5 h-5 transition-all duration-300 relative z-10",
+          isActive && "scale-110"
+        )} />
         {!isCollapsed && (
           <>
             <div className="flex-1 min-w-0 relative z-10">
@@ -209,41 +191,14 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
                 )}>
                   {item.name}
                 </span>
-                {item.isPro && (
-                  <Crown className={cn(
-                    "w-3 h-3 transition-transform duration-300",
-                    "group-hover:scale-125",
-                    isActive ? "text-black" : "text-purple-500"
-                  )} />
-                )}
               </div>
               <p className={cn(
                 "text-xs truncate transition-all duration-300",
-                isActive ? "text-black/70" : "text-gray-500 dark:text-gray-400"
+                isActive ? "text-gray-800" : "text-gray-500 dark:text-gray-400"
               )}>
                 {item.description}
               </p>
             </div>
-            {item.badge && (
-              <Badge 
-                variant={item.badge === 'Pro' ? 'default' : 'secondary'} 
-                className={cn(
-                  "text-xs px-2 py-1 font-semibold transition-all duration-300 relative z-10",
-                  isActive && 'bg-black/20 text-black border-black/20 shadow-md',
-                  item.badge === 'Pro' && !isActive && "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300 group-hover:scale-110",
-                  item.badge === 'New' && !isActive && "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300 group-hover:scale-110 animate-pulse",
-                  !isActive && !['Pro', 'New'].includes(item.badge) && "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 group-hover:scale-105"
-                )}
-              >
-                {item.badge}
-              </Badge>
-            )}
-          </>
-        )}
-        {isActive && (
-          <>
-            <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-black rounded-r-full shadow-lg" />
-            <div className="absolute right-2 top-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-black rounded-full animate-ping" />
           </>
         )}
       </Link>
@@ -262,28 +217,22 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
 
       {/* Sidebar */}
       <aside className={cn(
-        "fixed lg:static inset-y-0 left-0 z-50 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border-r border-gray-200/50 dark:border-gray-700/50 transform transition-all duration-500 ease-out flex flex-col shadow-xl lg:shadow-lg",
+        "fixed lg:static inset-y-0 left-0 z-50 bg-gray-50 dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 transform transition-all duration-500 ease-out flex flex-col",
         isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0",
         isCollapsed ? "w-16" : "w-72"
       )}>
-        {/* Enhanced Header */}
-        <div className="p-6 flex items-center justify-between border-b border-gray-200/50 dark:border-gray-700/50 h-20 bg-gradient-to-r from-gray-50 to-white dark:from-gray-800 dark:to-gray-900">
+        {/* Header */}
+        <div className="p-6 flex items-center justify-between border-b border-gray-200 dark:border-gray-800 h-20">
           {!isCollapsed && (
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center text-black shadow-lg">
+              <div className="w-10 h-10 rounded-xl bg-yellow-400 dark:bg-yellow-500 flex items-center justify-center text-gray-900 shadow-md">
                 <Building2 className="w-6 h-6" />
               </div>
               <div>
-                <h1 className="text-lg font-black tracking-tight text-gray-900 dark:text-white">
-                  Acme Construction
+                <h1 className="text-lg font-bold tracking-tight text-gray-900 dark:text-white">
+                  GC Dashboard
                 </h1>
-                <div className="flex items-center gap-2">
-                  <p className="text-xs text-gray-600 dark:text-gray-400">General Contractor</p>
-                  <Badge className="bg-green-100 text-green-800 text-xs px-2 py-0.5">
-                    <Activity className="w-3 h-3 mr-1" />
-                    Active
-                  </Badge>
-                </div>
+                <p className="text-xs text-gray-600 dark:text-gray-400">General Contractor</p>
               </div>
             </div>
           )}
@@ -315,56 +264,16 @@ const Sidebar = ({ isOpen, onClose }: SidebarProps) => {
           </div>
         </div>
 
-        {/* Enhanced Navigation */}
-        <div className="flex-1 flex flex-col gap-6 p-6 overflow-y-auto">
-          {/* Main Navigation */}
-          <div className="space-y-2">
-            {!isCollapsed && (
-              <h3 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-3">
-                Dashboard
-              </h3>
-            )}
-            <div className="space-y-1">
-              {navigationItems.map((item) => renderNavItem(item))}
-            </div>
-          </div>
-
-          {/* Business Tools */}
-          <div className="space-y-2">
-            {!isCollapsed && (
-              <h3 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-3">
-                Business Tools
-              </h3>
-            )}
-            <div className="space-y-1">
-              {businessItems.map((item) => renderNavItem(item))}
-            </div>
-          </div>
-
-          {/* AI Features */}
-          <div className="space-y-2">
-            {!isCollapsed && (
-              <div className="flex items-center gap-2 px-3">
-                <h3 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  AI Features
-                </h3>
-                <Badge className="bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300 text-xs px-2 py-0.5">
-                  Pro
-                </Badge>
-              </div>
-            )}
-            <div className="space-y-1">
-              {aiItems.map((item) => renderNavItem(item))}
-            </div>
+        {/* Navigation */}
+        <div className="flex-1 flex flex-col gap-4 p-6 overflow-y-auto">
+          <div className="space-y-1">
+            {navigationItems.map((item) => renderNavItem(item))}
           </div>
         </div>
 
-        {/* Enhanced Bottom section */}
-        <div className="p-6 border-t border-gray-200/50 dark:border-gray-700/50 space-y-4">
-          {/* Settings */}
-          <div className="space-y-1">
-            {bottomItems.map((item) => renderNavItem(item))}
-          </div>
+        {/* Bottom section */}
+        <div className="p-6 border-t border-gray-200 dark:border-gray-800 space-y-1">
+          {bottomItems.map((item) => renderNavItem(item))}
         </div>
       </aside>
     </>

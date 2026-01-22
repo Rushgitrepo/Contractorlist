@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Card } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -13,16 +13,18 @@ import {
   Filter,
   Phone,
   Mail,
-  MoreHorizontal,
-  LayoutGrid,
-  List as ListIcon,
-  ShieldCheck,
   Building2,
-  Trophy
+  ShieldCheck,
+  Trophy,
+  CheckCircle2,
+  Clock,
+  Users,
+  FileText
 } from 'lucide-react';
 
 const Directory = () => {
-  const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
+  const [selectedCategory, setSelectedCategory] = useState<string[]>([]);
+  const [selectedLocation, setSelectedLocation] = useState('austin');
 
   const contractors = [
     {
@@ -37,7 +39,12 @@ const Directory = () => {
       specialties: ['Electrical', 'Fire Alarm', 'Lighting'],
       status: 'Available',
       projects: 45,
-      avatar: 'VM'
+      avatar: 'VM',
+      phone: '(512) 555-0123',
+      email: 'info@voltmaster.com',
+      yearsExperience: 15,
+      bonded: true,
+      insured: true
     },
     {
       id: 2,
@@ -51,7 +58,12 @@ const Directory = () => {
       specialties: ['Electrical', 'Low Voltage'],
       status: 'Busy',
       projects: 12,
-      avatar: 'AW'
+      avatar: 'AW',
+      phone: '(210) 555-0145',
+      email: 'contact@apexwiring.com',
+      yearsExperience: 8,
+      bonded: true,
+      insured: true
     },
     {
       id: 3,
@@ -65,7 +77,12 @@ const Directory = () => {
       specialties: ['Solar', 'Green Energy'],
       status: 'Available',
       projects: 5,
-      avatar: 'BF'
+      avatar: 'BF',
+      phone: '(512) 555-0167',
+      email: 'hello@brightfuture.com',
+      yearsExperience: 5,
+      bonded: true,
+      insured: true
     },
     {
       id: 4,
@@ -79,187 +96,251 @@ const Directory = () => {
       specialties: ['Concrete', 'Foundation'],
       status: 'Available',
       projects: 89,
-      avatar: 'TC'
+      avatar: 'TC',
+      phone: '(214) 555-0189',
+      email: 'info@titanconcrete.com',
+      yearsExperience: 25,
+      bonded: true,
+      insured: true
     }
   ];
 
-  return (
-    <div className="flex h-full w-full flex-col bg-slate-50/50 dark:bg-slate-950/50">
-      {/* Sub-Header / Search Area */}
-      <div className="bg-white dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 px-6 py-6 transition-all sticky top-0 z-10">
-        <div className="max-w-[1600px] mx-auto">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-            <div>
-              <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                Contractor Directory
-                <Badge className="bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300 ml-2">
-                  15k+ Pros
-                </Badge>
-              </h1>
-              <p className="text-slate-500 text-sm mt-1">Connect with qualified subcontractors for your next project.</p>
-            </div>
-          </div>
+  const categories = ['Electrical', 'Plumbing', 'HVAC', 'Concrete', 'Masonry', 'Drywall', 'Roofing', 'Painting', 'Flooring'];
 
-          {/* Search Inputs */}
-          <div className="flex flex-col md:flex-row gap-3">
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
-              <Input
-                placeholder="Search by trade, name, or CSI code..."
-                className="pl-9 h-10 bg-slate-50 border-slate-200 focus:bg-white transition-all dark:bg-slate-900 dark:border-slate-800"
-              />
+  return (
+    <div className="flex h-full w-full flex-col bg-gray-50 dark:bg-gray-900">
+      {/* Header Section */}
+      <div className="bg-white dark:bg-gray-950 border-b border-gray-200 dark:border-gray-800 px-6 py-6 sticky top-0 z-10 shadow-sm">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex flex-col gap-6">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+                Sub Contractor Directory
+              </h1>
+              <p className="text-gray-600 dark:text-gray-400">
+                Find qualified subcontractors for your projects. Search by trade, location, and category. All contractors are verified and insured.
+              </p>
             </div>
-            <div className="w-full md:w-[250px] relative">
-              <MapPin className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
-              <Input
-                placeholder="Location"
-                defaultValue="Austin, TX"
-                className="pl-9 h-10 bg-slate-50 border-slate-200 focus:bg-white transition-all dark:bg-slate-900 dark:border-slate-800"
-              />
+
+            {/* Search and Filters */}
+            <div className="flex flex-col md:flex-row gap-3">
+              <div className="flex-1 relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <Input
+                  placeholder="Search by trade, company name, or CSI code..."
+                  className="pl-10 h-12 border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950"
+                />
+              </div>
+              <div className="w-full md:w-[250px] relative">
+                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <Input
+                  placeholder="Location"
+                  defaultValue="Austin, TX"
+                  className="pl-10 h-12 border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950"
+                />
+              </div>
+              <Select defaultValue="best">
+                <SelectTrigger className="w-full md:w-[180px] h-12 border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950">
+                  <SelectValue placeholder="Sort by" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="best">Best Match</SelectItem>
+                  <SelectItem value="rating">Highest Rated</SelectItem>
+                  <SelectItem value="distance">Nearest First</SelectItem>
+                  <SelectItem value="projects">Most Projects</SelectItem>
+                </SelectContent>
+              </Select>
+              <Button className="h-12 px-6 bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-semibold">
+                Find Pros
+              </Button>
             </div>
-            <Select defaultValue="best">
-              <SelectTrigger className="w-full md:w-[180px] h-10 bg-slate-50 border-slate-200 dark:bg-slate-900 dark:border-slate-800">
-                <SelectValue placeholder="Sort by" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="best">Best Match</SelectItem>
-                <SelectItem value="rating">Highest Rated</SelectItem>
-                <SelectItem value="distance">Nearest</SelectItem>
-              </SelectContent>
-            </Select>
-            <Button className="h-10 px-6 bg-yellow-500 hover:bg-yellow-600 text-yellow-950 font-semibold shadow-sm">
-              Find Pros
-            </Button>
           </div>
         </div>
       </div>
 
+      {/* Main Content */}
       <div className="flex-1 overflow-y-auto px-6 py-8">
-        <div className="max-w-[1600px] mx-auto grid grid-cols-1 lg:grid-cols-4 gap-8">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Filters Sidebar */}
-          <div className="hidden lg:block space-y-8 pr-4">
-            <div>
-              <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2 mb-4">
-                <Filter className="h-4 w-4" /> Filter Results
-              </h3>
+          <div className="hidden lg:block space-y-6">
+            <Card className="border-gray-200 dark:border-gray-800">
+              <CardContent className="p-6">
+                <h3 className="text-sm font-semibold text-gray-900 dark:text-white flex items-center gap-2 mb-4">
+                  <Filter className="h-4 w-4" />
+                  Filter Results
+                </h3>
 
-              <div className="space-y-6">
-                <div className="space-y-3">
-                  <Label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Trades</Label>
-                  <div className="space-y-2">
-                    {['Electrical', 'Plumbing', 'HVAC', 'Concrete', 'Masonry', 'Drywall'].map((trade) => (
-                      <div key={trade} className="flex items-center space-x-2">
-                        <Checkbox id={trade} />
-                        <label htmlFor={trade} className="text-sm font-medium leading-none text-slate-700 dark:text-slate-300">
-                          {trade}
-                        </label>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="space-y-3 pt-4 border-t border-slate-200 dark:border-slate-800">
-                  <Label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Status</Label>
-                  <div className="space-y-2">
-                    {['Available Now', 'Accepting Bids', 'Busy'].map((status) => (
-                      <div key={status} className="flex items-center space-x-2">
-                        <Checkbox id={status} />
-                        <label htmlFor={status} className="text-sm font-medium leading-none text-slate-700 dark:text-slate-300">
-                          {status}
-                        </label>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="space-y-3 pt-4 border-t border-slate-200 dark:border-slate-800">
-                  <Label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Tier</Label>
-                  <div className="space-y-2">
-                    {['Platinum', 'Gold', 'Silver', 'Verified'].map((tier) => (
-                      <div key={tier} className="flex items-center space-x-2">
-                        <Checkbox id={tier} />
-                        <label htmlFor={tier} className="text-sm font-medium leading-none text-slate-700 dark:text-slate-300">
-                          {tier}
-                        </label>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="pt-4">
-              <Button variant="outline" className="w-full justify-center">Reset Filters</Button>
-            </div>
-          </div>
-
-          {/* Results List (Rows) */}
-          <div className="lg:col-span-3 space-y-4">
-            {contractors.map((contractor) => (
-              <Card key={contractor.id} className="group hover:shadow-md transition-all duration-200 border-slate-200 dark:border-slate-800 overflow-hidden bg-white dark:bg-slate-900">
-                <div className="p-5 flex flex-col md:flex-row gap-6 items-start md:items-center">
-
-                  {/* Avatar/Image Section */}
-                  <div className="shrink-0 relative">
-                    <div className="h-16 w-16 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-xl font-bold text-slate-500 border border-slate-200 dark:border-slate-700">
-                      {contractor.avatar}
-                    </div>
-                    {contractor.verified && (
-                      <div className="absolute -bottom-1 -right-1 bg-white dark:bg-slate-900 rounded-full p-0.5">
-                        <ShieldCheck className="h-5 w-5 text-blue-500 fill-blue-500/20" />
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Main Info */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 mb-1">
-                      <h3 className="font-bold text-lg text-slate-900 dark:text-slate-100 group-hover:text-yellow-600 transition-colors flex items-center gap-2">
-                        {contractor.name}
-                        {contractor.tier === 'Platinum' && <Badge className="bg-slate-900 text-white border-0 text-[10px] h-5">Platinum</Badge>}
-                        {contractor.tier === 'Gold' && <Badge className="bg-yellow-100 text-yellow-800 border-0 text-[10px] h-5">Gold</Badge>}
-                      </h3>
-                      <div className="flex items-center gap-1">
-                        <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
-                        <span className="font-bold text-slate-900 dark:text-white">{contractor.rating}</span>
-                        <span className="text-slate-400 text-sm">({contractor.reviews})</span>
-                      </div>
-                    </div>
-
-                    <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-slate-500 dark:text-slate-400 mb-3">
-                      <div className="flex items-center gap-1.5">
-                        <MapPin className="h-4 w-4 text-slate-400" />
-                        {contractor.location} <span className="text-xs">({contractor.distance})</span>
-                      </div>
-                      <div className="flex items-center gap-1.5">
-                        <Building2 className="h-4 w-4 text-slate-400" />
-                        {contractor.projects} Projects
-                      </div>
-                      <div className="flex items-center gap-1.5">
-                        <Trophy className="h-4 w-4 text-slate-400" />
-                        {contractor.tier} Member
-                      </div>
-                    </div>
-
-                    <div className="flex flex-wrap gap-2">
-                      {contractor.specialties.map((tag) => (
-                        <Badge key={tag} variant="secondary" className="bg-slate-50 text-slate-600 dark:bg-slate-800 dark:text-slate-300 font-normal border border-slate-100 dark:border-slate-700">
-                          {tag}
-                        </Badge>
+                <div className="space-y-6">
+                  <div>
+                    <Label className="text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-3 block">
+                      Category / Trade
+                    </Label>
+                    <div className="space-y-2">
+                      {categories.map((category) => (
+                        <div key={category} className="flex items-center space-x-2">
+                          <Checkbox 
+                            id={category}
+                            checked={selectedCategory.includes(category)}
+                            onCheckedChange={(checked) => {
+                              if (checked) {
+                                setSelectedCategory([...selectedCategory, category]);
+                              } else {
+                                setSelectedCategory(selectedCategory.filter(c => c !== category));
+                              }
+                            }}
+                          />
+                          <Label htmlFor={category} className="text-sm font-medium text-gray-700 dark:text-gray-300 cursor-pointer">
+                            {category}
+                          </Label>
+                        </div>
                       ))}
                     </div>
                   </div>
 
-                  {/* Actions */}
-                  <div className="flex flex-row md:flex-col gap-2 shrink-0 w-full md:w-auto mt-2 md:mt-0">
-                    <Button className="w-full md:w-32 bg-slate-900 hover:bg-slate-800 text-white dark:bg-slate-50 dark:text-slate-900 shadow-sm">
-                      View Profile
-                    </Button>
-                    <Button variant="outline" className="w-full md:w-32">
-                      Invite to Bid
-                    </Button>
+                  <div className="pt-4 border-t border-gray-200 dark:border-gray-800">
+                    <Label className="text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-3 block">
+                      Availability Status
+                    </Label>
+                    <div className="space-y-2">
+                      {['Available Now', 'Accepting Bids', 'Busy'].map((status) => (
+                        <div key={status} className="flex items-center space-x-2">
+                          <Checkbox id={status} />
+                          <Label htmlFor={status} className="text-sm font-medium text-gray-700 dark:text-gray-300 cursor-pointer">
+                            {status}
+                          </Label>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="pt-4 border-t border-gray-200 dark:border-gray-800">
+                    <Label className="text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-3 block">
+                      Membership Tier
+                    </Label>
+                    <div className="space-y-2">
+                      {['Platinum', 'Gold', 'Silver', 'Verified'].map((tier) => (
+                        <div key={tier} className="flex items-center space-x-2">
+                          <Checkbox id={tier} />
+                          <Label htmlFor={tier} className="text-sm font-medium text-gray-700 dark:text-gray-300 cursor-pointer">
+                            {tier}
+                          </Label>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
+
+                <Button variant="outline" className="w-full mt-6">
+                  Reset Filters
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Results List */}
+          <div className="lg:col-span-3 space-y-4">
+            {contractors.map((contractor) => (
+              <Card key={contractor.id} className="border-gray-200 dark:border-gray-800 hover:shadow-lg transition-shadow">
+                <CardContent className="p-6">
+                  <div className="flex flex-col md:flex-row gap-6">
+                    {/* Avatar Section */}
+                    <div className="shrink-0 relative">
+                      <div className="h-20 w-20 rounded-xl bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center text-2xl font-bold text-gray-900 dark:text-white border-2 border-yellow-200 dark:border-yellow-800">
+                        {contractor.avatar}
+                      </div>
+                      {contractor.verified && (
+                        <div className="absolute -bottom-1 -right-1 bg-white dark:bg-gray-950 rounded-full p-1 border-2 border-gray-200 dark:border-gray-800">
+                          <ShieldCheck className="h-5 w-5 text-blue-500" />
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Main Info */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex flex-col md:flex-row md:items-start justify-between gap-3 mb-3">
+                        <div>
+                          <div className="flex items-center gap-2 mb-2">
+                            <h3 className="font-bold text-xl text-gray-900 dark:text-white">
+                              {contractor.name}
+                            </h3>
+                            {contractor.tier === 'Platinum' && (
+                              <Badge className="bg-gray-900 text-white border-0 text-xs">
+                                <Trophy className="w-3 h-3 mr-1" />
+                                Platinum
+                              </Badge>
+                            )}
+                            {contractor.tier === 'Gold' && (
+                              <Badge className="bg-yellow-100 text-yellow-800 border-0 text-xs">
+                                Gold
+                              </Badge>
+                            )}
+                            {contractor.tier === 'Silver' && (
+                              <Badge className="bg-gray-100 text-gray-800 border-0 text-xs">
+                                Silver
+                              </Badge>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-1 mb-2">
+                            <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
+                            <span className="font-bold text-gray-900 dark:text-white">{contractor.rating}</span>
+                            <span className="text-gray-500 dark:text-gray-400 text-sm">({contractor.reviews} reviews)</span>
+                          </div>
+                        </div>
+                        <Badge className={`${
+                          contractor.status === 'Available' 
+                            ? 'bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                            : 'bg-yellow-50 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400'
+                        }`}>
+                          {contractor.status}
+                        </Badge>
+                      </div>
+
+                      <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-gray-600 dark:text-gray-400 mb-4">
+                        <div className="flex items-center gap-1.5">
+                          <MapPin className="h-4 w-4" />
+                          {contractor.location} <span className="text-gray-400">({contractor.distance})</span>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <Building2 className="h-4 w-4" />
+                          {contractor.projects} Completed Projects
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <Clock className="h-4 w-4" />
+                          {contractor.yearsExperience} Years Experience
+                        </div>
+                        {contractor.bonded && (
+                          <div className="flex items-center gap-1.5">
+                            <CheckCircle2 className="h-4 w-4 text-green-500" />
+                            Bonded & Insured
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="flex flex-wrap gap-2 mb-4">
+                        {contractor.specialties.map((specialty) => (
+                          <Badge key={specialty} variant="outline" className="text-xs">
+                            {specialty}
+                          </Badge>
+                        ))}
+                      </div>
+
+                      <div className="flex items-center gap-4 pt-4 border-t border-gray-200 dark:border-gray-800">
+                        <Button variant="outline" size="sm">
+                          <Phone className="w-4 h-4 mr-2" />
+                          {contractor.phone}
+                        </Button>
+                        <Button variant="outline" size="sm">
+                          <Mail className="w-4 h-4 mr-2" />
+                          Email
+                        </Button>
+                        <Button className="ml-auto bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-semibold">
+                          <Users className="w-4 h-4 mr-2" />
+                          Invite to Bid
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
               </Card>
             ))}
           </div>

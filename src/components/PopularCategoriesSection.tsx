@@ -15,10 +15,71 @@ import {
   TrendingUp,
   Shield,
   ClipboardList,
+  Wrench,
+  TreePine,
+  Package,
+  Droplets,
+  Paintbrush,
+  Wind,
+  Home,
+  Hammer,
+  Layers,
+  HardHat,
+  Gauge,
+  Power,
+  Settings,
+  Box,
+  ChevronRight,
 } from "lucide-react";
 
 const PopularCategoriesSection = () => {
   const [activeTab, setActiveTab] = useState("ai-powered-project");
+  const [activeCategory, setActiveCategory] = useState<string | null>("Plumbers");
+  
+  const scrollRight = (rowId: string) => {
+    const container = document.getElementById(`category-scroll-container-${rowId}`);
+    if (container) {
+      container.scrollBy({ left: 200, behavior: 'smooth' });
+    }
+  };
+
+  // All 30 categories for 2 rows (15 each) - including Welding
+  const allCategories = [
+    { name: "Cleaners", icon: Sparkles, color: "text-gray-700" },
+    { name: "Handymen", icon: Wrench, color: "text-gray-700" },
+    { name: "Landscapers", icon: TreePine, color: "text-gray-700" },
+    { name: "Movers", icon: Package, color: "text-gray-700" },
+    { name: "Plumbers", icon: Droplets, color: "text-gray-700" },
+    { name: "Electrical pros", icon: Zap, color: "text-gray-700" },
+    { name: "Painters", icon: Paintbrush, color: "text-gray-700" },
+    { name: "HVA", icon: Wind, color: "text-gray-700" },
+    { name: "Roofing", icon: Home, color: "text-gray-700" },
+    { name: "Carpentry", icon: Hammer, color: "text-gray-700" },
+    { name: "Flooring", icon: Layers, color: "text-gray-700" },
+    { name: "Drywall", icon: Building2, color: "text-gray-700" },
+    { name: "Concrete", icon: Shield, color: "text-gray-700" },
+    { name: "Masonry", icon: HardHat, color: "text-gray-700" },
+    { name: "Insulation", icon: Box, color: "text-gray-700" },
+    { name: "Windows", icon: Home, color: "text-gray-700" },
+    { name: "Doors", icon: Building2, color: "text-gray-700" },
+    { name: "Siding", icon: Gauge, color: "text-gray-700" },
+    { name: "Gutters", icon: Droplets, color: "text-gray-700" },
+    { name: "Decking", icon: Building2, color: "text-gray-700" },
+    { name: "Fencing", icon: TreePine, color: "text-gray-700" },
+    { name: "Paving", icon: Building2, color: "text-gray-700" },
+    { name: "Demolition", icon: Hammer, color: "text-gray-700" },
+    { name: "Excavation", icon: HardHat, color: "text-gray-700" },
+    { name: "Foundation", icon: Building2, color: "text-gray-700" },
+    { name: "Welding", icon: Zap, color: "text-gray-700" },
+    { name: "Tiling", icon: Layers, color: "text-gray-700" },
+    { name: "Countertops", icon: Settings, color: "text-gray-700" },
+    { name: "Cabinetry", icon: Box, color: "text-gray-700" },
+    { name: "Appliances", icon: Power, color: "text-gray-700" },
+  ];
+
+  // Split into 2 rows of 15 each
+  const firstRowCategories = allCategories.slice(0, 15);
+  const secondRowCategories = allCategories.slice(15, 30);
 
   const tabs = [
     {
@@ -84,7 +145,7 @@ const PopularCategoriesSection = () => {
         description:
           "Transform your digital presence with AI-powered marketing, automation, and optimization tools designed for construction professionals.",
         icon: Zap,
-        gradient: "from-blue-500 to-purple-500",
+        gradient: "from-orange-500 to-yellow-500",
       },
       cards: [
         {
@@ -113,7 +174,7 @@ const PopularCategoriesSection = () => {
         description:
           "Your intelligent 24/7 assistant that helps with project management, decision-making, and workflow optimization.",
         icon: Users,
-        gradient: "from-green-500 to-teal-500",
+        gradient: "from-orange-500 to-yellow-500",
       },
       cards: [
         {
@@ -142,7 +203,7 @@ const PopularCategoriesSection = () => {
         description:
           "Custom websites designed to showcase your work, attract new clients, and establish your professional online presence.",
         icon: Globe,
-        gradient: "from-indigo-500 to-blue-500",
+        gradient: "from-orange-500 to-yellow-500",
       },
       cards: [
         {
@@ -171,7 +232,7 @@ const PopularCategoriesSection = () => {
         description:
           "Round-the-clock technical assistance from expert support team to keep your business running smoothly without interruption.",
         icon: HeadphonesIcon,
-        gradient: "from-gray-600 to-gray-800",
+        gradient: "from-orange-500 to-yellow-500",
       },
       cards: [
         {
@@ -204,17 +265,147 @@ const PopularCategoriesSection = () => {
       <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg%20width%3D%2260%22%20height%3D%2260%22%20viewBox%3D%220%200%2060%2060%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%3E%3Cg%20fill%3D%22%23fbbf24%22%20fill-opacity%3D%220.03%22%3E%3Ccircle%20cx%3D%2230%22%20cy%3D%2230%22%20r%3D%222%22/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')]"></div>
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header Section */}
-        <div className="text-center mb-12">
-          <h2 className="text-3xl sm:text-4xl font-bold mb-4 leading-tight">
-            AI-Powered Tools to{" "}
-            <span className="text-orange-600">Win More Projects</span>
-          </h2>
+        {/* Popular Construction Professional Categories Section */}
+        <div className="mb-16">
+          {/* Header Section */}
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full mb-6 shadow-sm" style={{ backgroundColor: '#fce328' }}>
+              <Users className="w-4 h-4 text-black" />
+              <span className="text-sm font-semibold text-black">
+                Join Over 1M+ Network of Construction Professionals!
+              </span>
+            </div>
+            <p className="text-lg text-gray-600 max-w-3xl mx-auto mb-8">
+              Best place for General Contractors to find suitable, reliable &
+              economical sub-contractors
+            </p>
+          </div>
+
+          {/* Title */}
+          <div className="text-center mb-8">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-2">
+              <span className="text-gray-900">Popular Construction </span>
+              <span style={{ color: '#fce328' }}>Professional Categories</span>
+            </h2>
+          </div>
+
+          {/* Beige Container with Categories - 2 Rows */}
+          <div className="bg-[#f5f5f0] rounded-2xl p-6 sm:p-8 shadow-md">
+            <style>{`
+              .scrollbar-hide::-webkit-scrollbar {
+                display: none;
+              }
+            `}</style>
+
+            {/* Categories - 2 Rows */}
+            {/* First Row */}
+            <div className="relative mb-4">
+              <div 
+                id="category-scroll-container-row1"
+                className="flex items-center gap-6 sm:gap-8 overflow-x-auto pb-4 scrollbar-hide scroll-smooth pr-12" 
+                style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+              >
+                {firstRowCategories.map((category, index) => {
+                  const IconComponent = category.icon;
+                  const isActive = activeCategory === category.name;
+                  return (
+                    <button
+                      key={`row1-${index}`}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setActiveCategory(category.name);
+                      }}
+                      className="flex flex-col items-center gap-3 min-w-[80px] flex-shrink-0 transition-all duration-200"
+                    >
+                      <IconComponent
+                        className="w-8 h-8 text-gray-700"
+                        strokeWidth={2}
+                      />
+                      <span
+                        className={`text-sm text-center leading-tight ${
+                          isActive
+                            ? "text-gray-900 font-bold"
+                            : "text-gray-700 font-medium"
+                        }`}
+                      >
+                        {category.name}
+                      </span>
+                      {isActive && (
+                        <div className="w-full h-1 rounded-full mt-1" style={{ backgroundColor: '#fce328' }}></div>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+              <button 
+                onClick={() => scrollRight('row1')}
+                className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center justify-center w-8 h-8 rounded-full bg-gray-200 hover:bg-gray-300 transition-colors z-10"
+              >
+                <ChevronRight className="w-5 h-5 text-gray-700" />
+              </button>
+            </div>
+
+            {/* Second Row */}
+            <div className="relative">
+              <div 
+                id="category-scroll-container-row2"
+                className="flex items-center gap-6 sm:gap-8 overflow-x-auto pb-4 scrollbar-hide scroll-smooth pr-12" 
+                style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+              >
+                {secondRowCategories.map((category, index) => {
+                  const IconComponent = category.icon;
+                  const isActive = activeCategory === category.name;
+                  return (
+                    <button
+                      key={`row2-${index}`}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setActiveCategory(category.name);
+                      }}
+                      className="flex flex-col items-center gap-3 min-w-[80px] flex-shrink-0 transition-all duration-200"
+                    >
+                      <IconComponent
+                        className="w-8 h-8 text-gray-700"
+                        strokeWidth={2}
+                      />
+                      <span
+                        className={`text-sm text-center leading-tight ${
+                          isActive
+                            ? "text-gray-900 font-bold"
+                            : "text-gray-700 font-medium"
+                        }`}
+                      >
+                        {category.name}
+                      </span>
+                      {isActive && (
+                        <div className="w-full h-1 rounded-full mt-1" style={{ backgroundColor: '#fce328' }}></div>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+              <button 
+                onClick={() => scrollRight('row2')}
+                className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center justify-center w-8 h-8 rounded-full bg-gray-200 hover:bg-gray-300 transition-colors z-10"
+              >
+                <ChevronRight className="w-5 h-5 text-gray-700" />
+              </button>
+            </div>
+          </div>
         </div>
 
-        {/* Main Content Area - Left Buttons, Right Cards */}
-        <div className="bg-[#f5f5f0] rounded-2xl p-6 sm:p-8 mb-12">
-          <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+        {/* AI-Powered Tools Section */}
+        <div className="mb-12">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl sm:text-4xl font-bold mb-4 leading-tight">
+              AI-Powered Tools to{" "}
+              <span style={{ color: '#fce328' }}>Win More Projects</span>
+            </h2>
+          </div>
+
+          {/* Main Content Area - Left Buttons, Right Cards */}
+          <div className="bg-[#f5f5f0] rounded-2xl p-6 sm:p-8 mb-12">
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
             {/* Left Side - Vertical Button Stack */}
             <div className="lg:col-span-2 space-y-3" id="left-buttons-container">
               {tabs.map((tab) => {
@@ -251,7 +442,7 @@ const PopularCategoriesSection = () => {
                   return (
                     <div
                       key={index}
-                      className="bg-[#f5f5f0] rounded-xl overflow-hidden shadow-md border border-gray-200 hover:shadow-lg transition-all duration-300 group flex flex-col"
+                      className="bg-[#f5f5f0] rounded-xl overflow-hidden shadow-md border border-orange-200 hover:border-orange-400 hover:shadow-lg transition-all duration-300 group flex flex-col"
                       style={{ height: '100%' }}
                     >
                       <div className="flex-1 relative overflow-hidden bg-white min-h-0">
@@ -262,7 +453,7 @@ const PopularCategoriesSection = () => {
                         />
                       </div>
                       <div className="p-4 bg-[#f5f5f0] flex-shrink-0">
-                        <h4 className="text-sm font-bold text-orange-600 text-center">
+                        <h4 className="text-sm font-bold text-orange-600 group-hover:text-orange-700 text-center transition-colors">
                           {card.title}
                         </h4>
                       </div>
@@ -273,6 +464,7 @@ const PopularCategoriesSection = () => {
             </div>
           </div>
         </div>
+      </div>
 
         {/* CTA Section */}
         <div className="bg-gradient-to-r from-orange-500 via-orange-400 to-yellow-500 rounded-2xl p-8 sm:p-10 shadow-xl mb-12 relative overflow-hidden">
@@ -313,7 +505,7 @@ const PopularCategoriesSection = () => {
               </Link>
               <Link
                 to="/contact-us"
-                className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gray-900/90 hover:bg-gray-900 text-white font-semibold text-sm rounded-full shadow-lg hover:shadow-xl border border-white/20 transition-all duration-200"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white font-semibold text-sm rounded-full shadow-lg hover:shadow-xl border border-white/30 transition-all duration-200"
               >
                 Schedule Demo
                 <ArrowRight className="w-4 h-4" />
@@ -338,27 +530,6 @@ const PopularCategoriesSection = () => {
           </div>
         </div>
 
-        {/* Statistics Footer */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-8 pb-4">
-          {[
-            { number: "10,000+", label: "Verified Contractors" },
-            { number: "50,000+", label: "Projects Completed" },
-            { number: "98%", label: "Satisfaction Rate" },
-            { number: "$2B+", label: "Project Value Managed" },
-          ].map((stat, index) => (
-            <div
-              key={index}
-              className="text-center p-4 bg-white rounded-lg border border-gray-200 hover:border-orange-300 hover:shadow-md transition-all duration-300"
-            >
-              <div className="text-3xl sm:text-4xl font-extrabold bg-gradient-to-br from-orange-600 to-yellow-500 bg-clip-text text-transparent mb-2">
-                {stat.number}
-              </div>
-              <div className="text-gray-700 text-xs sm:text-sm font-medium">
-                {stat.label}
-              </div>
-            </div>
-          ))}
-        </div>
       </div>
     </div>
   );

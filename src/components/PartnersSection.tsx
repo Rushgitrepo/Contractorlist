@@ -88,7 +88,7 @@ const PartnersSection = () => {
     {
       name: "HVA",
       icon: Wind,
-      color: "text-gray-700",
+      color: "text-gray-700",    
     },
     {
       name: "Roofing",

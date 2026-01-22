@@ -12,6 +12,12 @@ import {
   Bath,
   Search,
   MapPin,
+  Zap,
+  Palette,
+  Wind,
+  Layers,
+  Square,
+  Thermometer,
 } from "lucide-react";
 
 const HeroSection = () => {
@@ -20,20 +26,18 @@ const HeroSection = () => {
   const [serviceQuery, setServiceQuery] = useState("");
 
   const categories = [
-    { icon: Bath, label: "Bathroom Remodel" },
-    { icon: DoorOpen, label: "Windows & Doors" },
-    { icon: Home, label: "Roofing & Gutters" },
-    { icon: Building, label: "Masonry & Concrete" },
-    { icon: Wrench, label: "Plumbing" },
-    { icon: Hammer, label: "Painting" },
-    { icon: Building, label: "Building Remodeling" },
-    { icon: Wrench, label: "Electrician" },
-    { icon: Home, label: "HVAC Services" },
-    { icon: Hammer, label: "Carpentry" },
-    { icon: Building, label: "Flooring" },
-    { icon: DoorOpen, label: "Kitchen Remodel" },
-    { icon: Bath, label: "Landscaping" },
-    { icon: Home, label: "Deck & Patio" },
+    { icon: Bath, label: "Bathroom Remodel", service: "Bathroom Remodel" },
+    { icon: Square, label: "Windows & Doors", service: "Windows & Doors" },
+    { icon: Home, label: "Roofing & Gutters", service: "Roofing & Gutters" },
+    { icon: Building, label: "Masonry & Concrete", service: "Masonry & Concrete" },
+    { icon: Wrench, label: "Plumbing", service: "Plumbing" },
+    { icon: Palette, label: "Painting", service: "Painting" },
+    { icon: Building, label: "Building Remodeling", service: "Building Remodeling" },
+    { icon: Zap, label: "Electrician", service: "Electrician" },
+    { icon: Thermometer, label: "HVAC Services", service: "HVAC Services" },
+    { icon: Hammer, label: "Carpentry", service: "Carpentry" },
+    { icon: Layers, label: "Flooring", service: "Flooring" },
+    { icon: DoorOpen, label: "Kitchen Remodel", service: "Kitchen Remodel" },
   ];
 
   return (
@@ -105,18 +109,19 @@ const HeroSection = () => {
 
               {/* Icons grid responsive */}
               <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3 justify-items-center lg:justify-items-start">
-                {categories.slice(0, 12).map((category, index) => {
+                {categories.map((category, index) => {
                   const IconComponent = category.icon;
                   return (
-                    <div
+                    <Link
                       key={index}
-                      className="flex flex-col items-center justify-center w-[85px] h-[85px] border border-gray-300 rounded-lg bg-gray-300 "
+                      to={`/contractors?service=${encodeURIComponent(category.service)}`}
+                      className="flex flex-col items-center justify-center w-[85px] h-[85px] border border-gray-300 rounded-lg bg-gray-300 hover:bg-yellow-400 hover:border-yellow-500 transition-all duration-300 cursor-pointer group"
                     >
-                      <IconComponent className="w-6 h-6 text-black mb-1" />
-                      <span className="text-[10px] sm:text-xs font-medium text-gray-900 text-center px-1 leading-tight">
+                      <IconComponent className="w-6 h-6 text-black group-hover:text-yellow-900 mb-1 transition-colors duration-300" />
+                      <span className="text-[10px] sm:text-xs font-medium text-gray-900 group-hover:text-yellow-900 text-center px-1 leading-tight transition-colors duration-300">
                         {category.label}
                       </span>
-                    </div>
+                    </Link>
                   );
                 })}
               </div>

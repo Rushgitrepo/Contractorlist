@@ -31,6 +31,7 @@ const RoleSelectionSection = () => {
         { icon: CheckCircle, text: "Verified Contractors" },
         { icon: FileText, text: "Free Project Posting" },
         { icon: MessageCircle, text: "Direct Messaging" },
+        { icon: CheckCircle, text: "Get Started" },
       ],
       buttonText: "Get Started",
       buttonClass:
@@ -103,7 +104,7 @@ const RoleSelectionSection = () => {
             return (
               <div
                 key={index}
-                className={`${role.bgColor} rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-200`}
+                className={`${role.bgColor} rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-200 flex flex-col h-full`}
               >
                 {/* Icon */}
                 <div className="flex justify-center mb-6">
@@ -136,43 +137,64 @@ const RoleSelectionSection = () => {
                   {role.description}
                 </p>
 
-                {/* Features */}
-                <div
-                  className={`mb-8 ${
-                    role.features.length > 3
-                      ? "grid grid-cols-2 gap-3"
-                      : "space-y-3"
-                  }`}
-                >
-                  {role.features.map((feature, featureIndex) => {
-                    const FeatureIcon = feature.icon;
-                    return (
-                      <div
-                        key={featureIndex}
-                        className="flex items-center gap-2"
-                      >
-                        <FeatureIcon
-                          className={`w-5 h-5 ${role.iconColor} flex-shrink-0`}
-                          strokeWidth={2}
-                        />
-                        <span
-                          className={`text-sm ${role.textColor} font-medium`}
+                {/* Features - 4 items in 2 lines (2-2 layout) */}
+                <div className="mb-8 space-y-3">
+                  {/* First line: 2 items */}
+                  <div className="grid grid-cols-2 gap-3">
+                    {role.features.slice(0, 2).map((feature, featureIndex) => {
+                      const FeatureIcon = feature.icon;
+                      return (
+                        <div
+                          key={featureIndex}
+                          className="flex items-center gap-2"
                         >
-                          {feature.text}
-                        </span>
-                      </div>
-                    );
-                  })}
+                          <FeatureIcon
+                            className={`w-4 h-4 ${role.iconColor} flex-shrink-0`}
+                            strokeWidth={2}
+                          />
+                          <span
+                            className={`text-xs ${role.textColor} font-medium`}
+                          >
+                            {feature.text}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  {/* Second line: 2 items */}
+                  <div className="grid grid-cols-2 gap-3">
+                    {role.features.slice(2, 4).map((feature, featureIndex) => {
+                      const FeatureIcon = feature.icon;
+                      return (
+                        <div
+                          key={featureIndex + 2}
+                          className="flex items-center gap-2"
+                        >
+                          <FeatureIcon
+                            className={`w-4 h-4 ${role.iconColor} flex-shrink-0`}
+                            strokeWidth={2}
+                          />
+                          <span
+                            className={`text-xs ${role.textColor} font-medium`}
+                          >
+                            {feature.text}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
 
                 {/* Button */}
-                <Link
-                  to="/signup"
-                  className={`${role.buttonClass} w-full flex items-center justify-center gap-2 font-bold px-6 py-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105`}
-                >
-                  {role.buttonText}
-                  <ArrowRight className="w-5 h-5" />
-                </Link>
+                <div className="mt-auto">
+                  <Link
+                    to="/signup"
+                    className={`${role.buttonClass} w-full flex items-center justify-center gap-2 font-bold px-6 py-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105`}
+                  >
+                    {role.buttonText}
+                    <ArrowRight className="w-5 h-5" />
+                  </Link>
+                </div>
               </div>
             );
           })}

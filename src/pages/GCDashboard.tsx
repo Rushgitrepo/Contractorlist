@@ -6,25 +6,18 @@ import { Skeleton } from '@/components/ui/skeleton';
 
 // Lazy load components for better performance
 const CleanOverview = lazy(() => import('@/components/GC dashboard/CleanOverview'));
-const AdvancedAnalytics = lazy(() => import('@/components/GC dashboard/AdvancedAnalytics'));
-const CleanProjectManagement = lazy(() => import('@/components/GC dashboard/CleanProjectManagement'));
 const EnterpriseTeamManagement = lazy(() => import('@/components/GC dashboard/EnterpriseTeamManagement'));
 const CleanCommunications = lazy(() => import('@/components/GC dashboard/CleanCommunications'));
 const EnhancedDocuments = lazy(() => import('@/components/GC dashboard/EnhancedDocuments'));
-const EnhancedCalendar = lazy(() => import('@/components/GC dashboard/EnhancedCalendar'));
-const BidBoard = lazy(() => import('@/components/GC dashboard/BidBoard'));
 const Directory = lazy(() => import('@/components/GC dashboard/Directory'));
-const EnhancedAITakeoff = lazy(() => import('@/components/GC dashboard/EnhancedAITakeoff'));
-const Marketing = lazy(() => import('@/components/GC dashboard/Marketing'));
 const MyProjects = lazy(() => import('@/components/GC dashboard/MyProjects'));
-const EnhancedAICopilot = lazy(() => import('@/components/GC dashboard/EnhancedAICopilot'));
 const AccountSettings = lazy(() => import('@/components/GC dashboard/AccountSettings'));
 const HelpSupport = lazy(() => import('@/components/GC dashboard/HelpSupport'));
 const ProjectDiscovery = lazy(() => import('@/components/GC dashboard/ProjectDiscovery'));
 
 // Loading fallback component
 const PageSkeleton = () => (
-  <div className="flex-1 w-full bg-slate-50/50 dark:bg-slate-950/50 p-6 lg:p-8">
+  <div className="flex-1 w-full bg-gray-50 dark:bg-gray-900 p-6 lg:p-8">
     <div className="max-w-[1600px] mx-auto space-y-8">
       <div className="space-y-2">
         <Skeleton className="h-10 w-64" />
@@ -71,14 +64,14 @@ class ErrorBoundary extends Component<
         return this.props.fallback(this.state.error, this.reset);
       }
       return (
-        <div className="flex-1 w-full bg-slate-50/50 dark:bg-slate-950/50 p-6 lg:p-8 flex items-center justify-center">
+        <div className="flex-1 w-full bg-gray-50 dark:bg-gray-900 p-6 lg:p-8 flex items-center justify-center">
           <div className="text-center max-w-md">
             <div className="text-6xl mb-4">⚠️</div>
-            <h2 className="text-2xl font-bold mb-2 text-slate-900 dark:text-slate-100">Something went wrong</h2>
-            <p className="text-slate-600 dark:text-slate-400 mb-6">{this.state.error.message}</p>
+            <h2 className="text-2xl font-bold mb-2 text-gray-900 dark:text-white">Something went wrong</h2>
+            <p className="text-gray-600 dark:text-gray-400 mb-6">{this.state.error.message}</p>
             <button
               onClick={this.reset}
-              className="px-6 py-3 bg-yellow-500 hover:bg-yellow-600 text-black font-semibold rounded-lg transition-colors"
+              className="px-6 py-3 bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-semibold rounded-lg transition-colors"
             >
               Try again
             </button>
@@ -113,10 +106,10 @@ const GCDashboard = () => {
   }, [sidebarOpen]);
 
   return (
-    <div className="flex h-screen w-full overflow-hidden bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-900 dark:via-gray-950 dark:to-gray-900">
+    <div className="flex h-screen w-full overflow-hidden bg-gray-50 dark:bg-gray-900">
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
-      <main className="flex-1 flex flex-col h-full relative overflow-hidden bg-slate-50/50 dark:bg-slate-950/50 transition-all duration-300">
+      <main className="flex-1 flex flex-col h-full relative overflow-hidden bg-gray-50 dark:bg-gray-900 transition-all duration-300">
         <Header onMenuClick={() => setSidebarOpen(true)} />
 
         <div className="flex-1 overflow-y-auto scroll-smooth">
@@ -125,19 +118,12 @@ const GCDashboard = () => {
               <Routes>
                 <Route path="/" element={<Navigate to="/gc-dashboard/overview" replace />} />
                 <Route path="/overview" element={<CleanOverview />} />
-                <Route path="/analytics" element={<AdvancedAnalytics />} />
-                <Route path="/projects" element={<CleanProjectManagement />} />
-                <Route path="/team" element={<EnterpriseTeamManagement />} />
-                <Route path="/communications" element={<CleanCommunications />} />
-                <Route path="/documents" element={<EnhancedDocuments />} />
-                <Route path="/calendar" element={<EnhancedCalendar />} />
-                <Route path="/project-discovery" element={<ProjectDiscovery />} />
-                <Route path="/bid-board" element={<BidBoard />} />
-                <Route path="/directory" element={<Directory />} />
-                <Route path="/ai-takeoff" element={<EnhancedAITakeoff />} />
-                <Route path="/ai-copilot" element={<EnhancedAICopilot />} />
-                <Route path="/marketing" element={<Marketing />} />
                 <Route path="/my-projects" element={<MyProjects />} />
+                <Route path="/communications" element={<CleanCommunications />} />
+                <Route path="/team" element={<EnterpriseTeamManagement />} />
+                <Route path="/documents" element={<EnhancedDocuments />} />
+                <Route path="/project-discovery" element={<ProjectDiscovery />} />
+                <Route path="/directory" element={<Directory />} />
                 <Route path="/settings" element={<AccountSettings />} />
                 <Route path="/help" element={<HelpSupport />} />
               </Routes>
@@ -145,22 +131,6 @@ const GCDashboard = () => {
           </ErrorBoundary>
         </div>
       </main>
-
-      {/* Enhanced AI Copilot Floating Button with better UX */}
-      <div className="fixed bottom-6 right-6 z-50">
-        <div className="relative group">
-          <button 
-            className="bg-gradient-to-r from-yellow-400 via-orange-500 to-yellow-500 text-black size-16 rounded-full shadow-2xl hover:shadow-yellow-500/50 hover:scale-110 transition-all duration-300 flex items-center justify-center group-hover:rotate-12"
-            aria-label="Open AI Copilot"
-          >
-            <svg className="w-7 h-7 transition-transform group-hover:scale-125" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-            </svg>
-          </button>
-          <div className="absolute -top-1 -right-1 w-5 h-5 bg-green-500 rounded-full border-2 border-white dark:border-gray-900 animate-pulse shadow-lg"></div>
-          <div className="absolute -top-1 -right-1 w-5 h-5 bg-green-400 rounded-full animate-ping opacity-75"></div>
-        </div>
-      </div>
     </div>
   );
 };
