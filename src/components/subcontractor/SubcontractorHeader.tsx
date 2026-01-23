@@ -1,10 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import {
-  Search,
   Bell,
   Menu,
   Sun,
@@ -21,7 +19,8 @@ import {
   X,
   Plus,
   Building2,
-  FileText
+  FileText,
+  Search
 } from 'lucide-react';
 import {
   DropdownMenu,

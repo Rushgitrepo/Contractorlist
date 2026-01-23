@@ -30,12 +30,18 @@ import {
   Settings,
   Box,
   ChevronRight,
+  Phone,
+  Target,
+  Clock,
 } from "lucide-react";
+import VoiceAgentDemo from "./VoiceAgentDemo";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 const PopularCategoriesSection = () => {
   const [activeTab, setActiveTab] = useState("ai-powered-project");
   const [activeCategory, setActiveCategory] = useState<string | null>("Plumbers");
-  
+
   const scrollRight = (rowId: string) => {
     const container = document.getElementById(`category-scroll-container-${rowId}`);
     if (container) {
@@ -300,9 +306,9 @@ const PopularCategoriesSection = () => {
             {/* Categories - 2 Rows */}
             {/* First Row */}
             <div className="relative mb-4">
-              <div 
+              <div
                 id="category-scroll-container-row1"
-                className="flex items-center gap-6 sm:gap-8 overflow-x-auto pb-4 scrollbar-hide scroll-smooth pr-12" 
+                className="flex items-center gap-6 sm:gap-8 overflow-x-auto pb-4 scrollbar-hide scroll-smooth pr-12"
                 style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
               >
                 {firstRowCategories.map((category, index) => {
@@ -322,11 +328,10 @@ const PopularCategoriesSection = () => {
                         strokeWidth={2}
                       />
                       <span
-                        className={`text-sm text-center leading-tight ${
-                          isActive
-                            ? "text-gray-900 font-bold"
-                            : "text-gray-700 font-medium"
-                        }`}
+                        className={`text-sm text-center leading-tight ${isActive
+                          ? "text-gray-900 font-bold"
+                          : "text-gray-700 font-medium"
+                          }`}
                       >
                         {category.name}
                       </span>
@@ -337,7 +342,7 @@ const PopularCategoriesSection = () => {
                   );
                 })}
               </div>
-              <button 
+              <button
                 onClick={() => scrollRight('row1')}
                 className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center justify-center w-8 h-8 rounded-full bg-gray-200 hover:bg-gray-300 transition-colors z-10"
               >
@@ -347,9 +352,9 @@ const PopularCategoriesSection = () => {
 
             {/* Second Row */}
             <div className="relative">
-              <div 
+              <div
                 id="category-scroll-container-row2"
-                className="flex items-center gap-6 sm:gap-8 overflow-x-auto pb-4 scrollbar-hide scroll-smooth pr-12" 
+                className="flex items-center gap-6 sm:gap-8 overflow-x-auto pb-4 scrollbar-hide scroll-smooth pr-12"
                 style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
               >
                 {secondRowCategories.map((category, index) => {
@@ -369,11 +374,10 @@ const PopularCategoriesSection = () => {
                         strokeWidth={2}
                       />
                       <span
-                        className={`text-sm text-center leading-tight ${
-                          isActive
-                            ? "text-gray-900 font-bold"
-                            : "text-gray-700 font-medium"
-                        }`}
+                        className={`text-sm text-center leading-tight ${isActive
+                          ? "text-gray-900 font-bold"
+                          : "text-gray-700 font-medium"
+                          }`}
                       >
                         {category.name}
                       </span>
@@ -384,7 +388,7 @@ const PopularCategoriesSection = () => {
                   );
                 })}
               </div>
-              <button 
+              <button
                 onClick={() => scrollRight('row2')}
                 className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center justify-center w-8 h-8 rounded-full bg-gray-200 hover:bg-gray-300 transition-colors z-10"
               >
@@ -465,6 +469,67 @@ const PopularCategoriesSection = () => {
           </div>
         </div>
       </div>
+
+        {/* Dedicated GC Voice Agent Section */}
+        <div className="mb-24 mt-12 overflow-hidden">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            {/* Left Column: Description */}
+            <div className="space-y-8">
+              <div className="space-y-4">
+                <Badge className="bg-yellow-400 text-black font-black px-4 py-1.5 rounded-full uppercase tracking-widest text-[10px]">
+                  NEW: GC VOICE TERMINAL
+                </Badge>
+                <h2 className="text-4xl sm:text-5xl font-black text-gray-900 leading-tight uppercase tracking-tighter">
+                  MEET <span className="text-yellow-500">MORGAN</span>: YOUR 24/7 AI General Contractor
+                </h2>
+                <p className="text-lg text-gray-600 font-medium leading-relaxed">
+                  <b> Call Now +1 (321) 237 9018</b>
+                </p>
+                <p className="text-lg text-gray-600 font-medium leading-relaxed">
+                  Our advanced AI voice agent handles all your incoming construction calls with professional precision. From estimate requests to subcontractor coordination, Morgan is always on duty.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                {[
+                  { title: "Smart Estimator", desc: "Calculates material and labor costs on the fly.", icon: Zap },
+                  { title: "Lead Processor", desc: "Identifies and qualifies new project signals instantly.", icon: Target },
+                  { title: "24/7 Availability", desc: "Never miss a critical call or emergency again.", icon: Clock },
+                  { title: "CSI Divisions", desc: "Fluent in all trades from concrete to finishing.", icon: Building2 },
+                ].map((feature, i) => (
+                  <div key={i} className="flex gap-4 p-4 bg-white rounded-2xl shadow-sm border border-gray-100 dark:bg-gray-800/50 dark:border-white/5">
+                    <div className="w-10 h-10 rounded-xl bg-yellow-400/10 flex items-center justify-center flex-shrink-0">
+                      <feature.icon className="w-5 h-5 text-yellow-500" />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-sm text-gray-900 dark:text-white uppercase tracking-tight">{feature.title}</h4>
+                      <p className="text-xs text-gray-500 mt-1">{feature.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="pt-6">
+                <Button
+                  className="h-14 px-8 bg-black text-white hover:bg-gray-800 font-bold uppercase tracking-widest text-xs rounded-2xl group transition-all"
+                  onClick={() => {
+                    const el = document.getElementById('voice-demo-terminal');
+                    el?.scrollIntoView({ behavior: 'smooth' });
+                  }}
+                >
+                  Experience the Demo <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </Button>
+              </div>
+            </div>
+
+            {/* Right Column: Mobile Demo Terminal */}
+            <div id="voice-demo-terminal" className="relative flex justify-center lg:justify-end">
+              {/* Background Glow */}
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-yellow-400/20 blur-[100px] rounded-full -z-10" />
+              <VoiceAgentDemo />
+            </div>
+          </div>
+        </div>
 
         {/* CTA Section */}
         <div className="bg-gradient-to-r from-orange-500 via-orange-400 to-yellow-500 rounded-2xl p-8 sm:p-10 shadow-xl mb-12 relative overflow-hidden">

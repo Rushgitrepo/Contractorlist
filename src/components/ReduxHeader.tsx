@@ -612,22 +612,6 @@ const ReduxHeader = () => {
                         <span className="font-medium text-gray-700 group-hover:text-gray-900">Subscription</span>
                       </Link>
                     </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link to="/gc-dashboard" className="cursor-pointer flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-purple-50 transition-colors group">
-                        <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center group-hover:bg-purple-200 transition-colors">
-                          <BarChart3 className="h-4 w-4 text-purple-600" />
-                        </div>
-                        <span className="font-medium text-gray-700 group-hover:text-gray-900">GC Dashboard</span>
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link to="/subcontractor-dashboard" className="cursor-pointer flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-yellow-50 transition-colors group">
-                        <div className="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center group-hover:bg-yellow-200 transition-colors">
-                          <Users className="h-4 w-4 text-yellow-600" />
-                        </div>
-                        <span className="font-medium text-gray-700 group-hover:text-gray-900">Subcontractor Dashboard</span>
-                      </Link>
-                    </DropdownMenuItem>
                   </div>
                   <DropdownMenuSeparator />
                   <div className="p-1">
@@ -704,9 +688,8 @@ const ReduxHeader = () => {
                 >
                   <span className="font-medium">For Contractors</span>
                   <ChevronDown
-                    className={`h-4 w-4 transition-transform ${
-                      activeDropdown === "contractors" ? "rotate-180" : ""
-                    }`}
+                    className={`h-4 w-4 transition-transform ${activeDropdown === "contractors" ? "rotate-180" : ""
+                      }`}
                   />
                 </button>
                 {activeDropdown === "contractors" && (
@@ -770,9 +753,8 @@ const ReduxHeader = () => {
                 >
                   <span className="font-medium">For Homeowners</span>
                   <ChevronDown
-                    className={`h-4 w-4 transition-transform ${
-                      activeDropdown === "homeowners" ? "rotate-180" : ""
-                    }`}
+                    className={`h-4 w-4 transition-transform ${activeDropdown === "homeowners" ? "rotate-180" : ""
+                      }`}
                   />
                 </button>
                 {activeDropdown === "homeowners" && (
@@ -824,9 +806,8 @@ const ReduxHeader = () => {
                 >
                   <span className="font-medium">For Supplier</span>
                   <ChevronDown
-                    className={`h-4 w-4 transition-transform ${
-                      activeDropdown === "supplier" ? "rotate-180" : ""
-                    }`}
+                    className={`h-4 w-4 transition-transform ${activeDropdown === "supplier" ? "rotate-180" : ""
+                      }`}
                   />
                 </button>
                 {activeDropdown === "supplier" && (

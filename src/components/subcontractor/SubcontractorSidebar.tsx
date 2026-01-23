@@ -7,9 +7,6 @@ import {
   LayoutDashboard,
   Search,
   FileText,
-  User,
-  BarChart3,
-  Bot,
   Briefcase,
   MessageSquare,
   Settings,
@@ -29,7 +26,8 @@ import {
   Star,
   Crown,
   LogOut,
-  Building2
+  Building2,
+  User
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -169,9 +167,8 @@ const SubcontractorSidebar = ({ isOpen, onClose }: SubcontractorSidebarProps) =>
         />
       )}
 
-      {/* Sidebar */}
       <aside className={cn(
-        "fixed lg:static inset-y-0 left-0 z-50 bg-gray-50 dark:bg-[#0f1115] border-r border-gray-200 dark:border-white/5 transform transition-all duration-500 ease-out flex flex-col",
+        "relative fixed lg:static inset-y-0 left-0 z-50 bg-gray-50 dark:bg-[#0f1115] border-r border-gray-200 dark:border-white/5 transform transition-all duration-500 ease-out flex flex-col",
         isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0",
         isCollapsed ? "w-20" : "w-72"
       )}>
@@ -200,7 +197,7 @@ const SubcontractorSidebar = ({ isOpen, onClose }: SubcontractorSidebarProps) =>
             </div>
           )}
 
-          <div className={cn("flex items-center gap-1", isCollapsed ? "absolute top-1/2 -translate-y-1/2 -right-3 z-50 pointer-events-auto" : "")}>
+          <div className="absolute top-7 -right-3 z-50">
             <Button
               variant="ghost"
               size="sm"

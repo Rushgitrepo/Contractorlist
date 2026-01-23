@@ -54,6 +54,8 @@ import ReduxHeader from "@/components/ReduxHeader";
 import companyService, { CompanySearchFilters } from "@/services/companyService";
 import { normalizeCompanyData } from "@/utils/normalizeCompany";
 
+import { mockCompanies } from "@/data/mockCompanies";
+
 const Contractors = () => {
   const [params] = useSearchParams();
   const navigate = useNavigate();
@@ -151,7 +153,7 @@ const Contractors = () => {
   // Remove filter when "×" clicked
   const handleRemoveFilter = (filter: string) => {
     setSelectedFilters((prev) => prev.filter((f) => f !== filter));
-    
+
     // Clear actual filter state
     if (filter === "Verified License") {
       setVerifiedLicense(false);
@@ -346,28 +348,34 @@ const Contractors = () => {
         }
       }
 
-      const response = await companyService.searchCompanies(filters);
-      
-      if (response.success) {
-        const mappedCompanies = response.data.map((item: any) =>
-          normalizeCompanyData(item)
+      console.log("Loading mock data only...");
+      let filteredMock = [...mockCompanies];
+
+      if (zip) {
+        filteredMock = filteredMock.filter(c =>
+          c.service_zip_codes && c.service_zip_codes.some((z: string) => z.includes(zip))
         );
-
-        setCompanies(mappedCompanies);
-
-        const apiPagination =
-          response.pagination || {
-            currentPage: (response as any).page || pageNum,
-            totalPages: (response as any).totalPages || 1,
-            totalItems: (response as any).total || mappedCompanies.length,
-            itemsPerPage: (response as any).count || mappedCompanies.length,
-          };
-
-        setCompaniesPagination(apiPagination);
-        setCompaniesCurrentPage(apiPagination.currentPage || pageNum);
-      } else {
-        throw new Error(response.message || "Failed to fetch companies");
       }
+
+      if (serviceRaw) {
+        filteredMock = filteredMock.filter(c =>
+          (c.services_offered && c.services_offered.some((s: string) => s.toLowerCase().includes(serviceRaw.toLowerCase()))) ||
+          (c.professional_category && c.professional_category.toLowerCase().includes(serviceRaw.toLowerCase()))
+        );
+      }
+
+      const mappedCompanies = filteredMock.map((item: any) =>
+        normalizeCompanyData(item)
+      );
+
+      setCompanies(mappedCompanies);
+      setCompaniesPagination({
+        currentPage: 1,
+        totalPages: 1,
+        totalItems: mappedCompanies.length,
+        itemsPerPage: mappedCompanies.length || 100,
+      });
+      setCompaniesCurrentPage(1);
     } catch (e: any) {
       setCompaniesError(e.message || "Failed to load companies");
       setCompanies([]);
@@ -697,11 +705,10 @@ const Contractors = () => {
               ].map((item, i) => (
                 <label
                   key={i}
-                  className={`flex items-center gap-3 p-3 rounded-lg border-2 transition-all cursor-pointer group ${
-                    budget === item.value
-                      ? "bg-yellow-50 border-yellow-400 shadow-sm"
-                      : "bg-white border-gray-200 hover:border-gray-300 hover:bg-gray-50"
-                  }`}
+                  className={`flex items-center gap-3 p-3 rounded-lg border-2 transition-all cursor-pointer group ${budget === item.value
+                    ? "bg-yellow-50 border-yellow-400 shadow-sm"
+                    : "bg-white border-gray-200 hover:border-gray-300 hover:bg-gray-50"
+                    }`}
                 >
                   <div className="relative flex items-center justify-center">
                     <input
@@ -747,11 +754,10 @@ const Contractors = () => {
                 ].map((item, i) => (
                   <label
                     key={i}
-                    className={`flex items-center gap-3 p-2.5 rounded-lg transition-all cursor-pointer group ${
-                      item.checked
-                        ? "bg-yellow-50 border border-yellow-200"
-                        : "hover:bg-gray-50"
-                    }`}
+                    className={`flex items-center gap-3 p-2.5 rounded-lg transition-all cursor-pointer group ${item.checked
+                      ? "bg-yellow-50 border border-yellow-200"
+                      : "hover:bg-gray-50"
+                      }`}
                   >
                     <div className="relative flex items-center justify-center">
                       <input
@@ -764,12 +770,10 @@ const Contractors = () => {
                         }}
                       />
                     </div>
-                    <item.icon className={`w-4 h-4 transition-colors ${
-                      item.checked ? "text-yellow-600" : "text-gray-400 group-hover:text-gray-600"
-                    }`} />
-                    <span className={`text-sm font-medium flex-1 transition-colors ${
-                      item.checked ? "text-gray-900" : "text-gray-700 group-hover:text-gray-900"
-                    }`}>
+                    <item.icon className={`w-4 h-4 transition-colors ${item.checked ? "text-yellow-600" : "text-gray-400 group-hover:text-gray-600"
+                      }`} />
+                    <span className={`text-sm font-medium flex-1 transition-colors ${item.checked ? "text-gray-900" : "text-gray-700 group-hover:text-gray-900"
+                      }`}>
                       {item.label}
                     </span>
                     {item.checked && (
@@ -823,11 +827,10 @@ const Contractors = () => {
                 ].map((item, i) => (
                   <label
                     key={i}
-                    className={`flex items-center gap-3 p-2.5 rounded-lg transition-all cursor-pointer group ${
-                      selectedRating === item.value
-                        ? "bg-yellow-50 border border-yellow-200"
-                        : "hover:bg-gray-50"
-                    }`}
+                    className={`flex items-center gap-3 p-2.5 rounded-lg transition-all cursor-pointer group ${selectedRating === item.value
+                      ? "bg-yellow-50 border border-yellow-200"
+                      : "hover:bg-gray-50"
+                      }`}
                   >
                     <input
                       type="radio"
@@ -848,18 +851,16 @@ const Contractors = () => {
                           {[...Array(5)].map((_, idx) => (
                             <Star
                               key={idx}
-                              className={`w-4 h-4 ${
-                                idx < item.stars
-                                  ? "text-yellow-500 fill-yellow-500"
-                                  : "text-gray-300"
-                              }`}
+                              className={`w-4 h-4 ${idx < item.stars
+                                ? "text-yellow-500 fill-yellow-500"
+                                : "text-gray-300"
+                                }`}
                             />
                           ))}
                         </div>
                       )}
-                      <span className={`text-sm font-medium flex-1 ${
-                        selectedRating === item.value ? "text-gray-900" : "text-gray-700 group-hover:text-gray-900"
-                      }`}>
+                      <span className={`text-sm font-medium flex-1 ${selectedRating === item.value ? "text-gray-900" : "text-gray-700 group-hover:text-gray-900"
+                        }`}>
                         {item.value}
                       </span>
                     </div>
@@ -1087,11 +1088,10 @@ const Contractors = () => {
                         <button
                           key={page}
                           onClick={() => goToCompaniesPage(page)}
-                          className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
-                            companiesCurrentPage === page
-                              ? "bg-yellow-500 text-white hover:bg-yellow-600"
-                              : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
-                          }`}
+                          className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${companiesCurrentPage === page
+                            ? "bg-yellow-500 text-white hover:bg-yellow-600"
+                            : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
+                            }`}
                         >
                           {page}
                         </button>
