@@ -75,7 +75,7 @@ export const companyService = {
    * GET http://localhost:5000/api/companies
    */
   getAllCompanies: async (): Promise<CompanySearchResponse> => {
-    // MOCK RESPONSE
+    // Return empty list as fallback, searchCompanies handles the real work
     return {
       success: true,
       data: [],
@@ -94,7 +94,7 @@ export const companyService = {
    */
   searchCompanies: async (filters: CompanySearchFilters): Promise<CompanySearchResponse> => {
     const params = new URLSearchParams();
-    
+
     // Add all filters to params
     if (filters.zip) params.append('zip', filters.zip);
     if (filters.service) params.append('service', filters.service);

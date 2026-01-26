@@ -13,7 +13,43 @@ const Footer = () => {
   return (
     <footer className="bg-gray-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-8 gap-8">
+          {/* Get Our Services */}
+          <div>
+            <h3 className="font-semibold text-gray-800 mb-4 text-base">Get Our Services:</h3>
+            <ul className="space-y-2">
+              <li><Link to="/services/bid-management" className="text-gray-600 hover:text-gray-800 hover:underline underline-offset-4 decoration-2 transition-colors text-sm">Bid Management</Link></li>
+              <li><Link to="/services/cost-estimating" className="text-gray-600 hover:text-gray-800 hover:underline underline-offset-4 decoration-2 transition-colors text-sm">Cost Estimating</Link></li>
+              <li><Link to="/services/tenders-management" className="text-gray-600 hover:text-gray-800 hover:underline underline-offset-4 decoration-2 transition-colors text-sm">Tenders Management</Link></li>
+              <li><Link to="/services/procurement-pre-contract" className="text-gray-600 hover:text-gray-800 hover:underline underline-offset-4 decoration-2 transition-colors text-sm">Procurement & Pre-Contract</Link></li>
+              <li><Link to="/services" className="text-gray-600 hover:text-gray-800 hover:underline underline-offset-4 decoration-2 transition-colors text-sm">View All Services</Link></li>
+            </ul>
+          </div>
+
+          {/* Our Products */}
+          <div>
+            <h3 className="font-semibold text-gray-800 mb-4 text-base">Our Products:</h3>
+            <ul className="space-y-2">
+              <li><Link to="/products/ai-quantity-takeoff" className="text-gray-600 hover:text-gray-800 hover:underline underline-offset-4 decoration-2 transition-colors text-sm">AI Quantity Take Off</Link></li>
+              <li><Link to="/products/ai-cost-estimation" className="text-gray-600 hover:text-gray-800 hover:underline underline-offset-4 decoration-2 transition-colors text-sm">AI Cost Estimation</Link></li>
+              <li><Link to="/products/ai-chatbot" className="text-gray-600 hover:text-gray-800 hover:underline underline-offset-4 decoration-2 transition-colors text-sm">AI Chat Bot</Link></li>
+              <li><Link to="/products/ai-virtual-assistant" className="text-gray-600 hover:text-gray-800 hover:underline underline-offset-4 decoration-2 transition-colors text-sm">AI Virtual Assistant</Link></li>
+              <li><Link to="/products" className="text-gray-600 hover:text-gray-800 hover:underline underline-offset-4 decoration-2 transition-colors text-sm">View All Products</Link></li>
+            </ul>
+          </div>
+
+          {/* Company */}
+          <div>
+            <h3 className="font-semibold text-gray-800 mb-4 text-base">Company:</h3>
+            <ul className="space-y-2">
+              <li><Link to="/about-us" className="text-gray-600 hover:text-gray-800 hover:underline underline-offset-4 decoration-2 transition-colors text-sm">About Us</Link></li>
+              <li><Link to="/case-studies" className="text-gray-600 hover:text-gray-800 hover:underline underline-offset-4 decoration-2 transition-colors text-sm">Case Studies</Link></li>
+              <li><Link to="/videos" className="text-gray-600 hover:text-gray-800 hover:underline underline-offset-4 decoration-2 transition-colors text-sm">Videos</Link></li>
+              <li><Link to="/articles" className="text-gray-600 hover:text-gray-800 hover:underline underline-offset-4 decoration-2 transition-colors text-sm">Articles</Link></li>
+              <li><Link to="/glossary" className="text-gray-600 hover:text-gray-800 hover:underline underline-offset-4 decoration-2 transition-colors text-sm">Glossary</Link></li>
+            </ul>
+          </div>
+
           {/* Popular Searches */}
           <div>
             <h3 className="font-semibold text-gray-800 mb-4 text-base">Popular Searches:</h3>
