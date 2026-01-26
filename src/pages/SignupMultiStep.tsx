@@ -359,7 +359,6 @@ const SignupMultiStep = () => {
         "client": "homeowner",
       };
 
-<<<<<<< HEAD
       await authService.register({
         firstName: formData.firstName,
         lastName: formData.lastName,
@@ -395,25 +394,6 @@ const SignupMultiStep = () => {
         trades: formData.trades,
         goals: formData.goals,
       } as any);
-=======
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 1500));
-
-      // Store dummy user data in localStorage for demo purposes
-      const demoUser = {
-        id: Date.now().toString(),
-        name: `${formData.firstName} ${formData.lastName}`,
-        email: formData.email,
-        role: roleMap[formData.workType],
-        phone: formData.phone,
-        company: formData.companyName,
-        businessAddress: formData.address,
-        specialties: formData.trades,
-        is_verified: true,
-      };
-
-      localStorage.setItem('demoUser', JSON.stringify(demoUser));
->>>>>>> e6e20fa73a427f74bf6ab53c15b7af19c59f1078
 
       toast({
         title: "Account Created Successfully! 🎉",
