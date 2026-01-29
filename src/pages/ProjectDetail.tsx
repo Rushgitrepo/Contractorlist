@@ -175,12 +175,14 @@ const ProjectDetail = () => {
 
             <main className="pt-20">
                 {/* Breadcrumb */}
-                <div className="bg-muted/30 border-b border-border/50">
+                <div className="bg-muted/30 border-b border-border/50 relative z-10">
                     <div className="container mx-auto px-4 py-3">
-                        <Link to="/projects" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
-                            <ChevronLeft className="w-4 h-4" />
-                            Back to Projects
-                        </Link>
+                        <Button variant="ghost" size="sm" asChild className="pl-0 hover:bg-transparent text-muted-foreground hover:text-foreground transition-colors">
+                            <Link to="/projects">
+                                <ChevronLeft className="w-4 h-4 mr-2" />
+                                Back to Projects
+                            </Link>
+                        </Button>
                     </div>
                 </div>
 

@@ -111,9 +111,74 @@ const VALUE_RANGES = [
     "Over $100M",
 ];
 
-const PROJ_COUNTRIES = ["United States", "Canada"];
-const PROJ_STATES = ["Texas", "California", "New York", "Florida", "Illinois", "Ohio", "Pennsylvania", "Georgia"];
-const PROJ_COUNTIES = ["Travis", "Dallas", "Harris", "Los Angeles", "Cook", "Maricopa", "Orange", "San Diego"];
+
+const PROJ_CITIES_BY_STATE: Record<string, string[]> = {
+    "New York": ["New York"],
+    "California": ["Los Angeles", "San Diego", "San Jose", "San Francisco", "Fresno", "Sacramento", "Long Beach", "Oakland"],
+    "Illinois": ["Chicago"],
+    "Texas": ["Houston", "San Antonio", "Dallas", "Austin", "Fort Worth", "El Paso", "Arlington"],
+    "Arizona": ["Phoenix", "Tucson", "Mesa"],
+    "Pennsylvania": ["Philadelphia"],
+    "Florida": ["Jacksonville", "Miami", "Tampa"],
+    "Ohio": ["Columbus"],
+    "North Carolina": ["Charlotte", "Raleigh"],
+    "Indiana": ["Indianapolis"],
+    "Washington": ["Seattle"],
+    "Colorado": ["Denver", "Colorado Springs"],
+    "District of Columbia": ["Washington"],
+    "Massachusetts": ["Boston"],
+    "Tennessee": ["Nashville", "Memphis"],
+    "Michigan": ["Detroit"],
+    "Oklahoma": ["Oklahoma City", "Tulsa"],
+    "Oregon": ["Portland"],
+    "Nevada": ["Las Vegas"],
+    "Kentucky": ["Louisville"],
+    "Maryland": ["Baltimore"],
+    "Wisconsin": ["Milwaukee"],
+    "New Mexico": ["Albuquerque"],
+    "Georgia": ["Atlanta"],
+    "Missouri": ["Kansas City"],
+    "Nebraska": ["Omaha"],
+    "Virginia": ["Virginia Beach"],
+    "Minnesota": ["Minneapolis"],
+    "Louisiana": ["New Orleans"]
+};
+
+// Mock data for counties - in a real app this would come from an API
+const PROJ_COUNTIES_BY_STATE: Record<string, string[]> = {
+    "New York": ["New York", "Kings", "Queens", "Bronx", "Richmond"],
+    "California": ["Los Angeles", "San Diego", "Santa Clara", "San Francisco", "Fresno", "Sacramento", "Alameda"],
+    "Illinois": ["Cook", "DuPage", "Lake"],
+    "Texas": ["Harris", "Bexar", "Dallas", "Travis", "Tarrant", "El Paso"],
+    "Arizona": ["Maricopa", "Pima"],
+    "Pennsylvania": ["Philadelphia", "Allegheny"],
+    "Florida": ["Duval", "Miami-Dade", "Hillsborough", "Orange"],
+    "Ohio": ["Franklin", "Cuyahoga", "Hamilton"],
+    "North Carolina": ["Mecklenburg", "Wake"],
+    "Indiana": ["Marion"],
+    "Washington": ["King", "Pierce"],
+    "Colorado": ["Denver", "El Paso"],
+    "District of Columbia": ["District of Columbia"],
+    "Massachusetts": ["Suffolk", "Middlesex"],
+    "Tennessee": ["Davidson", "Shelby"],
+    "Michigan": ["Wayne"],
+    "Oklahoma": ["Oklahoma", "Tulsa"],
+    "Oregon": ["Multnomah"],
+    "Nevada": ["Clark"],
+    "Kentucky": ["Jefferson"],
+    "Maryland": ["Baltimore City", "Baltimore"],
+    "Wisconsin": ["Milwaukee"],
+    "New Mexico": ["Bernalillo"],
+    "Georgia": ["Fulton", "DeKalb"],
+    "Missouri": ["Jackson", "Clay"],
+    "Nebraska": ["Douglas"],
+    "Virginia": ["Virginia Beach City", "Fairfax"],
+    "Minnesota": ["Hennepin"],
+    "Louisiana": ["Orleans"]
+};
+
+const PROJ_STATES = Object.keys(PROJ_CITIES_BY_STATE).sort();
+
 
 const PUBLISH_DATES = [
     { label: "Any time", value: "any" },
@@ -265,8 +330,9 @@ export interface ProjectFilterState {
     bidDateTo: string;
     documentsOnly: boolean;
     savedOnly: boolean;
-    country: string;
+
     state: string;
+    city: string;
     county: string;
     publishDate: string;
     biddingWithin: string;
@@ -292,8 +358,9 @@ const ProjectFilters = ({ onFiltersChange }: ProjectFiltersProps) => {
     const [bidDateTo, setBidDateTo] = useState("");
     const [documentsOnly, setDocumentsOnly] = useState(false);
     const [savedOnly, setSavedOnly] = useState(false);
-    const [country, setCountry] = useState("");
+
     const [state, setState] = useState("");
+    const [city, setCity] = useState("");
     const [county, setCounty] = useState("");
     const [publishDate, setPublishDate] = useState("");
     const [biddingWithin, setBiddingWithin] = useState("");
@@ -319,8 +386,8 @@ const ProjectFilters = ({ onFiltersChange }: ProjectFiltersProps) => {
                 bidDateTo,
                 documentsOnly,
                 savedOnly,
-                country,
                 state,
+                city,
                 county,
                 publishDate,
                 biddingWithin,
@@ -345,8 +412,8 @@ const ProjectFilters = ({ onFiltersChange }: ProjectFiltersProps) => {
         bidDateTo,
         documentsOnly,
         savedOnly,
-        country,
         state,
+        city,
         county,
         publishDate,
         biddingWithin,
@@ -376,8 +443,8 @@ const ProjectFilters = ({ onFiltersChange }: ProjectFiltersProps) => {
         (bidDateTo ? 1 : 0) +
         (documentsOnly ? 1 : 0) +
         (savedOnly ? 1 : 0) +
-        (country ? 1 : 0) +
         (state ? 1 : 0) +
+        (city ? 1 : 0) +
         (county ? 1 : 0) +
         (publishDate ? 1 : 0) +
         (biddingWithin ? 1 : 0) +
@@ -402,8 +469,8 @@ const ProjectFilters = ({ onFiltersChange }: ProjectFiltersProps) => {
         setBidDateTo("");
         setDocumentsOnly(false);
         setSavedOnly(false);
-        setCountry("");
         setState("");
+        setCity("");
         setCounty("");
         setPublishDate("");
         setBiddingWithin("");
@@ -421,6 +488,14 @@ const ProjectFilters = ({ onFiltersChange }: ProjectFiltersProps) => {
             setter([...arr, item]);
         }
     };
+
+    const currentCities = state && state !== "All"
+        ? (PROJ_CITIES_BY_STATE[state] || [])
+        : Object.values(PROJ_CITIES_BY_STATE).flat().sort();
+
+    const currentCounties = state && state !== "All"
+        ? (PROJ_COUNTIES_BY_STATE[state] || [])
+        : Object.values(PROJ_COUNTIES_BY_STATE).flat().sort();
 
     return (
         <div className="bg-card border border-border rounded-xl">
@@ -529,23 +604,11 @@ const ProjectFilters = ({ onFiltersChange }: ProjectFiltersProps) => {
 
                     {/* Region */}
                     <FilterSection
-                        title="Region (Country/State)"
+                        title="Region"
                         icon={<Landmark className="w-4 h-4" />}
-                        count={(country ? 1 : 0) + (state ? 1 : 0) + (county ? 1 : 0)}
+                        count={(state ? 1 : 0) + (city ? 1 : 0) + (county ? 1 : 0)}
                     >
                         <div className="space-y-3">
-                            <div className="space-y-1.5">
-                                <Label className="text-xs text-muted-foreground">Country</Label>
-                                <Select value={country} onValueChange={setCountry}>
-                                    <SelectTrigger className="w-full text-left h-9">
-                                        <SelectValue placeholder="Select Country" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="All">All Countries</SelectItem>
-                                        {PROJ_COUNTRIES.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
-                                    </SelectContent>
-                                </Select>
-                            </div>
                             <div className="space-y-1.5">
                                 <Label className="text-xs text-muted-foreground">State</Label>
                                 <Select value={state} onValueChange={setState}>
@@ -559,6 +622,18 @@ const ProjectFilters = ({ onFiltersChange }: ProjectFiltersProps) => {
                                 </Select>
                             </div>
                             <div className="space-y-1.5">
+                                <Label className="text-xs text-muted-foreground">City</Label>
+                                <Select value={city} onValueChange={setCity}>
+                                    <SelectTrigger className="w-full text-left h-9">
+                                        <SelectValue placeholder="Select City" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="All">All Cities</SelectItem>
+                                        {currentCities.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div className="space-y-1.5">
                                 <Label className="text-xs text-muted-foreground">County</Label>
                                 <Select value={county} onValueChange={setCounty}>
                                     <SelectTrigger className="w-full text-left h-9">
@@ -566,7 +641,7 @@ const ProjectFilters = ({ onFiltersChange }: ProjectFiltersProps) => {
                                     </SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value="All">All Counties</SelectItem>
-                                        {PROJ_COUNTIES.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                                        {currentCounties.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
                                     </SelectContent>
                                 </Select>
                             </div>
