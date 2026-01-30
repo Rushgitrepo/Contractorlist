@@ -23,7 +23,7 @@ const VoiceAgentDemo = () => {
     };
 
     const startCallingSound = () => {
-        const audio = new Audio('/dial_tone.mp3');
+        const audio = new Audio('/assets/sounds/bell.mp3');
         audio.loop = true;
         audio.play().catch(e => console.log('Sound error:', e));
         callingAudioRef.current = audio;

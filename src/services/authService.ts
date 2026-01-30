@@ -188,7 +188,7 @@ class AuthService {
    */
   async forgotPassword(data: ForgotPasswordData): Promise<ApiResponse<null>> {
     try {
-      const response = await api.post<ApiResponse<null>>('/password/forgot-password', data);
+      const response = await api.post<ApiResponse<null>>('/auth/forgot-password', data);
       return response.data;
     } catch (error: any) {
       throw error.response?.data || { success: false, message: 'Failed to send reset email' };
@@ -200,7 +200,7 @@ class AuthService {
    */
   async resetPassword(data: ResetPasswordData): Promise<ApiResponse<null>> {
     try {
-      const response = await api.post<ApiResponse<null>>('/password/reset-password', data);
+      const response = await api.post<ApiResponse<null>>('/auth/reset-password', data);
       return response.data;
     } catch (error: any) {
       throw error.response?.data || { success: false, message: 'Password reset failed' };

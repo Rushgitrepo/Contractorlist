@@ -171,7 +171,7 @@ const Login = () => {
                     id="email"
                     type="email"
                     placeholder="Enter your email"
-                    className="pl-10 border-gray-300 focus:border-yellow-500 focus:ring-yellow-500"
+                    className="pl-10 border-gray-300 focus:border-primary focus:ring-primary"
                     {...register("email")}
                   />
                 </div>
@@ -193,7 +193,7 @@ const Login = () => {
                     id="password"
                     type={showPassword ? "text" : "password"}
                     placeholder="Enter your password"
-                    className="pl-10 pr-10 border-gray-300 focus:border-yellow-500 focus:ring-yellow-500"
+                    className="pl-10 pr-10 border-gray-300 focus:border-primary focus:ring-primary"
                     {...register("password")}
                   />
                   <button
@@ -220,7 +220,7 @@ const Login = () => {
                   <input
                     type="checkbox"
                     id="remember"
-                    className="rounded border-gray-300 text-yellow-600 focus:ring-yellow-500"
+                    className="rounded border-gray-300 text-primary focus:ring-primary"
                   />
                   <Label htmlFor="remember" className="text-sm text-gray-600">
                     Remember me
@@ -237,7 +237,7 @@ const Login = () => {
               <Button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-yellow-500 hover:bg-yellow-600 text-black font-semibold py-2 px-4 rounded-lg transition-colors disabled:opacity-50"
+                className="w-full bg-primary hover:bg-primary/90 text-black font-semibold py-2 px-4 rounded-lg transition-colors disabled:opacity-50"
               >
                 {isLoading ? (
                   <div className="flex items-center">

@@ -630,8 +630,8 @@ const ReduxHeader = () => {
             ) : (
               <Link
                 to="/login"
-                className="flex items-center gap-2 px-5 py-2 rounded-lg bg-[#fce011] hover:bg-[#fce011]/90 text-black font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 relative overflow-hidden group"
-                style={{ boxShadow: "0 4px 15px rgba(255, 193, 7, 0.3)" }}
+                className="flex items-center gap-2 px-5 py-2 rounded-lg bg-primary hover:bg-primary/90 text-black font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 relative overflow-hidden group"
+                style={{ boxShadow: "0 4px 15px hsl(var(--primary) / 0.3)" }}
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 <User className="w-4 h-4 relative z-10" />

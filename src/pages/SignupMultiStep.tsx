@@ -529,7 +529,7 @@ const SignupMultiStep = () => {
   return (
     <div className="min-h-screen flex">
       {/* Left Sidebar */}
-      <div className="w-72 bg-[#fce011] p-6 flex flex-col">
+      <div className="w-100 bg-[#fce011] p-6 flex flex-col">
         <div className="mb-8">
           <img src="/main-logo.png" alt="ContractorList" className="h-10 w-auto" />
         </div>
@@ -546,15 +546,15 @@ const SignupMultiStep = () => {
                     ? "bg-white text-black shadow-md"
                     : currentStep === step.number
                       ? "bg-gray-900 text-white shadow-md"
-                      : "bg-white/20 text-white/70"
+                      : "bg-black/10 text-white/70"
                     }`}
                 >
                   {step.completed ? <Check className="w-5 h-5" /> : step.number}
                 </div>
                 <h3
                   className={`font-medium text-sm ${currentStep === step.number || step.completed
-                    ? "text-white"
-                    : "text-white/70"
+                    ? "text-black"
+                    : "text-gray-500"
                     }`}
                 >
                   {step.title}
@@ -641,16 +641,18 @@ const SignupMultiStep = () => {
                       ) : (
                         <div className="mt-2 space-y-3">
                           {!otpSent ? (
-                            <Button
-                              type="button"
-                              onClick={handleSendEmailOtp}
-                              disabled={isLoading || !formData.email}
-                              variant="outline"
-                              className="w-full"
-                            >
-                              {isLoading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Mail className="w-4 h-4 mr-2" />}
-                              Verify Email
-                            </Button>
+                            formData.email && (
+                              <Button
+                                type="button"
+                                onClick={handleSendEmailOtp}
+                                disabled={isLoading || !formData.email}
+                                variant="outline"
+                                className="w-full"
+                              >
+                                {isLoading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Mail className="w-4 h-4 mr-2" />}
+                                Verify Email
+                              </Button>
+                            )
                           ) : (
                             <div className="space-y-2">
                               <div className="flex gap-2">

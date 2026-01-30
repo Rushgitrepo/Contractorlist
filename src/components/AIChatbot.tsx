@@ -50,7 +50,7 @@ const AIChatbot = () => {
         {!isOpen && (
           <button
             onClick={() => dispatch(openChatbot())}
-            className="bg-yellow-500 hover:bg-yellow-600 text-black rounded-full p-4 shadow-lg hover:shadow-xl transition-all"
+            className="bg-primary hover:bg-primary/90 text-black rounded-full p-4 shadow-lg hover:shadow-xl transition-all"
           >
             <MessageCircle className="w-6 h-6" />
           </button>
@@ -61,11 +61,11 @@ const AIChatbot = () => {
       {isOpen && (
         <div className="fixed bottom-6 right-6 w-96 h-[500px] bg-white rounded-lg shadow-xl border border-gray-200 z-50 flex flex-col">
           {/* Header */}
-          <div className="bg-yellow-500 p-4 text-black rounded-t-lg">
+          <div className="bg-primary p-4 text-black rounded-t-lg">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center">
-                  <Bot className="w-6 h-6 text-yellow-600" />
+                  <Bot className="w-6 h-6 text-black" />
                 </div>
                 <div>
                   <h3 className="font-bold">AI Assistant</h3>
@@ -74,7 +74,7 @@ const AIChatbot = () => {
               </div>
               <button
                 onClick={() => dispatch(closeChatbot())}
-                className="p-1 hover:bg-yellow-600 rounded transition-colors"
+                className="p-1 hover:bg-black/10 rounded transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -90,11 +90,10 @@ const AIChatbot = () => {
               >
                 <div className="max-w-[80%]">
                   <div
-                    className={`p-3 rounded-lg ${
-                      message.isBot
+                    className={`p-3 rounded-lg ${message.isBot
                         ? "bg-white border border-gray-200 text-gray-800"
-                        : "bg-yellow-500 text-black"
-                    }`}
+                        : "bg-primary text-black"
+                      }`}
                   >
                     <p className="text-sm">{message.text}</p>
                   </div>
@@ -132,12 +131,12 @@ const AIChatbot = () => {
                 onChange={(e) => setInputText(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder="Type your message..."
-                className="flex-1 p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 text-sm"
+                className="flex-1 p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-sm"
               />
               <button
                 onClick={handleSendMessage}
                 disabled={!inputText.trim()}
-                className="p-2 bg-yellow-500 hover:bg-yellow-600 disabled:bg-gray-300 text-black rounded-lg transition-colors"
+                className="p-2 bg-primary hover:bg-primary/90 disabled:bg-gray-300 text-black rounded-lg transition-colors"
               >
                 <Send className="w-5 h-5" />
               </button>

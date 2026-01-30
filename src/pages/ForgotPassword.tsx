@@ -36,14 +36,14 @@ const ForgotPassword = () => {
   const onSubmit = async (data: ForgotPasswordFormData) => {
     setError('');
     setIsLoading(true);
-    
+
     try {
       // Call backend API
-      const response = await authService.forgotPassword(data.email);
-      
+      const response = await authService.forgotPassword({ email: data.email });
+
       setEmail(data.email);
       setIsSubmitted(true);
-      
+
       toast({
         title: "Reset Link Sent!",
         description: response.message || "If the email exists, a password reset link has been sent.",
@@ -60,8 +60,8 @@ const ForgotPassword = () => {
     return (
       <div className="min-h-screen bg-gradient-to-br from-yellow-50 to-orange-50 flex items-center justify-center p-4">
         <div className="w-full max-w-md">
-          <Link 
-            to="/login" 
+          <Link
+            to="/login"
             className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900 mb-6 transition-colors"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
@@ -82,7 +82,7 @@ const ForgotPassword = () => {
                 We've sent a password reset link to your email address
               </CardDescription>
             </CardHeader>
-            
+
             <CardContent className="space-y-4">
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                 <p className="text-sm text-blue-800">
@@ -103,7 +103,7 @@ const ForgotPassword = () => {
                     Try again
                   </button>
                 </p>
-                
+
                 <Button
                   asChild
                   className="w-full bg-yellow-500 hover:bg-yellow-600 text-black font-semibold"
@@ -123,8 +123,8 @@ const ForgotPassword = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-yellow-50 to-orange-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        <Link 
-          to="/login" 
+        <Link
+          to="/login"
           className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900 mb-6 transition-colors"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
@@ -143,7 +143,7 @@ const ForgotPassword = () => {
               Enter your email address and we'll send you a link to reset your password
             </CardDescription>
           </CardHeader>
-          
+
           <CardContent className="space-y-4">
             {error && (
               <Alert variant="destructive">

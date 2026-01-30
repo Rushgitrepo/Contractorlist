@@ -59,8 +59,8 @@ const ResetPassword = () => {
     setIsLoading(true);
 
     try {
-      const response = await authService.resetPassword(token, data.newPassword);
-      
+      const response = await authService.resetPassword({ token, newPassword: data.newPassword });
+
       setIsSuccess(true);
       toast({
         title: "Password Reset Successful!",
@@ -105,7 +105,7 @@ const ResetPassword = () => {
                 Your password has been reset successfully.
               </CardDescription>
             </CardHeader>
-            
+
             <CardContent className="space-y-4">
               <Alert className="bg-green-50 border-green-200">
                 <CheckCircle className="h-4 w-4 text-green-600" />
@@ -135,8 +135,8 @@ const ResetPassword = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-yellow-50 to-orange-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        <Link 
-          to="/login" 
+        <Link
+          to="/login"
           className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900 mb-6 transition-colors"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
@@ -155,7 +155,7 @@ const ResetPassword = () => {
               Enter your new password below
             </CardDescription>
           </CardHeader>
-          
+
           <CardContent className="space-y-4">
             {error && (
               <Alert variant="destructive">
