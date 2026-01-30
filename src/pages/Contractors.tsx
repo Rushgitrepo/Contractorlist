@@ -57,6 +57,7 @@ import { normalizeCompanyData } from "@/utils/normalizeCompany";
 import { mockCompanies } from "@/data/mockCompanies";
 import Footer from "@/components/Footer";
 import CTASection from "@/components/CTASection";
+import NewsletterSection from "@/components/NewsletterSection";
 
 const Contractors = () => {
   const [params] = useSearchParams();
@@ -1307,6 +1308,7 @@ const Contractors = () => {
         onClose={closeProfilePreview}
       />
 
+      <NewsletterSection />
       <CTASection />
       <Footer />
     </div>
