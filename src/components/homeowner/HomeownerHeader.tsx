@@ -138,6 +138,17 @@ const HomeownerHeader = ({ onMenuClick }: HomeownerHeaderProps) => {
           <Menu className="w-5 h-5" />
         </Button>
 
+        {/* Back to Home Button */}
+        <Button
+          onClick={() => navigate('/')}
+          variant="ghost"
+          size="sm"
+          className="hidden lg:flex items-center gap-2 hover:bg-accent/10"
+        >
+          <Building2 className="w-4 h-4" />
+          <span className="text-sm font-medium">Home</span>
+        </Button>
+
         <div className="flex items-center gap-2 lg:hidden">
           <div className="size-8 rounded-lg bg-accent flex items-center justify-center shadow-sm">
             <span className="text-accent-foreground font-bold text-sm">C</span>

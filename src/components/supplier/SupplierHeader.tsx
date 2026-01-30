@@ -159,6 +159,17 @@ const SupplierHeader = ({ onMenuClick }: SupplierHeaderProps) => {
             <Menu className="w-5 h-5" />
           </Button>
 
+          {/* Back to Home Button */}
+          <Button
+            onClick={() => navigate('/')}
+            variant="ghost"
+            size="sm"
+            className="hidden lg:flex items-center gap-2 hover:bg-accent/10"
+          >
+            <Building2 className="w-4 h-4" />
+            <span className="text-sm font-medium">Home</span>
+          </Button>
+
           {/* Live Status Indicator */}
           <div className="hidden md:flex items-center gap-2">
             <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
