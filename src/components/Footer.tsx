@@ -186,6 +186,36 @@ const Footer = () => {
           </div>
         </div>
       </div>
+
+      {/* Bottom Section - Image Style */}
+      <div className="bg-gray-200 py-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+            {/* Left - Logo and Copyright */}
+            <div className="flex items-center gap-3">
+              <img src="/fav-icon.png" alt="Logo" className="w-10 h-10" />
+              <p className="text-gray-700 text-sm">
+                2025 All Rights Reserved by <span className="font-bold text-black">Contractoralist Inc</span>
+              </p>
+            </div>
+
+            {/* Center - Group Brands */}
+            <div className="text-center">
+              <p className="text-gray-700 text-sm font-semibold mb-1">Contractoralist.com Group brands:</p>
+              <p className="text-gray-600 text-xs">
+                RemotSeat.com | Paradise Estimating | Estimating Hub | Dec Experts | Growbots
+              </p>
+            </div>
+
+            {/* Right - Stitched by */}
+            <div className="text-right">
+              <p className="text-gray-700 text-sm">
+                Stitched by: <span className="font-bold text-black">Bitwords Inc.</span>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
     </footer>
   );
 };

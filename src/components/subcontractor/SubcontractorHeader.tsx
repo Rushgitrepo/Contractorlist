@@ -73,6 +73,17 @@ const SubcontractorHeader = ({ onMenuClick }: SubcontractorHeaderProps) => {
               <Menu className="w-5 h-5 text-gray-500" />
             </button>
 
+            {/* Back to Home Button */}
+            <Button
+              onClick={() => navigate('/')}
+              variant="ghost"
+              size="sm"
+              className="hover:bg-gray-100 dark:hover:bg-gray-800 h-9 hidden lg:flex items-center gap-2 font-bold uppercase tracking-widest text-[10px]"
+            >
+              <Building2 className="w-4 h-4" />
+              Home
+            </Button>
+
             {/* Terminal Indicator */}
             <div className="hidden md:flex items-center gap-3 px-4 py-1.5 rounded-full bg-white dark:bg-white/5 border border-gray-200 dark:border-white/5 shadow-sm font-bold">
               <div className="w-2 h-2 bg-accent rounded-full animate-pulse" />

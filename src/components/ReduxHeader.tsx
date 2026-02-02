@@ -605,6 +605,26 @@ const ReduxHeader = () => {
                   <DropdownMenuSeparator />
                   <div className="p-1">
                     <DropdownMenuItem asChild>
+                      <Link 
+                        to={
+                          user?.role === 'general-contractor' ? '/gc-dashboard' :
+                          user?.role === 'subcontractor' ? '/subcontractor-dashboard' :
+                          user?.role === 'client' ? '/homeowner-dashboard' :
+                          user?.role === 'vendor' ? '/supplier-dashboard' :
+                          '/gc-dashboard'
+                        } 
+                        className="cursor-pointer flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-[#fce011]/10 transition-colors group"
+                      >
+                        <div className="w-8 h-8 bg-[#fce011]/20 rounded-lg flex items-center justify-center group-hover:bg-[#fce011]/30 transition-colors">
+                          <BarChart3 className="h-4 w-4 text-[#fce011]" />
+                        </div>
+                        <span className="font-medium text-gray-700 group-hover:text-gray-900">Dashboard</span>
+                      </Link>
+                    </DropdownMenuItem>
+                  </div>
+                  <DropdownMenuSeparator />
+                  <div className="p-1">
+                    <DropdownMenuItem asChild>
                       <Link to="/subscription" className="cursor-pointer flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-blue-50 transition-colors group">
                         <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center group-hover:bg-blue-200 transition-colors">
                           <CreditCard className="h-4 w-4 text-blue-600" />

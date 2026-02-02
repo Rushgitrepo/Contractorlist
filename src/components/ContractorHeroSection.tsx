@@ -73,36 +73,42 @@ const ContractorHeroSection = () => {
             </div>
 
             {/* Search Section */}
-            <div className="space-y-0">
-              <div className="flex flex-col sm:flex-row items-stretch gap-3">
-                <div className="flex-[2] w-full">
+            <div className="space-y-4">
+              {/* Description Box with Editable Zip Code */}
+              <div className="max-w-4xl mx-auto lg:mx-0">
+                <div className="flex items-center gap-3 bg-white border-2 border-gray-200 rounded-xl p-4 shadow-sm">
                   <Input
-                    placeholder="Search Contractors in your area"
-                    className="h-12 sm:h-14 rounded-full border border-[#fce011] bg-white placeholder:text-gray-400 focus:ring-0 focus:border-[#fce011]"
+                    placeholder="Describe your project or problem — be as detailed as you'd like."
+                    className="flex-1 border-0 bg-transparent placeholder:text-gray-400 focus:ring-0 text-base"
                     value={serviceQuery}
                     onChange={(e) => setServiceQuery(e.target.value)}
                   />
+                  <div className="flex items-center gap-2">
+                    <MapPin className="w-5 h-5 text-gray-500" />
+                    <Input
+                      placeholder="10118"
+                      className="w-24 border-0 bg-transparent text-gray-700 font-semibold focus:ring-0 text-base"
+                      value={zipCode}
+                      onChange={(e) => setZipCode(e.target.value)}
+                    />
+                  </div>
+                  <a
+                    href={`/contractors?zip=${encodeURIComponent(zipCode)}${serviceQuery
+                        ? `&service=${encodeURIComponent(serviceQuery)}`
+                        : ""
+                      }`}
+                    onClick={(e) => {
+                      if (!zipCode) e.preventDefault();
+                    }}
+                  >
+                    <Button className="bg-[#fce011] hover:bg-[#fce011]/90 text-black font-bold px-6 rounded-lg shadow-md">
+                      Search
+                    </Button>
+                  </a>
                 </div>
-                <div className="flex-1 sm:max-w-xs w-full">
-                  <Input
-                    placeholder="Zip Code"
-                    className="h-12 sm:h-14 rounded-full border border-[#fce011] bg-white placeholder:text-gray-400 focus:ring-0 focus:border-[#fce011]"
-                    value={zipCode}
-                    onChange={(e) => setZipCode(e.target.value)}
-                  />
-                </div>
-                <a
-                  className="inline-flex items-center justify-center whitespace-nowrap bg-[#fce011] hover:bg-[#fce011]/90 text-black font-semibold px-6 sm:px-8 h-12 sm:h-14 rounded-full border border-[#fce011]/40 shadow-[0_6px_14px_rgba(0,0,0,0.25)] hover:shadow-[0_8px_18px_rgba(0,0,0,0.28)] transition-shadow"
-                  href={`/contractors?zip=${encodeURIComponent(zipCode)}${serviceQuery
-                    ? `&service=${encodeURIComponent(serviceQuery)}`
-                    : ""
-                    }`}
-                  onClick={(e) => {
-                    if (!zipCode) e.preventDefault();
-                  }}
-                >
-                  Search
-                </a>
+                <p className="text-center text-gray-500 text-xs mt-3">
+                  Trusted by 4.5M+ people • 4.9/5 ⭐ with over 300k reviews on the App Store
+                </p>
               </div>
             </div>
           </div>

@@ -7,6 +7,7 @@ import PopularCategoriesSection from "@/components/PopularCategoriesSection";
 import AIPoweredSolutionsSection from "@/components/AIPoweredSolutionsSection";
 import GuideAndValueSection from "@/components/GuideAndValueSection";
 import SolutionsSection from "@/components/SolutionsSection";
+import LocationsSection from "@/components/LocationsSection";
 import FAQSection from "@/components/FAQSection";
 import Footer from "@/components/Footer";
 
@@ -23,6 +24,7 @@ const Index = () => {
       <GuideAndValueSection />
       <SolutionsSection />
       <FAQSection />
+      <LocationsSection/>
       <Footer />
     </div>
   );
