@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import companyService, { CompanySearchFilters, CompanySearchResult, Company } from '../services/companyService';
+import companyService, { CompanySearchFilters, CompanySearchResult, Company } from '@/api/companyService';
 
 interface UseCompaniesOptions {
   autoFetch?: boolean;
@@ -30,7 +30,7 @@ interface UseCompaniesReturn {
  */
 export const useCompanies = (options: UseCompaniesOptions = {}): UseCompaniesReturn => {
   const { autoFetch = false, initialFilters } = options;
-  
+
   const [companies, setCompanies] = useState<CompanySearchResult[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -41,7 +41,7 @@ export const useCompanies = (options: UseCompaniesOptions = {}): UseCompaniesRet
   const search = useCallback(async (filters: CompanySearchFilters) => {
     setLoading(true);
     setError(null);
-    
+
     try {
       const response = await companyService.searchCompanies(filters);
       if (response.success) {
@@ -63,7 +63,7 @@ export const useCompanies = (options: UseCompaniesOptions = {}): UseCompaniesRet
   const getAllCompanies = useCallback(async () => {
     setLoading(true);
     setError(null);
-    
+
     try {
       const response = await companyService.getAllCompanies();
       if (response.success) {
@@ -85,7 +85,7 @@ export const useCompanies = (options: UseCompaniesOptions = {}): UseCompaniesRet
   const getCompanyByName = useCallback(async (name: string): Promise<Company | null> => {
     setLoading(true);
     setError(null);
-    
+
     try {
       const response = await companyService.getCompanyByName(name);
       if (response.success) {
@@ -107,7 +107,7 @@ export const useCompanies = (options: UseCompaniesOptions = {}): UseCompaniesRet
   const getServicesByZip = useCallback(async (zipCode: string): Promise<string[]> => {
     setLoading(true);
     setError(null);
-    
+
     try {
       const response = await companyService.getServicesByZip(zipCode);
       if (response.success) {

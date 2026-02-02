@@ -7,7 +7,9 @@ const StatsSection = () => {
   ];
 
   return (
+    
     <div className="py-4 bg-white border-b border-gray-100">
+      <hr className="border-gray-300 m-4" />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {stats.map((stat, index) => (
@@ -25,6 +27,7 @@ const StatsSection = () => {
           ))}
         </div>
       </div>
+      <hr className="border-gray-300 m-4" />
     </div>
   );
 };

@@ -36,7 +36,7 @@ import { Navigation, Pagination, Autoplay } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
-import companyService from "@/services/companyService";
+import companyService from "@/api/companyService";
 
 interface CompanyProfilePreviewProps {
   companyName: string | null;
@@ -76,8 +76,8 @@ const CompanyProfilePreview = ({ companyName, isOpen, onClose }: CompanyProfileP
   if (!isOpen) return null;
 
   const defaultImages = ["/home1.jpeg", "/home2.jpeg", "/home3.jpeg"];
-  const images = company?.images && company.images.length > 0 
-    ? company.images 
+  const images = company?.images && company.images.length > 0
+    ? company.images
     : defaultImages;
 
   const rating = company?.rating || 0;
@@ -208,11 +208,10 @@ const CompanyProfilePreview = ({ companyName, isOpen, onClose }: CompanyProfileP
                     <button
                       key={id}
                       onClick={() => setActiveTab(id as any)}
-                      className={`flex items-center gap-2 px-4 py-2 border-b-2 transition-colors ${
-                        activeTab === id
-                          ? 'border-yellow-500 text-yellow-600 font-medium'
-                          : 'border-transparent text-gray-600 hover:text-gray-900'
-                      }`}
+                      className={`flex items-center gap-2 px-4 py-2 border-b-2 transition-colors ${activeTab === id
+                        ? 'border-yellow-500 text-yellow-600 font-medium'
+                        : 'border-transparent text-gray-600 hover:text-gray-900'
+                        }`}
                     >
                       <Icon className="w-4 h-4" />
                       {label}
@@ -376,11 +375,10 @@ const CompanyProfilePreview = ({ companyName, isOpen, onClose }: CompanyProfileP
                                   {[...Array(5)].map((_, i) => (
                                     <Star
                                       key={i}
-                                      className={`w-4 h-4 ${
-                                        i < Math.round(rating)
-                                          ? "text-yellow-500 fill-yellow-500"
-                                          : "text-gray-300"
-                                      }`}
+                                      className={`w-4 h-4 ${i < Math.round(rating)
+                                        ? "text-yellow-500 fill-yellow-500"
+                                        : "text-gray-300"
+                                        }`}
                                     />
                                   ))}
                                 </div>

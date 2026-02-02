@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams, useNavigate, Link } from 'react-router-dom';
-import authService from '@/services/authService';
+import authService from '@/api/authService';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -14,7 +14,7 @@ const VerifyEmail = () => {
 
   useEffect(() => {
     const token = searchParams.get('token');
-    
+
     if (!token) {
       setStatus('error');
       setMessage('Invalid verification link. Please check your email and try again.');
@@ -29,12 +29,12 @@ const VerifyEmail = () => {
       const response = await authService.verifyEmail(token);
       setStatus('success');
       setMessage(response.message || 'Email verified successfully!');
-      
+
       // Redirect to login after 3 seconds
       setTimeout(() => navigate('/login'), 3000);
     } catch (error: any) {
       setStatus('error');
-      
+
       // Handle different error types
       if (error.code === 'ERR_NETWORK' || error.message?.includes('Network Error')) {
         setMessage('Cannot connect to server. Please make sure the backend server is running on http://localhost:5000');
@@ -50,13 +50,13 @@ const VerifyEmail = () => {
     }
   };
 
-  
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-yellow-50 to-orange-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        <Link 
-          to="/login" 
+        <Link
+          to="/login"
           className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900 mb-6 transition-colors"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
@@ -93,7 +93,7 @@ const VerifyEmail = () => {
               {status === 'error' && 'We couldn\'t verify your email address.'}
             </CardDescription>
           </CardHeader>
-          
+
           <CardContent className="space-y-4">
             {status === 'success' && (
               <Alert className="bg-green-50 border-green-200">

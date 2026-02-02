@@ -32,7 +32,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import authService from "@/services/authService";
+import authService from "@/api/authService";
 
 const SignupMultiStep = () => {
   const navigate = useNavigate();
@@ -256,6 +256,21 @@ const SignupMultiStep = () => {
       const phoneRegex = /^\+1\d{10}$/;
       if (!phoneRegex.test(formData.phone.trim())) {
         toast({ title: "Invalid Phone Format", description: "Phone number must be in US format: +1 followed by 10 digits (e.g., +15551234567)", variant: "destructive" });
+        return false;
+      }
+    }
+    if (step === 3) {
+      if (!formData.trades || formData.trades.length === 0) {
+        const title = formData.workType === "client" ? "Selection Required" : "Trade Selection Required";
+        const description = formData.workType === "client" ? "Please select at least one project interest" : "Please select at least one trade your company specializes in";
+        toast({ title, description, variant: "destructive" });
+        return false;
+      }
+    }
+
+    if (step === 4) {
+      if (!formData.goals || formData.goals.length === 0) {
+        toast({ title: "Selection Required", description: "Please select at least one goal to continue", variant: "destructive" });
         return false;
       }
     }

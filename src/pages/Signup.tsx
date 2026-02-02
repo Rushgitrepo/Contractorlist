@@ -31,7 +31,7 @@ import {
 } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
-import authService from "@/services/authService";
+import authService from "@/api/authService";
 
 const signupSchema = z
   .object({
@@ -203,8 +203,8 @@ const Signup = () => {
                   <label
                     htmlFor="client"
                     className={`relative flex flex-col items-center p-5 border-2 rounded-2xl cursor-pointer transition-all ${selectedRole === 'client'
-                        ? 'border-green-400 bg-green-50 shadow-lg'
-                        : 'border-gray-200 hover:border-green-300 hover:bg-green-50'
+                      ? 'border-green-400 bg-green-50 shadow-lg'
+                      : 'border-gray-200 hover:border-green-300 hover:bg-green-50'
                       }`}
                   >
                     <input
@@ -226,8 +226,8 @@ const Signup = () => {
                   <label
                     htmlFor="contractor"
                     className={`relative flex flex-col items-center p-5 border-2 rounded-2xl cursor-pointer transition-all ${selectedRole === 'contractor'
-                        ? 'border-blue-400 bg-blue-50 shadow-lg'
-                        : 'border-gray-200 hover:border-blue-300 hover:bg-blue-50'
+                      ? 'border-blue-400 bg-blue-50 shadow-lg'
+                      : 'border-gray-200 hover:border-blue-300 hover:bg-blue-50'
                       }`}
                   >
                     <input
@@ -249,8 +249,8 @@ const Signup = () => {
                   <label
                     htmlFor="vendor"
                     className={`relative flex flex-col items-center p-5 border-2 rounded-2xl cursor-pointer transition-all ${selectedRole === 'vendor'
-                        ? 'border-purple-400 bg-purple-50 shadow-lg'
-                        : 'border-gray-200 hover:border-purple-300 hover:bg-purple-50'
+                      ? 'border-purple-400 bg-purple-50 shadow-lg'
+                      : 'border-gray-200 hover:border-purple-300 hover:bg-purple-50'
                       }`}
                   >
                     <input

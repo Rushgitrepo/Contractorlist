@@ -88,6 +88,8 @@ class ErrorBoundary extends Component<
   }
 }
 
+import GCProfileCompletionModal from '@/components/GCProfileCompletionModal';
+
 const GCDashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
@@ -111,6 +113,7 @@ const GCDashboard = () => {
 
   return (
     <div className="flex h-screen w-full overflow-hidden bg-gray-50 dark:bg-gray-900">
+      <GCProfileCompletionModal onComplete={() => window.location.reload()} />
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
       <main className="flex-1 flex flex-col h-full relative overflow-hidden bg-gray-50 dark:bg-gray-900 transition-all duration-300">

@@ -2,13 +2,13 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useRef, useState, useEffect } from "react";
 
 const projectTypes = [
-  { title: "Bathroom Remodeling", image: "/home1.jpeg" },
-  { title: "Garage Building", image: "/home5.jpeg" },
-  { title: "Kitchen Remodeling", image: "/home2.jpeg" },
-  { title: "Custom Homes", image: "/home3.jpeg" },
-  { title: "New Home Construction", image: "/home4.jpeg" },
-  { title: "Garage Building", image: "/home5.jpeg" },
-  { title: "Custom Homes", image: "/home3.jpeg" },
+  { title: "Bathroom Remodeling", image: "/projects/types/bathroom.png" },
+  { title: "Garage Building", image: "/projects/types/garage.png" },
+  { title: "Kitchen Remodeling", image: "/projects/types/kitchen.png" },
+  { title: "Custom Homes", image: "/projects/types/custom-home.png" },
+  { title: "New Home Construction", image: "/projects/types/construction.png" },
+  { title: "Garage Building", image: "/projects/types/garage.png" },
+  { title: "Custom Homes", image: "/projects/types/custom-home.png" },
 ];
 
 const ProjectTypeSelector = () => {

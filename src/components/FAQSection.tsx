@@ -98,9 +98,9 @@ const FAQSection = () => {
           {/* Right Content - FAQ Image */}
           <div className="flex justify-center lg:justify-end items-center">
             <img
-              src="https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&q=80&w=800"
+              src="/FAQS.png"
               alt="Construction professional"
-              className="w-full max-w-lg h-auto object-cover rounded-2xl shadow-2xl"
+              className="pt-10 w-full max-w-lg h-auto"
             />
           </div>
         </div>

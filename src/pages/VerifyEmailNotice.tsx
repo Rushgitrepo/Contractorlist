@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Mail, ArrowLeft } from 'lucide-react';
-import authService from '@/services/authService';
+import authService from '@/api/authService';
 import { useToast } from '@/hooks/use-toast';
 
 const VerifyEmailNotice = () => {
@@ -12,7 +12,7 @@ const VerifyEmailNotice = () => {
   const { toast } = useToast();
   const [isResending, setIsResending] = useState(false);
   const [resendSuccess, setResendSuccess] = useState(false);
-  
+
   // Get email from location state or from the form (you might want to store it in localStorage during signup)
   const email = location.state?.email || '';
 
@@ -28,7 +28,7 @@ const VerifyEmailNotice = () => {
 
     setIsResending(true);
     setResendSuccess(false);
-    
+
     try {
       await authService.resendVerification(email);
       setResendSuccess(true);
@@ -50,8 +50,8 @@ const VerifyEmailNotice = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-yellow-50 to-orange-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        <Link 
-          to="/login" 
+        <Link
+          to="/login"
           className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900 mb-6 transition-colors"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
@@ -72,11 +72,11 @@ const VerifyEmailNotice = () => {
               We've sent a verification link to your email address
             </CardDescription>
           </CardHeader>
-          
+
           <CardContent className="space-y-4">
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
               <p className="text-sm text-blue-800">
-                Please check your email and click on the verification link to activate your account. 
+                Please check your email and click on the verification link to activate your account.
                 The link will expire in 24 hours.
               </p>
             </div>

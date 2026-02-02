@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getProjectDocuments, uploadDocument, deleteDocument } from '@/services/gcDashboardService';
+import { getProjectDocuments, uploadDocument, deleteDocument } from '@/api/gcDashboardService';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';

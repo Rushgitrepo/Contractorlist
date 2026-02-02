@@ -51,10 +51,41 @@ import ProjectTypeSelector from "@/components/ProjectTypeSelector";
 import HeroSection from "@/components/HeroSection";
 import ContractorHeroSection from "@/components/ContractorHeroSection";
 import ReduxHeader from "@/components/ReduxHeader";
-import companyService, { CompanySearchFilters } from "@/services/companyService";
+import companyService, { CompanySearchFilters } from "@/api/companyService";
 import { normalizeCompanyData } from "@/utils/normalizeCompany";
+import Footer from "@/components/Footer";
+import CTASection from "@/components/CTASection";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
 
-import { mockCompanies } from "@/data/mockCompanies";
+// Top 50 US Cities + States
+const USLocations = [
+  "New York, NY", "Los Angeles, CA", "Chicago, IL", "Houston, TX", "Phoenix, AZ",
+  "Philadelphia, PA", "San Antonio, TX", "San Diego, CA", "Dallas, TX", "San Jose, CA",
+  "Austin, TX", "Jacksonville, FL", "Fort Worth, TX", "Columbus, OH", "Charlotte, NC",
+  "San Francisco, CA", "Indianapolis, IN", "Seattle, WA", "Denver, CO", "Washington, DC",
+  "Boston, MA", "El Paso, TX", "Nashville, TN", "Detroit, MI", "Oklahoma City, OK",
+  "Portland, OR", "Las Vegas, NV", "Memphis, TN", "Louisville, KY", "Baltimore, MD",
+  "Milwaukee, WI", "Albuquerque, NM", "Tucson, AZ", "Fresno, CA", "Mesa, AZ",
+  "Sacramento, CA", "Atlanta, GA", "Kansas City, MO", "Colorado Springs, CO", "Miami, FL",
+  "Raleigh, NC", "Omaha, NE", "Long Beach, CA", "Virginia Beach, VA", "Oakland, CA",
+  "Minneapolis, MN", "Tulsa, OK", "Arlington, TX", "Tampa, FL", "New Orleans, LA",
+  "Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado", "Connecticut",
+  "Delaware", "Florida", "Georgia", "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa",
+  "Kansas", "Kentucky", "Louisiana", "Maine", "Maryland", "Massachusetts", "Michigan",
+  "Minnesota", "Mississippi", "Missouri", "Montana", "Nebraska", "Nevada", "New Hampshire",
+  "New Jersey", "New Mexico", "New York", "North Carolina", "North Dakota", "Ohio",
+  "Oklahoma", "Oregon", "Pennsylvania", "Rhode Island", "South Carolina", "South Dakota",
+  "Tennessee", "Texas", "Utah", "Vermont", "Virginia", "Washington", "West Virginia",
+  "Wisconsin", "Wyoming"
+].sort();
 
 const Contractors = () => {
   const [params] = useSearchParams();
@@ -75,21 +106,9 @@ const Contractors = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [selectedTrade, setSelectedTrade] = useState<string>("");
   const [licenseFilter, setLicenseFilter] = useState<string>("");
-  const [experienceFilter, setExperienceFilter] = useState<string>("");
   const [availabilityFilter, setAvailabilityFilter] = useState<string>("");
   const [selectedContractor, setSelectedContractor] = useState<any>(null);
   const [showProfilePreview, setShowProfilePreview] = useState(false);
-
-  // API state
-  const [results, setResults] = useState<any[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [page, setPage] = useState(1);
-  const [pagination, setPagination] = useState<any | null>(null);
-  const [filters, setFilters] = useState([
-    "New York / 50 mi",
-    "General Contractors",
-  ]);
   const [search, setSearch] = useState("");
 
   // Company API state
@@ -97,6 +116,7 @@ const Contractors = () => {
   const [companiesLoading, setCompaniesLoading] = useState(false);
   const [companiesError, setCompaniesError] = useState<string | null>(null);
   const [companiesCurrentPage, setCompaniesCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
   const [companiesPagination, setCompaniesPagination] = useState<any | null>(null);
 
   // Filter state
@@ -113,11 +133,6 @@ const Contractors = () => {
   const [offersCustomWork, setOffersCustomWork] = useState(false);
   const [selectedLanguage, setSelectedLanguage] = useState<string>("");
   const [selectedRating, setSelectedRating] = useState<string>("");
-  const [selectedProjectTypes, setSelectedProjectTypes] = useState<string[]>([]);
-  const [selectedWorkPreferences, setSelectedWorkPreferences] = useState<string[]>([]);
-  const [experienceLevel, setExperienceLevel] = useState<string>("");
-  const [bonded, setBonded] = useState(false);
-  const [insured, setInsured] = useState(false);
 
   // Helper to toggle filters
   const toggleFilter = (filter: string) => {
@@ -152,16 +167,6 @@ const Contractors = () => {
       setSelectedLanguage(filter);
     } else if (filter.includes("stars")) {
       setSelectedRating(filter);
-    } else if (["Commercial", "Residential", "Industrial", "Government", "Institutional"].includes(filter)) {
-      setSelectedProjectTypes(prev => prev.includes(filter) ? prev.filter(f => f !== filter) : [...prev, filter]);
-    } else if (["Union", "Non-Union", "Prevailing Wage"].includes(filter)) {
-      setSelectedWorkPreferences(prev => prev.includes(filter) ? prev.filter(f => f !== filter) : [...prev, filter]);
-    } else if (filter.includes("Years in Business")) {
-      setExperienceLevel(filter);
-    } else if (filter === "Bonded") {
-      setBonded(!bonded);
-    } else if (filter === "Insured") {
-      setInsured(!insured);
     }
   };
 
@@ -194,16 +199,6 @@ const Contractors = () => {
       setSelectedLanguage("");
     } else if (filter.includes("stars")) {
       setSelectedRating("");
-    } else if (["Commercial", "Residential", "Industrial", "Government", "Institutional"].includes(filter)) {
-      setSelectedProjectTypes(prev => prev.filter(f => f !== filter));
-    } else if (["Union", "Non-Union", "Prevailing Wage"].includes(filter)) {
-      setSelectedWorkPreferences(prev => prev.filter(f => f !== filter));
-    } else if (filter.includes("Years in Business")) {
-      setExperienceLevel("");
-    } else if (filter === "Bonded") {
-      setBonded(false);
-    } else if (filter === "Insured") {
-      setInsured(false);
     }
   };
 
@@ -222,11 +217,6 @@ const Contractors = () => {
     setOffersCustomWork(false);
     setSelectedLanguage("");
     setSelectedRating("");
-    setSelectedProjectTypes([]);
-    setSelectedWorkPreferences([]);
-    setExperienceLevel("");
-    setBonded(false);
-    setInsured(false);
   };
 
   // Count active filters
@@ -243,11 +233,6 @@ const Contractors = () => {
     offersCustomWork,
     selectedLanguage && selectedLanguage !== "All Languages",
     selectedRating && selectedRating !== "Any Rating",
-    selectedProjectTypes.length > 0,
-    selectedWorkPreferences.length > 0,
-    experienceLevel,
-    bonded,
-    insured,
   ].filter(Boolean).length;
 
   // Sidebar services: fetch real counts from backend with fallback icons
@@ -307,116 +292,77 @@ const Contractors = () => {
   }, []);
 
   // Fetch companies from API (server-side pagination: 10 per page)
-  const fetchCompanies = async (pageNum = 1) => {
+  const fetchCompanies = async (pageNum = 1, limit = itemsPerPage) => {
     setCompaniesLoading(true);
     setCompaniesError(null);
 
-    const limit = 10;
-
     try {
-      // In a real app, we would use companyService.search(filters)
-      // For now, mirroring the filters used in the real fetch for mock data
+      const apiFilters: CompanySearchFilters = {
+        page: pageNum,
+        limit,
+        zip: zip || undefined,
+        service: serviceRaw || undefined,
+      };
 
-      console.log(`Loading mock data page ${pageNum}...`);
-      let filteredMock = [...mockCompanies];
+      // Map local state to API filters
+      if (verifiedLicense) apiFilters.verified_license = true;
+      if (respondsQuickly) apiFilters.responds_quickly = true;
+      if (hiredOnPlatform) apiFilters.hired_on_platform = true;
+      if (provides3d) apiFilters.provides_3d_visualization = true;
+      if (ecoFriendly) apiFilters.eco_friendly = true;
+      if (familyOwned) apiFilters.family_owned = true;
+      if (locallyOwned) apiFilters.locally_owned = true;
+      if (offersCustomWork) apiFilters.offers_custom_work = true;
 
-      // Basic Search Filters
-      if (zip) {
-        filteredMock = filteredMock.filter(c =>
-          c.service_zip_codes && c.service_zip_codes.some((z: string) => z.includes(zip))
-        );
-      }
-
-      if (serviceRaw) {
-        filteredMock = filteredMock.filter(c =>
-          (c.services_offered && c.services_offered.some((s: string) => s.toLowerCase().includes(serviceRaw.toLowerCase()))) ||
-          (c.professional_category && c.professional_category.toLowerCase().includes(serviceRaw.toLowerCase())) ||
-          (c.company_name && c.company_name.toLowerCase().includes(serviceRaw.toLowerCase()))
-        );
-      }
-
-      // Feature Filters
-      if (verifiedLicense) filteredMock = filteredMock.filter(c => c.verified_business);
-      if (respondsQuickly) filteredMock = filteredMock.filter(c => c.responds_quickly);
-      if (hiredOnPlatform) filteredMock = filteredMock.filter(c => c.hired_on_platform);
-      if (provides3d) filteredMock = filteredMock.filter(c => c.provides_3d_visualization);
-      if (ecoFriendly) filteredMock = filteredMock.filter(c => c.eco_friendly);
-      if (familyOwned) filteredMock = filteredMock.filter(c => c.family_owned);
-      if (locallyOwned) filteredMock = filteredMock.filter(c => c.locally_owned);
-      if (offersCustomWork) filteredMock = filteredMock.filter(c => c.offers_custom_work);
-
-      // Professional Category Filter
       if (professionalCategory) {
-        filteredMock = filteredMock.filter(c =>
-          c.professional_category && c.professional_category.toLowerCase() === professionalCategory.toLowerCase()
-        );
+        apiFilters.professional_category = professionalCategory;
       }
 
-      // Budget Filter
       if (budget) {
-        const budgetMap: Record<string, string> = {
+        const budgetMap: Record<string, '$' | '$$' | '$$$' | '$$$$'> = {
           "$ - I want to minimize costs": "$",
           "$$ - Low-to-mid price": "$$",
           "$$$ - Mid-to-high price": "$$$",
           "$$$$ - I want the best results": "$$$$",
         };
-        const shortBudget = budgetMap[budget];
-        if (shortBudget) {
-          filteredMock = filteredMock.filter(c => c.budget_range === shortBudget);
+        if (budgetMap[budget]) {
+          apiFilters.budget = budgetMap[budget];
         }
       }
 
-      // Language Filter
       if (selectedLanguage && selectedLanguage !== "All Languages") {
-        const lang = selectedLanguage.replace("Speaks ", "");
-        filteredMock = filteredMock.filter(c =>
-          c.languages && c.languages.some((l: string) => l.toLowerCase().includes(lang.toLowerCase()))
-        );
+        apiFilters.language = selectedLanguage.replace("Speaks ", "");
       }
 
-      // Rating Filter
       if (selectedRating && selectedRating !== "Any Rating") {
-        let minRating = 0;
-        if (selectedRating === "5 stars only") minRating = 5;
-        else if (selectedRating === "4 stars & up") minRating = 4;
-        else if (selectedRating === "3 stars & up") minRating = 3;
-
-        filteredMock = filteredMock.filter(c => (c.rating || 0) >= minRating);
+        if (selectedRating === "5 stars only") apiFilters.rating = 5;
+        else if (selectedRating === "4 stars & up") apiFilters.rating = 4;
+        else if (selectedRating === "3 stars & up") apiFilters.rating = 3;
       }
 
-      // Keywords Search
-      if (search) {
-        const kw = search.toLowerCase();
-        filteredMock = filteredMock.filter(c =>
-          (c.company_name && c.company_name.toLowerCase().includes(kw)) ||
-          (c.tagline && c.tagline.toLowerCase().includes(kw)) ||
-          (c.description && c.description.toLowerCase().includes(kw))
+      // Pass location as city if applicable, though backend support varies
+      // For now, we rely on zip and other filters primarily.
+
+      const response = await companyService.searchCompanies(apiFilters);
+
+      if (response.success) {
+        const mappedCompanies = response.data.map((item: any) =>
+          normalizeCompanyData(item)
         );
+
+        setCompanies(mappedCompanies);
+        setCompaniesPagination(response.pagination || {
+          currentPage: pageNum,
+          totalPages: Math.ceil((response.pagination?.totalItems || 0) / limit) || 1,
+          totalItems: response.pagination?.totalItems || 0,
+          itemsPerPage: limit
+        });
+        setCompaniesCurrentPage(pageNum);
+      } else {
+        throw new Error(response.message || "Failed to fetch companies");
       }
-
-      // Calculate Pagination
-      const totalItems = filteredMock.length;
-      const totalPages = Math.ceil(totalItems / limit) || 1;
-
-      // Ensure pageNum is within bounds
-      const activePage = Math.min(Math.max(1, pageNum), totalPages);
-
-      const startIndex = (activePage - 1) * limit;
-      const paginatedSlice = filteredMock.slice(startIndex, startIndex + limit);
-
-      const mappedCompanies = paginatedSlice.map((item: any) =>
-        normalizeCompanyData(item)
-      );
-
-      setCompanies(mappedCompanies);
-      setCompaniesPagination({
-        currentPage: activePage,
-        totalPages: totalPages,
-        totalItems: totalItems,
-        itemsPerPage: limit,
-      });
-      setCompaniesCurrentPage(activePage);
     } catch (e: any) {
+      console.error("Fetch companies error:", e);
       setCompaniesError(e.message || "Failed to load companies");
       setCompanies([]);
       setCompaniesPagination(null);
@@ -425,54 +371,7 @@ const Contractors = () => {
     }
   };
 
-  // Fetch contractors from backend
-  const fetchContractors = async (pageNum = 1) => {
-    if (!zip && !serviceRaw) {
-      setResults([]);
-      setPagination(null);
-      return;
-    }
 
-    setLoading(true);
-    setError(null);
-
-    try {
-      const searchParams = new URLSearchParams({
-        page: String(pageNum),
-        limit: "20",
-        sortBy: "rating",
-        sortOrder: "DESC",
-      });
-
-      if (onlyMyZip && zip) {
-        searchParams.append("zipCode", zip);
-      }
-
-      if (serviceRaw) {
-        searchParams.append("service", serviceRaw);
-      }
-
-      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-      const res = await fetch(
-        `${API_URL}/contractors?${searchParams.toString()}`
-      );
-      const json = await res.json();
-
-      if (!json.success) {
-        throw new Error(json.message || "Request failed");
-      }
-
-      setResults(json.data.contractors || []);
-      setPagination(json.data.pagination);
-      setPage(json.data.pagination.currentPage);
-    } catch (e: any) {
-      setError(e.message || "Failed to load contractors");
-      setResults([]);
-      setPagination(null);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   // Run on mount and when URL params or filters change
   useEffect(() => {
@@ -493,20 +392,12 @@ const Contractors = () => {
     locallyOwned,
     offersCustomWork,
     selectedLanguage,
+    selectedRating,
     search,
-    selectedProjectTypes,
-    selectedWorkPreferences,
-    experienceLevel,
-    bonded,
-    insured,
   ]);
 
-  useEffect(() => {
-    fetchContractors(1);
-  }, [zip, serviceRaw, onlyMyZip]);
-
   // Use API results instead of filtered data
-  const visibleContractors = results;
+  // const visibleContractors = results; (Legacy removed)
 
   // Calculate pagination for companies (from backend)
   const totalCompaniesPages = companiesPagination?.totalPages || 1;
@@ -536,9 +427,7 @@ const Contractors = () => {
     setSelectedContractor(null);
   };
 
-  // Pagination handlers
-  const goPrev = () => fetchContractors(page - 1);
-  const goNext = () => fetchContractors(page + 1);
+  // Pagination handlers (Legacy removed)
 
   const AccordionSection = ({ title, children, icon: Icon }: any) => {
     const [open, setOpen] = useState(true);
@@ -546,7 +435,7 @@ const Contractors = () => {
       <div className="border-b border-gray-200 pb-3 mb-3 last:border-b-0">
         <button
           onClick={() => setOpen(!open)}
-          className="flex items-center justify-between w-full text-sm font-bold text-gray-900 mb-2 hover:text-primary transition-colors"
+          className="flex items-center justify-between w-full text-sm font-bold text-gray-900 mb-2 hover:text-yellow-600 transition-colors"
         >
           <div className="flex items-center gap-2">
             {Icon && <Icon className="w-4 h-4 text-primary" />}
@@ -570,7 +459,7 @@ const Contractors = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div>
           <h1 className="text-2xl sm:text-2xl lg:text-2xl font-bold text-black leading-tight text-center">
-            General Contractors Near New York
+            General Contractors Near {location || "You"}
           </h1>
           <p className="text-center sm:text-lg text-gray-700 mb-5">
             Don’t know how to begin? See our Hiring Guide for more information
@@ -583,7 +472,7 @@ const Contractors = () => {
         <div className="my-1 border-t border-gray-200" />
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Sidebar - Wider, no scroll */}
-          <div className="lg:col-span-4 bg-white rounded-xl shadow-lg border border-gray-200 p-6 h-fit">
+          <div className="lg:col-span-3 bg-white rounded-xl shadow-lg border border-gray-200 p-6 h-fit">
             {/* Header with Clear All */}
             {activeFiltersCount > 0 && (
               <div className="mb-4 pb-4 border-b border-gray-200">
@@ -606,33 +495,32 @@ const Contractors = () => {
                 </h3>
               </div>
               <div className="space-y-2">
-                <div className="relative">
-                  <select
-                    value={location}
-                    onChange={(e) => {
-                      setLocation(e.target.value);
-                    }}
-                    className="w-full h-9 rounded-lg border border-gray-300 bg-white px-3 pr-8 text-sm text-gray-700 focus:ring-2 focus:ring-primary focus:border-primary transition-all hover:border-gray-400 appearance-none cursor-pointer"
-                  >
-                    <option>New York, NY</option>
-                    <option>California, CA</option>
-                    <option>New Jersey, NJ</option>
-                  </select>
-                  <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-                </div>
+                <Select value={location} onValueChange={setLocation}>
+                  <SelectTrigger className="w-full h-9 bg-white border-gray-300">
+                    <SelectValue placeholder="Select Location" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <ScrollArea className="h-[200px]">
+                      {USLocations.map((loc) => (
+                        <SelectItem key={loc} value={loc}>
+                          {loc}
+                        </SelectItem>
+                      ))}
+                    </ScrollArea>
+                  </SelectContent>
+                </Select>
 
-                <div className="relative">
-                  <select
-                    value={radius}
-                    onChange={(e) => setRadius(e.target.value)}
-                    className="w-full h-9 rounded-lg border border-gray-300 bg-white px-3 pr-8 text-sm text-gray-700 focus:ring-2 focus:ring-primary focus:border-primary transition-all hover:border-gray-400 appearance-none cursor-pointer"
-                  >
-                    <option>50 mi</option>
-                    <option>100 mi</option>
-                    <option>120 mi</option>
-                  </select>
-                  <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-                </div>
+                <Select value={radius} onValueChange={setRadius}>
+                  <SelectTrigger className="w-full h-9 bg-white border-gray-300">
+                    <SelectValue placeholder="Radius" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="10 mi">10 mi</SelectItem>
+                    <SelectItem value="25 mi">25 mi</SelectItem>
+                    <SelectItem value="50 mi">50 mi</SelectItem>
+                    <SelectItem value="100 mi">100 mi</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
 
@@ -650,7 +538,7 @@ const Contractors = () => {
                   />
                 </div>
                 <div className="flex items-center gap-2 flex-1">
-                  <Shield className="w-4 h-4 text-gray-500 group-hover:text-primary transition-colors" />
+                  <Shield className="w-4 h-4 text-gray-500 group-hover:text-yellow-600 transition-colors" />
                   <span className="text-sm font-medium text-gray-700 group-hover:text-gray-900">Verified License</span>
                 </div>
               </label>
@@ -667,7 +555,7 @@ const Contractors = () => {
                   />
                 </div>
                 <div className="flex items-center gap-2 flex-1">
-                  <Clock className="w-4 h-4 text-gray-500 group-hover:text-primary transition-colors" />
+                  <Clock className="w-4 h-4 text-gray-500 group-hover:text-yellow-600 transition-colors" />
                   <span className="text-sm font-medium text-gray-700 group-hover:text-gray-900">Responds Quickly</span>
                 </div>
               </label>
@@ -684,7 +572,7 @@ const Contractors = () => {
                   />
                 </div>
                 <div className="flex items-center gap-2 flex-1">
-                  <Verified className="w-4 h-4 text-gray-500 group-hover:text-primary transition-colors" />
+                  <Verified className="w-4 h-4 text-gray-500 group-hover:text-yellow-600 transition-colors" />
                   <span className="text-sm font-medium text-gray-700 group-hover:text-gray-900">Hired on Houzz</span>
                 </div>
               </label>
@@ -730,114 +618,6 @@ const Contractors = () => {
                     )}
                   </label>
                 ))}
-              </div>
-            </AccordionSection>
-
-            {/* Project Type */}
-            <AccordionSection title="Project Type" icon={Home}>
-              <div className="space-y-1.5">
-                {[
-                  "Commercial",
-                  "Residential",
-                  "Industrial",
-                  "Government",
-                  "Institutional"
-                ].map((item, i) => (
-                  <label
-                    key={i}
-                    className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer group"
-                  >
-                    <input
-                      type="checkbox"
-                      className="w-4 h-4 rounded border-2 border-gray-300 text-primary focus:ring-2 focus:ring-primary focus:ring-offset-0 cursor-pointer"
-                      checked={selectedProjectTypes.includes(item)}
-                      onChange={() => toggleFilter(item)}
-                    />
-                    <span className="text-sm font-medium text-gray-700 group-hover:text-gray-900 flex-1">{item}</span>
-                  </label>
-                ))}
-              </div>
-            </AccordionSection>
-
-            {/* Work Preference */}
-            <AccordionSection title="Labor Preference" icon={Users}>
-              <div className="space-y-1.5">
-                {[
-                  "Union",
-                  "Non-Union",
-                  "Prevailing Wage"
-                ].map((item, i) => (
-                  <label
-                    key={i}
-                    className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer group"
-                  >
-                    <input
-                      type="checkbox"
-                      className="w-4 h-4 rounded border-2 border-gray-300 text-primary focus:ring-2 focus:ring-primary focus:ring-offset-0 cursor-pointer"
-                      checked={selectedWorkPreferences.includes(item)}
-                      onChange={() => toggleFilter(item)}
-                    />
-                    <span className="text-sm font-medium text-gray-700 group-hover:text-gray-900 flex-1">{item}</span>
-                  </label>
-                ))}
-              </div>
-            </AccordionSection>
-
-            {/* Experience Level */}
-            <AccordionSection title="Experience" icon={Clock}>
-              <div className="space-y-1.5">
-                {[
-                  "1-5 Years in Business",
-                  "5-10 Years in Business",
-                  "10+ Years in Business"
-                ].map((item, i) => (
-                  <label
-                    key={i}
-                    className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer group"
-                  >
-                    <input
-                      type="radio"
-                      name="experience"
-                      className="w-4 h-4 border-2 border-gray-300 text-primary focus:ring-2 focus:ring-primary focus:ring-offset-0 cursor-pointer"
-                      checked={experienceLevel === item}
-                      onChange={() => {
-                        setExperienceLevel(item);
-                        toggleFilter(item);
-                      }}
-                    />
-                    <span className="text-sm font-medium text-gray-700 group-hover:text-gray-900 flex-1">{item}</span>
-                  </label>
-                ))}
-              </div>
-            </AccordionSection>
-
-            {/* Credentials */}
-            <AccordionSection title="Credentials" icon={Shield}>
-              <div className="space-y-1.5">
-                <label className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer group">
-                  <input
-                    type="checkbox"
-                    className="w-4 h-4 rounded border-2 border-gray-300 text-primary focus:ring-2 focus:ring-primary focus:ring-offset-0 cursor-pointer"
-                    checked={bonded}
-                    onChange={(e) => {
-                      setBonded(e.target.checked);
-                      toggleFilter("Bonded");
-                    }}
-                  />
-                  <span className="text-sm font-medium text-gray-700 group-hover:text-gray-900 flex-1">Bonded</span>
-                </label>
-                <label className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer group">
-                  <input
-                    type="checkbox"
-                    className="w-4 h-4 rounded border-2 border-gray-300 text-primary focus:ring-2 focus:ring-primary focus:ring-offset-0 cursor-pointer"
-                    checked={insured}
-                    onChange={(e) => {
-                      setInsured(e.target.checked);
-                      toggleFilter("Insured");
-                    }}
-                  />
-                  <span className="text-sm font-medium text-gray-700 group-hover:text-gray-900 flex-1">Insured</span>
-                </label>
               </div>
             </AccordionSection>
 
@@ -1020,7 +800,7 @@ const Contractors = () => {
           </div>
 
           {/* Main Content */}
-          <div className="lg:col-span-8">
+          <div className="lg:col-span-9">
             {/* Results Header */}
             {/* <div className="bg-white rounded-lg shadow-sm border p-6 mb-6">
               <div className="flex items-center justify-between">
@@ -1066,45 +846,11 @@ const Contractors = () => {
               </div>
             </div> */}
 
-            {loading && (
-              <div className="bg-white rounded-lg shadow-sm border p-8 text-center">
-                <div className="text-gray-500 mb-4">
-                  <Search className="w-12 h-12 mx-auto mb-4 text-gray-300 animate-pulse" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">
-                    Loading contractors...
-                  </h3>
-                  <p className="text-gray-600">
-                    Please wait while we find contractors in your area.
-                  </p>
-                </div>
-              </div>
-            )}
 
-            {error && (
-              <div className="bg-white rounded-lg shadow-sm border p-8 text-center mt-2">
-                <div className="text-red-500 mb-4">
-                  <Search className="w-12 h-12 mx-auto mb-4 text-red-300" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">
-                    Error loading contractors
-                  </h3>
-                  <p className="text-gray-600">{error}</p>
-                </div>
-              </div>
-            )}
 
-            {zip && !loading && !error && visibleContractors.length === 0 && (
-              <div className="bg-white rounded-lg shadow-sm border p-8 text-center">
-                <div className="text-gray-500 mb-4">
-                  <Search className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">
-                    No contractors found
-                  </h3>
-                  <p className="text-gray-600">
-                    Try adjusting your search or check nearby areas.
-                  </p>
-                </div>
-              </div>
-            )}
+
+
+
 
             <div className="flex justify-between items-center w-full py-2 font-sans">
               {/* Left: Active Filters */}
@@ -1211,111 +957,126 @@ const Contractors = () => {
             ))}
 
             {/* Companies Pagination */}
-            {!companiesLoading && !companiesError && companies.length > 0 && totalCompaniesPages > 1 && (
-              <div className="flex items-center justify-center gap-3 mt-8 mb-6">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={companiesCurrentPage <= 1}
-                  onClick={() => goToCompaniesPage(companiesCurrentPage - 1)}
-                >
-                  Previous
-                </Button>
-                <div className="flex items-center gap-2">
-                  {[...Array(totalCompaniesPages)].map((_, idx) => {
-                    const page = idx + 1;
-                    // Show first page, last page, current page, and pages around current
-                    if (
-                      page === 1 ||
-                      page === totalCompaniesPages ||
-                      (page >= companiesCurrentPage - 1 && page <= companiesCurrentPage + 1)
-                    ) {
-                      return (
-                        <button
-                          key={page}
-                          onClick={() => goToCompaniesPage(page)}
-                          className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${companiesCurrentPage === page
-                            ? "bg-primary text-black hover:bg-primary/90"
-                            : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
-                            }`}
-                        >
-                          {page}
-                        </button>
-                      );
-                    } else if (
-                      page === companiesCurrentPage - 2 ||
-                      page === companiesCurrentPage + 2
-                    ) {
-                      return (
-                        <span key={page} className="px-2 text-gray-500">
-                          ...
-                        </span>
-                      );
-                    }
-                    return null;
-                  })}
+            {!companiesLoading && !companiesError && companies.length > 0 && (
+              <div className="flex flex-col sm:flex-row items-center justify-between mt-8 mb-6 gap-4">
+                {/* Items per page selector */}
+                <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <span>Show:</span>
+                  <select
+                    value={itemsPerPage}
+                    onChange={(e) => {
+                      const newLimit = Number(e.target.value);
+                      setItemsPerPage(newLimit);
+                      setCompaniesCurrentPage(1);
+                      fetchCompanies(1, newLimit);
+                    }}
+                    className="border border-gray-300 rounded px-2 py-1 bg-white focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer"
+                  >
+                    <option value={10}>10</option>
+                    <option value={20}>20</option>
+                    <option value={50}>50</option>
+                    <option value={100}>100</option>
+                  </select>
+                  <span>per page</span>
                 </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={companiesCurrentPage >= totalCompaniesPages}
-                  onClick={() => goToCompaniesPage(companiesCurrentPage + 1)}
-                >
-                  Next
-                </Button>
-                <span className="text-sm text-gray-600 ml-2">
-                  Page {companiesCurrentPage} of {totalCompaniesPages} ({totalCompanies} total)
-                </span>
+
+                {totalCompaniesPages > 1 && (
+                  <div className="flex items-center gap-2">
+                    {/* First Page */}
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="w-8 h-8"
+                      disabled={companiesCurrentPage <= 1}
+                      onClick={() => goToCompaniesPage(1)}
+                      title="First Page"
+                    >
+                      <span className="sr-only">First Page</span>
+                      &laquo;
+                    </Button>
+
+                    {/* Previous Page */}
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="w-8 h-8"
+                      disabled={companiesCurrentPage <= 1}
+                      onClick={() => goToCompaniesPage(companiesCurrentPage - 1)}
+                      title="Previous Page"
+                    >
+                      <span className="sr-only">Previous Page</span>
+                      &lsaquo;
+                    </Button>
+
+                    <div className="flex items-center gap-1">
+                      {(() => {
+                        const windowSize = 10;
+                        let startPage = Math.max(1, companiesCurrentPage - Math.floor(windowSize / 2));
+                        let endPage = Math.min(totalCompaniesPages, startPage + windowSize - 1);
+
+                        if (endPage - startPage + 1 < windowSize) {
+                          startPage = Math.max(1, endPage - windowSize + 1);
+                        }
+
+                        // Generate page numbers
+                        const pages = [];
+                        for (let i = startPage; i <= endPage; i++) {
+                          pages.push(i);
+                        }
+
+                        return pages.map((page) => (
+                          <button
+                            key={page}
+                            onClick={() => goToCompaniesPage(page)}
+                            className={`w-8 h-8 flex items-center justify-center text-sm font-medium rounded-md transition-colors ${companiesCurrentPage === page
+                              ? "bg-primary text-black hover:bg-primary/90"
+                              : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
+                              }`}
+                          >
+                            {page}
+                          </button>
+                        ));
+                      })()}
+                    </div>
+
+                    {/* Next Page */}
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="w-8 h-8"
+                      disabled={companiesCurrentPage >= totalCompaniesPages}
+                      onClick={() => goToCompaniesPage(companiesCurrentPage + 1)}
+                      title="Next Page"
+                    >
+                      <span className="sr-only">Next Page</span>
+                      &rsaquo;
+                    </Button>
+
+                    {/* Last Page */}
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="w-8 h-8"
+                      disabled={companiesCurrentPage >= totalCompaniesPages}
+                      onClick={() => goToCompaniesPage(totalCompaniesPages)}
+                      title="Last Page"
+                    >
+                      <span className="sr-only">Last Page</span>
+                      &raquo;
+                    </Button>
+                  </div>
+                )}
               </div>
             )}
-            {/* Contractors List */}
-            <div className="space-y-6">
+            {/* Contractors List - Legacy Removed, using CompanyCard above */}
+            {/* <div className="space-y-6">
               {visibleContractors.map((contractor, index) => {
-                const email =
-                  contractor?.contact?.email ||
-                  contractor?.email ||
-                  "contact@contractor.com";
-                const phone =
-                  contractor?.contact?.phone ||
-                  contractor?.phone ||
-                  "(555) 123-4567";
-                const website =
-                  contractor?.website || contractor?.contact?.website || "";
-
-                return (
-                  <ContractorCard
-                    key={contractor.id}
-                    contractor={contractor}
-                    featured={index < 2} // Mark first 2 as featured
-                    onViewProfile={handleProfilePreview}
-                    onCall={(phone) => (window.location.href = `tel:${phone}`)}
-                    onEmail={(email) =>
-                      (window.location.href = `mailto:${email}`)
-                    }
-                    onWebsite={(website) => window.open(website, "_blank")}
-                  />
-                );
+                 // Legacy rendering removed to prefer CompanyCard
+                 return null;
               })}
-            </div>
+            </div> */}
 
-            {/* Pagination */}
-            {pagination && (
-              <div className="flex items-center justify-center gap-3 mt-6">
-                <Button variant="outline" disabled={page <= 1} onClick={goPrev}>
-                  Prev
-                </Button>
-                <span className="text-sm text-gray-600">
-                  Page {pagination.currentPage} of {pagination.totalPages}
-                </span>
-                <Button
-                  variant="outline"
-                  disabled={!pagination.hasNextPage}
-                  onClick={goNext}
-                >
-                  Next
-                </Button>
-              </div>
-            )}
+
           </div>
         </div>
       </div>
@@ -1327,6 +1088,9 @@ const Contractors = () => {
         onClose={closeProfilePreview}
       />
 
+      {/* <NewsletterSection /> */}
+      <CTASection />
+      <Footer />
     </div>
   );
 };

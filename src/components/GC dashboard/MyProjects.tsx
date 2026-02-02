@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getProjects, createProject as createProjectAPI, updateProject as updateProjectAPI, initializeFreshUserData } from '@/services/gcDashboardService';
+import { getProjects, createProject as createProjectAPI, updateProject as updateProjectAPI, initializeFreshUserData } from '@/api/gcDashboardService';
 import EnterpriseTeamManagement from './EnterpriseTeamManagement';
 import ProjectDocuments from './ProjectDocuments';
 import { Button } from '@/components/ui/button';

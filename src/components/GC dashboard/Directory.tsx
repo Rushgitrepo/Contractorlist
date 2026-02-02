@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Building2, Truck } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import SubcontractorDirectory from './SubcontractorDirectory';
 import Suppliers from './Suppliers';

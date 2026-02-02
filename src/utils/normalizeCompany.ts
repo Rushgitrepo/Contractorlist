@@ -1,4 +1,14 @@
-const defaultImages = ["/home1.jpeg", "/home2.jpeg", "/home3.jpeg"];
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+// Remove /api if present as we want the root URL for static files
+const BASE_URL = API_URL.replace('/api', '');
+
+const defaultImages = [
+  `${BASE_URL}/projects/kitchen-luxury.png`,
+  `${BASE_URL}/projects/living-room-modern.png`,
+  `${BASE_URL}/projects/bathroom-spa.png`,
+  `${BASE_URL}/projects/bedroom-suite.png`,
+  `${BASE_URL}/projects/exterior-modern.png`
+];
 
 const toNumber = (value: any) => {
   if (typeof value === "number" && !Number.isNaN(value)) return value;
@@ -18,9 +28,29 @@ const ensureArray = (value: any): any[] => {
   return [value];
 };
 
+const shuffleArray = (array: string[], seed: string) => {
+  const shuffled = [...array];
+  let hash = 0;
+  for (let i = 0; i < seed.length; i++) {
+    hash = seed.charCodeAt(i) + ((hash << 5) - hash);
+  }
+
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.abs(hash) % (i + 1);
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    hash = (hash << 5) - hash + i;
+  }
+  return shuffled;
+};
+
 const buildImages = (raw: any): string[] => {
   if (Array.isArray(raw?.images) && raw.images.length) {
-    return raw.images;
+    return raw.images.map((img: string) => {
+      if (img && img.startsWith('/') && !img.startsWith('http')) {
+        return `${BASE_URL}${img}`;
+      }
+      return img;
+    });
   }
 
   const candidates = [
@@ -33,10 +63,17 @@ const buildImages = (raw: any): string[] => {
   ].filter(Boolean);
 
   if (candidates.length > 0) {
-    return candidates;
+    return candidates.map(img => {
+      if (img && img.startsWith('/') && !img.startsWith('http')) {
+        return `${BASE_URL}${img}`;
+      }
+      return img;
+    });
   }
 
-  return defaultImages;
+  // Use ID or Name as seed for deterministic random images
+  const seed = raw.id || raw.company_id || raw.name || raw.company_name || Math.random().toString();
+  return shuffleArray(defaultImages, seed.toString());
 };
 
 export const normalizeCompanyData = (raw: any = {}) => {
@@ -45,11 +82,11 @@ export const normalizeCompanyData = (raw: any = {}) => {
 
   const serviceAreas = ensureArray(
     company.service_areas ||
-      company.serviceAreas ||
-      details.service_areas ||
-      details.serviceAreas ||
-      company.service_cities ||
-      company.serviceCities
+    company.serviceAreas ||
+    details.service_areas ||
+    details.serviceAreas ||
+    company.service_cities ||
+    company.serviceCities
   );
 
   const normalized = {
@@ -77,17 +114,17 @@ export const normalizeCompanyData = (raw: any = {}) => {
     tagline: company.tagline || details.tagline || "",
     featuredReview: company.featured_review
       ? {
-          reviewer: company.featured_review.reviewer,
-          reviewText:
-            company.featured_review.review_text ||
-            company.featured_review.reviewText,
-        }
+        reviewer: company.featured_review.reviewer,
+        reviewText:
+          company.featured_review.review_text ||
+          company.featured_review.reviewText,
+      }
       : company.featured_reviewer_name || company.featured_review_text
-      ? {
+        ? {
           reviewer: company.featured_reviewer_name,
           reviewText: company.featured_review_text,
         }
-      : undefined,
+        : undefined,
     address:
       company.address ||
       details.address ||
@@ -113,8 +150,8 @@ export const normalizeCompanyData = (raw: any = {}) => {
     certifications:
       ensureArray(
         company.certifications ||
-          details.certifications ||
-          company.certs
+        details.certifications ||
+        company.certs
       ) || [],
     awards:
       ensureArray(
@@ -123,8 +160,8 @@ export const normalizeCompanyData = (raw: any = {}) => {
     servicesOffered:
       ensureArray(
         company.services_offered ||
-          details.services_offered ||
-          company.services
+        details.services_offered ||
+        company.services
       ) || [],
     specialties:
       ensureArray(company.specialties || details.specialties) || [],
@@ -155,8 +192,8 @@ export const normalizeCompanyData = (raw: any = {}) => {
     languages:
       ensureArray(
         company.languages ||
-          details.languages ||
-          (company.language ? [company.language] : [])
+        details.languages ||
+        (company.language ? [company.language] : [])
       ) || [],
     budgetRange: company.budget_range || details.budget_range || "",
     professionalCategory:

@@ -1,13 +1,7 @@
 /**
- * Central export for all services
- * Import services like: import { authService, contractorService } from '@/services'
+ * Central export for all non-API services
+ * Logic not directly making backend calls (e.g. localStorage persistence)
  */
 
-export { default as api } from './api';
-export { default as authService } from './authService';
-export { default as contractorService } from './contractorService';
-
-// Re-export types for convenience
-export type * from '@/types/auth.types';
-export type * from '@/types/contractor.types';
-export type * from '@/types/api.types';
+export { scDashboardService } from './scDashboardService';
+export { default as gcMockAPI } from './gc-dashboard-api';

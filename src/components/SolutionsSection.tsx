@@ -10,17 +10,15 @@ const SolutionsSection = () => {
     {
       name: "Mike",
       date: "16 August 2025",
-      avatar: "M",
-      avatarBg: "bg-[#fce011]",
+      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
       rating: 5,
       review:
-        "It’s such a relief to have a trusted resource when looking for reliable, honest, and professional contractors. The contractors are knowledgeable...",
+        "It's such a relief to have a trusted resource when looking for reliable, honest, and professional contractors. The contractors are knowledgeable...",
     },
     {
       name: "Adrian Charles",
       date: "16 August 2025",
-      avatar: "A",
-      avatarBg: "bg-gradient-to-br from-[#fce011] to-[#fce011]/80",
+      image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face",
       rating: 5,
       review:
         "What a blessing it is to have Randy and David providing such an amazing service for homeowners! Putting them first is why I chose...",
@@ -28,8 +26,7 @@ const SolutionsSection = () => {
     {
       name: "Tactical Mav",
       date: "16 August 2025",
-      avatar: "T",
-      avatarBg: "bg-[#fce011]",
+      image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
       rating: 5,
       review:
         "The Good Contractors List is a top-tier service for homeowners! They vet contractors for licensing and reliability, ensuring quality work. The...",
@@ -37,17 +34,15 @@ const SolutionsSection = () => {
     {
       name: "Cesar Gonzalez",
       date: "15 August 2025",
-      avatar: "C",
-      avatarBg: "bg-gradient-to-br from-[#fce011] to-[#fce011]/80",
+      image: "https://images.unsplash.com/photo-1599566150163-29194dcabd36?w=150&h=150&fit=crop&crop=face",
       rating: 5,
       review:
         "We learned of ways to service our customers and become a bigger blessing to them. Here at MOMENTOUS Construction Group we...",
     },
     {
-      name: "Admin office",
+      name: "Sarah Mitchell",
       date: "15 August 2025",
-      avatar: "A",
-      avatarBg: "bg-[#fce011]",
+      image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&h=150&fit=crop&crop=face",
       rating: 5,
       review:
         "Great company to be a part of. Randy and David were extremely informative and have a heart of protecting the consumer.",
@@ -115,11 +110,11 @@ const SolutionsSection = () => {
               >
                 {/* Avatar */}
                 <div className="absolute -top-8 left-1/2 -translate-x-1/2">
-                  <div
-                    className={`w-16 h-16 ${t.avatarBg} text-white text-2xl font-bold rounded-full flex items-center justify-center shadow-lg border-4 border-white`}
-                  >
-                    {t.avatar}
-                  </div>
+                  <img
+                    src={t.image}
+                    alt={t.name}
+                    className="w-16 h-16 rounded-full object-cover shadow-lg border-4 border-white"
+                  />
                   <div className="absolute -bottom-1 right-0 bg-white p-[2px] rounded-full">
                     <img
                       src="google.png"

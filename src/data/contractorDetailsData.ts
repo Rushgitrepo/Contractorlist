@@ -29,7 +29,13 @@ export const contractorDetailsData: Record<string, any> = {
       "Luxury Finishes"
     ],
     serviceAreas: ["Manhattan", "Brooklyn", "Queens", "Bronx", "Staten Island"],
-    portfolio: ["/home1.jpeg", "/home2.jpeg", "/home3.jpeg", "/home4.jpeg", "/home5.jpeg"],
+    portfolio: [
+      "/projects/kitchen-luxury.png",
+      "/projects/living-room-modern.png",
+      "/projects/bathroom-spa.png",
+      "/projects/bedroom-suite.png",
+      "/projects/exterior-modern.png"
+    ],
     testimonials: [
       {
         clientName: "Daniel Martinez",
