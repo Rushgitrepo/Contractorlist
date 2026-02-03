@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import companyService, { CompanySearchFilters, CompanySearchResult, Company } from '@/api/companyService';
+import companyService, { CompanySearchFilters, CompanySearchResult, Company } from '../services/companyService';
 
 interface UseCompaniesOptions {
   autoFetch?: boolean;

@@ -58,8 +58,8 @@ const Login = () => {
         const user = resultAction.payload.user;
 
         toast({
-          title: "Login Successful! 🎉",
-          description: `Welcome back, ${user.firstName || (user as any).name}`,
+          title: "Login Successful!",
+          description: `Welcome back, ${user.name}`,
         });
 
         // Determine redirect path based on role

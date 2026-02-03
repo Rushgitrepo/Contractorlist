@@ -37,68 +37,7 @@ class AuthService {
    * Login user
    */
   async login(data: LoginData): Promise<ApiResponse<AuthResponse>> {
-    // TEST ACCOUNT BYPASS
-    const TEST_ACCOUNTS: Record<string, User> = {
-      'homeowner@demo.com': {
-        id: 9901,
-        firstName: 'Demo',
-        lastName: 'Homeowner',
-        email: 'homeowner@demo.com',
-        role: 'client',
-        phone: '555-0101',
-        is_verified: true,
-        company: 'Home Corp',
-        createdAt: new Date().toISOString()
-      },
-      'pro@demo.com': {
-        id: 9902,
-        firstName: 'Demo',
-        lastName: 'GC',
-        email: 'pro@demo.com',
-        role: 'general-contractor',
-        phone: '555-0102',
-        is_verified: true,
-        company: 'GC Inc',
-        createdAt: new Date().toISOString()
-      },
-      'sub@demo.com': {
-        id: 9903,
-        firstName: 'Demo',
-        lastName: 'Sub',
-        email: 'sub@demo.com',
-        role: 'subcontractor',
-        phone: '555-0103',
-        is_verified: true,
-        company: 'Sub LLC',
-        createdAt: new Date().toISOString()
-      },
-      'vendor@demo.com': {
-        id: 9904,
-        firstName: 'Demo',
-        lastName: 'Vendor',
-        email: 'vendor@demo.com',
-        role: 'vendor',
-        phone: '555-0104',
-        is_verified: true,
-        company: 'Vendor Co',
-        createdAt: new Date().toISOString()
-      }
-    };
-
-    if (data.password === 'password123' && TEST_ACCOUNTS[data.email.toLowerCase()]) {
-      const user = TEST_ACCOUNTS[data.email.toLowerCase()];
-      localStorage.setItem('user', JSON.stringify(user));
-
-      // Simulate API response delay
-      await new Promise(resolve => setTimeout(resolve, 500));
-
-      return {
-        success: true,
-        message: 'Login successful (Test Account)',
-        data: { user }
-      };
-    }
-
+    // Proceed directly to API call
     try {
       const response = await api.post<ApiResponse<AuthResponse>>('/auth/login', data);
 

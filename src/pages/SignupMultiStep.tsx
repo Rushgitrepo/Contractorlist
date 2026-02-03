@@ -274,6 +274,21 @@ const SignupMultiStep = () => {
         return false;
       }
     }
+    if (step === 3) {
+      if (!formData.trades || formData.trades.length === 0) {
+        const title = formData.workType === "client" ? "Selection Required" : "Trade Selection Required";
+        const description = formData.workType === "client" ? "Please select at least one project interest" : "Please select at least one trade your company specializes in";
+        toast({ title, description, variant: "destructive" });
+        return false;
+      }
+    }
+
+    if (step === 4) {
+      if (!formData.goals || formData.goals.length === 0) {
+        toast({ title: "Selection Required", description: "Please select at least one goal to continue", variant: "destructive" });
+        return false;
+      }
+    }
 
     return true;
   };

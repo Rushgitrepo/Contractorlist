@@ -124,11 +124,8 @@ export const companyService = {
    * GET http://localhost:5000/api/companies/zip/{zipCode}
    */
   getServicesByZip: async (zipCode: string): Promise<ServicesByZipResponse> => {
-    // MOCK RESPONSE
-    return {
-      success: true,
-      data: ["Plumbing", "Electrical", "HVAC"],
-    };
+    const response = await api.get(`/companies/zip/${zipCode}`);
+    return response.data;
   },
 
   /**
@@ -136,18 +133,10 @@ export const companyService = {
    * GET http://localhost:5000/api/companies/{companyName}
    */
   getCompanyByName: async (companyName: string): Promise<CompanyDetailResponse> => {
-    // MOCK RESPONSE
-    return {
-      success: true,
-      data: {
-        name: companyName,
-        rating: 4.5,
-        reviews: 10,
-        verifiedHires: 5,
-        location: "New York, NY",
-        projects: 3,
-      },
-    };
+    // URL encode the company name to handle spaces/special characters
+    const encodedName = encodeURIComponent(companyName);
+    const response = await api.get(`/companies/${encodedName}`);
+    return response.data;
   },
 
   /**

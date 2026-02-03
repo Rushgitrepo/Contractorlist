@@ -140,6 +140,12 @@ const AppRoutes = () => {
         <Route path="/locations/:state" element={<StateDetail />} />
         <Route path="/locations/:state/:city" element={<CityDetail />} />
 
+        <Route path="/projects/:id" element={<ProjectDetail />} />
+        <Route path="/contact-us" element={<ContactUs />} />
+        <Route path="/locations" element={<Locations />} />
+        <Route path="/locations/:state" element={<StateDetail />} />
+        <Route path="/locations/:state/:city" element={<CityDetail />} />
+
         {/* Protected Dashboard Routes */}
         <Route
           path="/gc-dashboard/*"

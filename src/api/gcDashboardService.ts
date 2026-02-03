@@ -1,13 +1,10 @@
 import api from './api';
-import mockAPI from '@/services/gc-dashboard-api';
 
 /**
  * GC Dashboard API Service
- * Handles all API calls for General Contractor Dashboard
- * Falls back to mock API if backend is not available
+ * Handles all backend API calls for General Contractor Dashboard
+ * This file contains ONLY API calls.
  */
-
-const USE_MOCK_API = import.meta.env.DEV || !import.meta.env.VITE_API_URL;
 
 export interface Project {
   id: number;
@@ -55,38 +52,17 @@ export interface RecentProject {
  * Get Dashboard Overview Stats
  */
 export const getDashboardOverview = async (): Promise<DashboardStats> => {
-  if (USE_MOCK_API) {
-    const result = mockAPI.getOverview();
-    return result.data;
-  }
-
-  try {
-    const response = await api.get('/gc-dashboard/overview');
-    return response.data;
-  } catch (error) {
-    // Fallback to mock API
-    const result = mockAPI.getOverview();
-    return result.data;
-  }
+  const response = await api.get('/gc-dashboard/overview');
+  return response.data;
 };
 
 /**
  * Get All Projects
  */
 export const getProjects = async (): Promise<Project[]> => {
-  if (USE_MOCK_API) {
-    const result = mockAPI.getProjects();
-    return result.data;
-  }
-
-  try {
-    const response = await api.get('/gc-dashboard/projects');
-    return response.data;
-  } catch (error) {
-    // Fallback to mock API
-    const result = mockAPI.getProjects();
-    return result.data;
-  }
+  const response = await api.get('/gc-dashboard/projects');
+  // Handle empty or null response gracefully if needed, but return data directly
+  return response.data;
 };
 
 /**
@@ -101,90 +77,39 @@ export const createProject = async (projectData: {
   status: string;
   description?: string;
 }): Promise<Project> => {
-  if (USE_MOCK_API) {
-    const result = mockAPI.createProject(projectData);
-    return result.data;
-  }
-
-  try {
-    const response = await api.post('/gc-dashboard/projects', projectData);
-    return response.data;
-  } catch (error) {
-    // Fallback to mock API
-    const result = mockAPI.createProject(projectData);
-    return result.data;
-  }
+  const response = await api.post('/gc-dashboard/projects', projectData);
+  return response.data;
 };
 
 /**
  * Update Project
  */
 export const updateProject = async (id: number, projectData: Partial<Project>): Promise<Project> => {
-  if (USE_MOCK_API) {
-    const result = mockAPI.updateProject(id, projectData);
-    return result.data;
-  }
-
-  try {
-    const response = await api.put(`/gc-dashboard/projects/${id}`, projectData);
-    return response.data;
-  } catch (error) {
-    const result = mockAPI.updateProject(id, projectData);
-    return result.data;
-  }
+  const response = await api.put(`/gc-dashboard/projects/${id}`, projectData);
+  return response.data;
 };
 
 /**
  * Delete Project
  */
 export const deleteProject = async (id: number): Promise<void> => {
-  if (USE_MOCK_API) {
-    mockAPI.deleteProject(id);
-    return;
-  }
-
-  try {
-    await api.delete(`/gc-dashboard/projects/${id}`);
-  } catch (error) {
-    mockAPI.deleteProject(id);
-  }
+  await api.delete(`/gc-dashboard/projects/${id}`);
 };
 
 /**
  * Get Recent Projects
  */
 export const getRecentProjects = async (limit: number = 3): Promise<RecentProject[]> => {
-  if (USE_MOCK_API) {
-    const result = mockAPI.getRecentProjects(limit);
-    return result.data;
-  }
-
-  try {
-    const response = await api.get(`/gc-dashboard/recent-projects?limit=${limit}`);
-    return response.data;
-  } catch (error) {
-    // Fallback to mock API
-    const result = mockAPI.getRecentProjects(limit);
-    return result.data;
-  }
+  // Pass limit as query param
+  const response = await api.get(`/gc-dashboard/recent-projects?limit=${limit}`);
+  return response.data;
 };
 
 /**
  * Initialize Fresh User Data
- * Creates initial sample data for new users
  */
 export const initializeFreshUserData = async (): Promise<void> => {
-  if (USE_MOCK_API) {
-    mockAPI.initializeFreshUser();
-    return;
-  }
-
-  try {
-    await api.post('/gc-dashboard/initialize-fresh-user');
-  } catch (error) {
-    // Fallback to mock API
-    mockAPI.initializeFreshUser();
-  }
+  await api.post('/gc-dashboard/initialize-fresh-user');
 };
 
 /**
@@ -195,12 +120,8 @@ export const getProjectDiscovery = async (filters?: {
   type?: string;
   budgetRange?: string;
 }): Promise<any[]> => {
-  try {
-    const response = await api.get('/gc-dashboard/project-discovery', { params: filters });
-    return response.data;
-  } catch (error) {
-    return [];
-  }
+  const response = await api.get('/gc-dashboard/project-discovery', { params: filters });
+  return response.data;
 };
 
 /**
@@ -219,15 +140,11 @@ export const submitBid = async (projectId: number, bidData: {
  * Get Team Members
  */
 export const getTeamMembers = async (projectId?: number): Promise<any[]> => {
-  try {
-    const url = projectId
-      ? `/gc-dashboard/team-members?projectId=${projectId}`
-      : '/gc-dashboard/team-members';
-    const response = await api.get(url);
-    return response.data;
-  } catch (error) {
-    return [];
-  }
+  const url = projectId
+    ? `/gc-dashboard/team-members?projectId=${projectId}`
+    : '/gc-dashboard/team-members';
+  const response = await api.get(url);
+  return response.data;
 };
 
 /**
@@ -247,33 +164,14 @@ export const inviteTeamMember = async (projectId: number, memberData: {
  * Get Project Documents
  */
 export const getProjectDocuments = async (projectId: number): Promise<any[]> => {
-  if (USE_MOCK_API) {
-    const result = mockAPI.getProjectDocuments(projectId);
-    return result.data;
-  }
-
-  try {
-    const response = await api.get(`/gc-dashboard/projects/${projectId}/documents`);
-    return response.data;
-  } catch (error) {
-    const result = mockAPI.getProjectDocuments(projectId);
-    return result.data;
-  }
+  const response = await api.get(`/gc-dashboard/projects/${projectId}/documents`);
+  return response.data;
 };
 
 /**
  * Upload Document
  */
 export const uploadDocument = async (projectId: number, file: File, category: string): Promise<any> => {
-  if (USE_MOCK_API) {
-    const result = mockAPI.uploadDocument(projectId, {
-      name: file.name,
-      type: file.type,
-      size: file.size
-    }, category);
-    return result.data;
-  }
-
   const formData = new FormData();
   formData.append('file', file);
   formData.append('category', category);
@@ -290,15 +188,5 @@ export const uploadDocument = async (projectId: number, file: File, category: st
  * Delete Document
  */
 export const deleteDocument = async (documentId: number): Promise<void> => {
-  if (USE_MOCK_API) {
-    mockAPI.deleteDocument(documentId);
-    return;
-  }
-
-  try {
-    await api.delete(`/gc-dashboard/documents/${documentId}`);
-  } catch (error) {
-    mockAPI.deleteDocument(documentId);
-  }
+  await api.delete(`/gc-dashboard/documents/${documentId}`);
 };
-
