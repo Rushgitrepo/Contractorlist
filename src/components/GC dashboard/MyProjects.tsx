@@ -33,7 +33,9 @@ import {
   ArrowRight,
   MessageSquare, FileText, Users, FolderOpen, Users2,
   Trash2,
-  Upload
+  Upload,
+  Power,
+  CheckCircle2
 } from 'lucide-react';
 import { Avatar as UIAvatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
@@ -42,6 +44,11 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuPortal,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 
 const MyProjects = () => {
@@ -412,6 +419,27 @@ const MyProjects = () => {
     setSelectedGlobalFile(file);
   };
 
+  const handleStatusUpdate = async (projectId: number, newStatus: string) => {
+    try {
+      // Optimistic update
+      setProjects(prev => prev.map(p => p.id === projectId ? { ...p, status: newStatus } : p));
+
+      await updateProjectAPI(projectId, { status: newStatus });
+      toast({
+        title: "Status Updated",
+        description: `Project marked as ${newStatus}`,
+      });
+    } catch (error) {
+      console.error("Failed to update status", error);
+      // Revert or fetch again could be done here, but simple error toast for now
+      toast({
+        title: "Error",
+        description: "Failed to update status",
+        variant: "destructive"
+      });
+    }
+  };
+
   const filteredProjects = projects.filter(p =>
     p.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
     p.client?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -468,9 +496,38 @@ const MyProjects = () => {
                   <div className="p-6">
                     <div className="mb-4">
                       <div className="flex justify-between items-start mb-1">
-                        <h3 className="text-lg font-bold text-gray-900 dark:text-white group-hover:text-yellow-600 dark:group-hover:text-accent transition-colors line-clamp-1 pr-2">{project.name}</h3>
+                        <div className="flex-1 pr-2">
+                          <h3 className="text-lg font-bold text-gray-900 dark:text-white group-hover:text-yellow-600 dark:group-hover:text-accent transition-colors line-clamp-1 pr-2">{project.name}</h3>
+                          <div className="flex items-center gap-2 mt-1">
+                            <Badge variant="outline" className={`border-0 bg-gray-100 dark:bg-white/5 whitespace-nowrap ${project.status === 'Active' ? 'text-black dark:text-white' : project.status === 'Planning' ? 'text-yellow-600 dark:text-accent' : 'text-gray-500 dark:text-gray-400'}`}>{project.status}</Badge>
+                          </div>
+                        </div>
                         <div className="flex items-center gap-2">
-                          <Badge variant="outline" className={`border-0 bg-gray-100 dark:bg-white/5 whitespace-nowrap ${project.status === 'On Track' ? 'text-black dark:text-white' : project.status === 'Planning' ? 'text-yellow-600 dark:text-accent' : project.status === 'Delayed' ? 'text-gray-500 dark:text-gray-400' : 'text-gray-500 dark:text-gray-400'}`}>{project.status}</Badge>
+                          {/* Active/Inactive Toggle */}
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              const isActive = project.status === 'Active';
+                              const newStatus = isActive ? 'On Hold' : 'Active';
+                              handleStatusUpdate(project.id, newStatus);
+                            }}
+                            className={cn(
+                              "h-8 px-2 text-[10px] font-semibold rounded-lg transition-all border shrink-0 mr-1 hidden sm:flex",
+                              ['On Track', 'In Progress', 'Active'].includes(project.status)
+                                ? "bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-900/50 hover:bg-green-200 dark:hover:bg-green-900/50"
+                                : "bg-gray-100 text-gray-500 border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-white/10 hover:bg-gray-200 dark:hover:bg-white/10"
+                            )}
+                            title={project.status === 'Active' ? "Deactivate Project" : "Activate Project"}
+                          >
+                            {project.status === 'Active' ? (
+                              <div className="flex items-center gap-1.5"><CheckCircle2 size={12} /> Active</div>
+                            ) : (
+                              <div className="flex items-center gap-1.5"><Power size={12} /> Inactive</div>
+                            )}
+                          </Button>
+
                           <Button
                             variant="ghost"
                             size="icon"
@@ -494,6 +551,22 @@ const MyProjects = () => {
                             <DropdownMenuContent align="end" className="bg-white dark:bg-[#1c1e24] border-gray-200 dark:border-white/10">
                               <DropdownMenuItem className="focus:bg-gray-100 dark:focus:bg-white/10" onClick={(e) => handleEditClick(e, project)}>Edit Details</DropdownMenuItem>
                               <DropdownMenuItem className="focus:bg-gray-100 dark:focus:bg-white/10" onClick={() => handleViewDetails(project)}>View Dashboard</DropdownMenuItem>
+
+                              <DropdownMenuSeparator />
+
+                              <DropdownMenuSub>
+                                <DropdownMenuSubTrigger className="focus:bg-gray-100 dark:focus:bg-white/10">Change Status</DropdownMenuSubTrigger>
+                                <DropdownMenuPortal>
+                                  <DropdownMenuSubContent className="bg-white dark:bg-[#1c1e24] border-gray-200 dark:border-white/10">
+                                    {['Planning', 'Bidding', 'Active', 'Completed', 'On Hold'].map(status => (
+                                      <DropdownMenuItem key={status} onClick={(e) => { e.stopPropagation(); handleStatusUpdate(project.id, status) }}>{status}</DropdownMenuItem>
+                                    ))}
+                                  </DropdownMenuSubContent>
+                                </DropdownMenuPortal>
+                              </DropdownMenuSub>
+
+                              <DropdownMenuSeparator />
+
                               <DropdownMenuItem className="text-red-600 focus:text-red-600 focus:bg-red-50 dark:focus:bg-red-900/20" onClick={(e) => { e.stopPropagation(); handleDeleteProject(project.id); }}>Delete Project</DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
@@ -554,7 +627,7 @@ const MyProjects = () => {
                     <tr key={project.id} className="hover:bg-gray-50 dark:hover:bg-white/5 transition-colors cursor-pointer group" onClick={() => handleViewDetails(project)}>
                       <td className="px-6 py-4"><div className="text-sm font-medium text-gray-900 dark:text-white group-hover:text-yellow-600 dark:group-hover:text-accent transition-colors">{project.name}</div><div className="text-xs text-gray-500">{project.location}</div></td>
                       <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">{project.client}</td>
-                      <td className="px-6 py-4"><Badge variant="outline" className={`border-0 bg-gray-100 dark:bg-white/5 ${project.status === 'On Track' ? 'text-black dark:text-white' : project.status === 'Planning' ? 'text-yellow-600 dark:text-accent' : 'text-gray-500 dark:text-gray-400'}`}>{project.status}</Badge></td>
+                      <td className="px-6 py-4"><Badge variant="outline" className={`border-0 bg-gray-100 dark:bg-white/5 ${project.status === 'Active' ? 'text-black dark:text-white' : project.status === 'Planning' ? 'text-yellow-600 dark:text-accent' : 'text-gray-500 dark:text-gray-400'}`}>{project.status}</Badge></td>
                       <td className="px-6 py-4 text-sm text-gray-900 dark:text-white font-mono">
                         {typeof project.budget === 'number'
                           ? `$${(project.budget / 1000).toFixed(0)}K`
@@ -567,7 +640,32 @@ const MyProjects = () => {
                         <div className="text-[10px] text-gray-400 dark:text-gray-600 mt-1">{project.completion}</div>
                       </td>
                       <td className="px-6 py-4 text-right" onClick={(e) => e.stopPropagation()}>
-                        <div className="flex justify-end gap-2">
+                        <div className="flex justify-end gap-2 items-center">
+                          {/* Active/Inactive Toggle */}
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              const isActive = project.status === 'Active';
+                              const newStatus = isActive ? 'On Hold' : 'Active';
+                              handleStatusUpdate(project.id, newStatus);
+                            }}
+                            className={cn(
+                              "h-7 w-7 p-0 rounded-lg transition-all border shrink-0",
+                              ['On Track', 'In Progress', 'Active'].includes(project.status)
+                                ? "bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-900/50 hover:bg-green-200 dark:hover:bg-green-900/50"
+                                : "bg-gray-100 text-gray-500 border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-white/10 hover:bg-gray-200 dark:hover:bg-white/10"
+                            )}
+                            title={project.status === 'Active' ? "Deactivate Project" : "Activate Project"}
+                          >
+                            {project.status === 'Active' ? (
+                              <CheckCircle2 size={14} />
+                            ) : (
+                              <Power size={14} />
+                            )}
+                          </Button>
+
                           <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-400 hover:text-accent" onClick={(e) => handleEditClick(e, project)}><FileText size={16} /></Button>
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
@@ -576,6 +674,22 @@ const MyProjects = () => {
                             <DropdownMenuContent align="end" className="bg-white dark:bg-[#1c1e24] border-gray-200 dark:border-white/10">
                               <DropdownMenuItem className="focus:bg-gray-100 dark:focus:bg-white/10" onClick={(e) => handleEditClick(e, project)}>Edit Details</DropdownMenuItem>
                               <DropdownMenuItem className="focus:bg-gray-100 dark:focus:bg-white/10" onClick={() => { setSelectedProjectData(project); setShowProjectDetails(true); }}>View Dashboard</DropdownMenuItem>
+
+                              <DropdownMenuSeparator />
+
+                              <DropdownMenuSub>
+                                <DropdownMenuSubTrigger className="focus:bg-gray-100 dark:focus:bg-white/10">Change Status</DropdownMenuSubTrigger>
+                                <DropdownMenuPortal>
+                                  <DropdownMenuSubContent className="bg-white dark:bg-[#1c1e24] border-gray-200 dark:border-white/10">
+                                    {['Planning', 'Bidding', 'Active', 'Completed', 'On Hold'].map(status => (
+                                      <DropdownMenuItem key={status} onClick={(e) => { e.stopPropagation(); handleStatusUpdate(project.id, status) }}>{status}</DropdownMenuItem>
+                                    ))}
+                                  </DropdownMenuSubContent>
+                                </DropdownMenuPortal>
+                              </DropdownMenuSub>
+
+                              <DropdownMenuSeparator />
+
                               <DropdownMenuItem className="text-red-600 focus:text-red-600 focus:bg-red-50 dark:focus:bg-red-900/20" onClick={(e) => { e.stopPropagation(); handleDeleteProject(project.id); }}>Delete Project</DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>

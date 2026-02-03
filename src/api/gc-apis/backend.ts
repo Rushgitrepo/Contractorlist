@@ -12,7 +12,7 @@ export interface Project {
   location: string;
   jobNumber: string;
   client: string;
-  status: 'Planning' | 'In Progress' | 'Bidding' | 'Completed';
+  status: 'Planning' | 'Bidding' | 'Active' | 'Completed' | 'On Hold';
   statusColor: 'green' | 'yellow' | 'blue';
   timeline: { current: number; total: number; percentage: number };
   budget: {
