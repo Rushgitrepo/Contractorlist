@@ -8,9 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   Search,
   Plus,
-  MoreVertical,
   Phone,
-  Video,
   Paperclip,
   Send,
   CheckCheck,
@@ -33,7 +31,6 @@ import {
   DialogFooter
 } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
 
 const CleanCommunications = () => {
@@ -48,6 +45,9 @@ const CleanCommunications = () => {
   const [sidebarTab, setSidebarTab] = useState<'all' | 'private' | 'groups'>('all');
   const [threadSearch, setThreadSearch] = useState('');
   const [isThreadSearchOpen, setIsThreadSearchOpen] = useState(false);
+  const [selectedProject, setSelectedProject] = useState<string>('');
+  const [selectedMembers, setSelectedMembers] = useState<number[]>([]);
+  const [newGroupName, setNewGroupName] = useState('');
 
   // Resize Handlers
   useEffect(() => {
@@ -75,6 +75,38 @@ const CleanCommunications = () => {
       window.removeEventListener('mouseup', handleMouseUp);
     };
   }, [isResizing]);
+
+  // Mock data for projects and team members
+  const projects = [
+    {
+      id: 1,
+      name: 'Downtown Office Renovation',
+      status: 'active',
+      teamMembers: [
+        { id: 1, name: 'James Wilson', company: 'VoltMaster Electric', role: 'Electrical', avatar: 'JW', image: 'https://images.unsplash.com/photo-1542384701-c0e46e4c7980?auto=format&fit=crop&q=80&w=150&h=150', phone: '+1 555-010-1234' },
+        { id: 2, name: 'Sarah Chen', company: 'Chen Architects', role: 'Architect', avatar: 'SC', image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=150&h=150', phone: '+1 555-010-5678' },
+        { id: 3, name: 'Robert Fox', company: 'Fox Plumbing', role: 'Plumbing', avatar: 'RF', image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=150&h=150', phone: '+1 555-010-3333' }
+      ]
+    },
+    {
+      id: 2,
+      name: 'Medical Center Expansion',
+      status: 'active',
+      teamMembers: [
+        { id: 2, name: 'Sarah Chen', company: 'Chen Architects', role: 'Architect', avatar: 'SC', image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=150&h=150', phone: '+1 555-010-5678' },
+        { id: 4, name: 'Emily Davis', company: 'Davis HVAC', role: 'HVAC', avatar: 'ED', image: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&q=80&w=150&h=150', phone: '+1 555-010-4444' }
+      ]
+    },
+    {
+      id: 3,
+      name: 'Riverside Apartments',
+      status: 'active',
+      teamMembers: [
+        { id: 5, name: 'Mike Ross', company: 'Titan Concrete Pros', role: 'Concrete', avatar: 'MR', image: 'https://images.unsplash.com/photo-1633332755192-727a05c4013d?auto=format&fit=crop&q=80&w=150&h=150', phone: '+1 555-010-9876' },
+        { id: 6, name: 'Courtney Henry', company: 'Henry Steel', role: 'Steel Work', avatar: 'CH', image: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&q=80&w=150&h=150', phone: '+1 555-010-6666' }
+      ]
+    }
+  ];
 
   const chats = [
     {
@@ -246,6 +278,41 @@ const CleanCommunications = () => {
         description: "Your message has been delivered.",
       });
     }, 500);
+  };
+
+  const handleCreateGroupChat = () => {
+    if (!selectedProject || selectedMembers.length === 0) {
+      toast({
+        title: "Incomplete Selection",
+        description: "Please select a project and at least one team member.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const project = projects.find(p => p.name === selectedProject);
+    const selectedTeamMembers = project?.teamMembers.filter(m => selectedMembers.includes(m.id)) || [];
+    
+    const groupName = newGroupName || `${selectedProject} - Team Chat`;
+
+    toast({
+      title: "Group Created",
+      description: `${groupName} has been created with ${selectedTeamMembers.length} members.`,
+    });
+
+    // Reset modal
+    setIsNewChatModalOpen(false);
+    setSelectedProject('');
+    setSelectedMembers([]);
+    setNewGroupName('');
+  };
+
+  const toggleMemberSelection = (memberId: number) => {
+    setSelectedMembers(prev => 
+      prev.includes(memberId) 
+        ? prev.filter(id => id !== memberId)
+        : [...prev, memberId]
+    );
   };
 
   const activeContact = chats.find(c => c.id === activeChat);
@@ -532,26 +599,151 @@ const CleanCommunications = () => {
 
       {/* New Chat Modal */}
       <Dialog open={isNewChatModalOpen} onOpenChange={setIsNewChatModalOpen}>
-        <DialogContent className="bg-white dark:bg-[#1c1e24] border-gray-200 dark:border-white/10 text-gray-900 dark:text-white">
+        <DialogContent className="bg-white dark:bg-[#1c1e24] border-gray-200 dark:border-white/10 text-gray-900 dark:text-white max-w-2xl max-h-[85vh] overflow-hidden flex flex-col">
           <DialogHeader>
-            <DialogTitle>New Message</DialogTitle>
+            <DialogTitle className="text-xl font-bold flex items-center gap-2">
+              <Users className="w-5 h-5 text-yellow-500" />
+              Create New Group Chat
+            </DialogTitle>
+            <DialogDescription className="text-gray-500">
+              Select a project and invite team members to start a group conversation
+            </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4 py-4">
+          
+          <div className="flex-1 overflow-y-auto space-y-6 py-4">
+            {/* Group Name */}
             <div className="space-y-2">
-              <Label>To</Label>
-              <Input placeholder="Search people or projects..." className="bg-gray-100 dark:bg-black/20" />
-            </div>
-            <div className="space-y-2">
-              <Label>Message</Label>
-              <textarea
-                className="w-full h-32 p-3 rounded-xl bg-gray-100 dark:bg-black/20 border-none text-sm resize-none"
-                placeholder="Write your message..."
+              <Label className="text-sm font-semibold">Group Name (Optional)</Label>
+              <Input 
+                placeholder="e.g., Downtown Office - Electrical Team" 
+                value={newGroupName}
+                onChange={(e) => setNewGroupName(e.target.value)}
+                className="bg-gray-100 dark:bg-black/20 border-none h-11" 
               />
             </div>
+
+            {/* Project Selection */}
+            <div className="space-y-3">
+              <Label className="text-sm font-semibold flex items-center gap-2">
+                <Building2 className="w-4 h-4 text-yellow-500" />
+                Select Project
+              </Label>
+              <div className="grid gap-2">
+                {projects.map((project) => (
+                  <div
+                    key={project.id}
+                    onClick={() => {
+                      setSelectedProject(project.name);
+                      setSelectedMembers([]);
+                    }}
+                    className={cn(
+                      "p-4 rounded-xl border-2 cursor-pointer transition-all",
+                      selectedProject === project.name
+                        ? "border-yellow-500 bg-yellow-50 dark:bg-yellow-500/10"
+                        : "border-gray-200 dark:border-white/10 hover:border-yellow-300 dark:hover:border-yellow-500/30"
+                    )}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h4 className="font-semibold text-sm">{project.name}</h4>
+                        <p className="text-xs text-gray-500 mt-1">
+                          {project.teamMembers.length} team members
+                        </p>
+                      </div>
+                      <Badge 
+                        variant="outline" 
+                        className={cn(
+                          "text-[10px] font-bold uppercase",
+                          project.status === 'active' 
+                            ? "border-green-500 text-green-600 bg-green-50 dark:bg-green-500/10" 
+                            : "border-gray-300 text-gray-500"
+                        )}
+                      >
+                        {project.status}
+                      </Badge>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Team Members Selection */}
+            {selectedProject && (
+              <div className="space-y-3 animate-in fade-in slide-in-from-top-2 duration-300">
+                <Label className="text-sm font-semibold flex items-center gap-2">
+                  <Users2 className="w-4 h-4 text-yellow-500" />
+                  Select Team Members
+                  {selectedMembers.length > 0 && (
+                    <Badge className="bg-yellow-500 text-black ml-2">
+                      {selectedMembers.length} selected
+                    </Badge>
+                  )}
+                </Label>
+                <div className="space-y-2 max-h-64 overflow-y-auto pr-2">
+                  {projects
+                    .find(p => p.name === selectedProject)
+                    ?.teamMembers.map((member) => (
+                      <div
+                        key={member.id}
+                        onClick={() => toggleMemberSelection(member.id)}
+                        className={cn(
+                          "p-3 rounded-xl border-2 cursor-pointer transition-all",
+                          selectedMembers.includes(member.id)
+                            ? "border-yellow-500 bg-yellow-50 dark:bg-yellow-500/10"
+                            : "border-gray-200 dark:border-white/10 hover:border-yellow-300 dark:hover:border-yellow-500/30"
+                        )}
+                      >
+                        <div className="flex items-center gap-3">
+                          <Avatar className="w-10 h-10 border-2 border-white dark:border-[#1c1e24]">
+                            <AvatarImage src={member.image} className="object-cover" />
+                            <AvatarFallback className="bg-gradient-to-br from-yellow-400 to-yellow-600 text-white text-xs font-bold">
+                              {member.avatar}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="flex-1 min-w-0">
+                            <h4 className="font-semibold text-sm truncate">{member.name}</h4>
+                            <div className="flex items-center gap-2 mt-0.5">
+                              <p className="text-xs text-gray-500 truncate">{member.company}</p>
+                              <span className="text-gray-300 dark:text-gray-600">•</span>
+                              <Badge variant="outline" className="text-[8px] px-1.5 py-0 h-4 border-gray-200 dark:border-white/10">
+                                {member.role}
+                              </Badge>
+                            </div>
+                          </div>
+                          {selectedMembers.includes(member.id) && (
+                            <div className="w-6 h-6 rounded-full bg-yellow-500 flex items-center justify-center">
+                              <CheckCheck className="w-4 h-4 text-white" />
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              </div>
+            )}
           </div>
-          <DialogFooter>
-            <Button variant="ghost" onClick={() => setIsNewChatModalOpen(false)}>Cancel</Button>
-            <Button className="bg-yellow-400 text-black" onClick={() => setIsNewChatModalOpen(false)}>Start Chat</Button>
+
+          <DialogFooter className="border-t border-gray-200 dark:border-white/10 pt-4">
+            <Button 
+              variant="ghost" 
+              onClick={() => {
+                setIsNewChatModalOpen(false);
+                setSelectedProject('');
+                setSelectedMembers([]);
+                setNewGroupName('');
+              }}
+              className="text-gray-600 dark:text-gray-400"
+            >
+              Cancel
+            </Button>
+            <Button 
+              className="bg-yellow-400 hover:bg-yellow-500 text-black font-semibold"
+              onClick={handleCreateGroupChat}
+              disabled={!selectedProject || selectedMembers.length === 0}
+            >
+              <Users className="w-4 h-4 mr-2" />
+              Create Group ({selectedMembers.length})
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

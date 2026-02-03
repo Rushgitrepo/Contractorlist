@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getProjects, createProject as createProjectAPI, updateProject as updateProjectAPI, initializeFreshUserData } from '@/services/gcDashboardService';
+import { getProjects, createProject as createProjectAPI, updateProject as updateProjectAPI, deleteProject as deleteProjectAPI, initializeFreshUserData } from '@/services/gcDashboardService';
 import EnterpriseTeamManagement from './EnterpriseTeamManagement';
 import ProjectDocuments from './ProjectDocuments';
 import { Button } from '@/components/ui/button';
@@ -28,7 +28,7 @@ import {
   List,
   UserPlus,
   ArrowRight,
-  MessageSquare, FileText, Users, FolderOpen, Users2
+  MessageSquare, FileText, Users, FolderOpen, Users2, Trash2, Upload
 } from 'lucide-react';
 import { Avatar as UIAvatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
@@ -69,6 +69,9 @@ const MyProjects = () => {
 
   const [isEditing, setIsEditing] = useState(false);
   const [editingProjectId, setEditingProjectId] = useState<number | null>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [projectToDelete, setProjectToDelete] = useState<number | null>(null);
+  const [isUploadingProject, setIsUploadingProject] = useState(false);
 
   // Update active tab when URL search parameter changes
   useEffect(() => {
@@ -166,10 +169,137 @@ const MyProjects = () => {
     setNewProjectName(project.name || '');
     setNewProjectLocation(project.location || '');
     setNewProjectClient(project.client || '');
-    setNewProjectBudget(project.budget?.toString() || '');
+    setNewProjectBudget(project.budget?.estimated?.toString() || project.budget?.toString() || '');
+    setNewProjectDuration(project.timeline?.total?.toString() || project.duration?.toString() || '');
     setNewProjectStatus(project.status || 'Planning');
     setNewProjectDescription(project.description || '');
     setShowNewProject(true);
+  };
+
+  const handleDeleteClick = (e: React.MouseEvent, projectId: number) => {
+    e.stopPropagation();
+    setProjectToDelete(projectId);
+    setShowDeleteConfirm(true);
+  };
+
+  const confirmDelete = async () => {
+    if (projectToDelete) {
+      try {
+        await deleteProjectAPI(projectToDelete);
+        setProjects(projects.filter(p => p.id !== projectToDelete));
+        toast({
+          title: "Project Deleted",
+          description: "Project has been successfully deleted.",
+        });
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: "Failed to delete project",
+          variant: "destructive"
+        });
+      }
+      setShowDeleteConfirm(false);
+      setProjectToDelete(null);
+    }
+  };
+
+  // Extract project data from PDF/file
+  const extractProjectDataFromFile = async (file: File): Promise<Partial<{
+    name: string;
+    location: string;
+    client: string;
+    budget: number;
+    duration: number;
+    description: string;
+  }>> => {
+    return new Promise((resolve) => {
+      // For PDF files, we'll try to extract text
+      if (file.type === 'application/pdf') {
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+          try {
+            // Simple extraction - in production, use PDF.js or similar
+            // For now, we'll use filename and let user fill details
+            const fileName = file.name.replace(/\.[^/.]+$/, '');
+            const extractedData = {
+              name: fileName,
+              location: '',
+              client: '',
+              budget: 0,
+              duration: 12,
+              description: `Project created from file: ${file.name}`
+            };
+            resolve(extractedData);
+          } catch (error) {
+            // Fallback to filename-based extraction
+            const fileName = file.name.replace(/\.[^/.]+$/, '');
+            resolve({
+              name: fileName,
+              location: '',
+              client: '',
+              budget: 0,
+              duration: 12,
+              description: `Project created from file: ${file.name}`
+            });
+          }
+        };
+        reader.readAsArrayBuffer(file);
+      } else {
+        // For other files, use filename
+        const fileName = file.name.replace(/\.[^/.]+$/, '');
+        resolve({
+          name: fileName,
+          location: '',
+          client: '',
+          budget: 0,
+          duration: 12,
+          description: `Project created from file: ${file.name}`
+        });
+      }
+    });
+  };
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setIsUploadingProject(true);
+      
+      // Extract project data from file
+      const extractedData = await extractProjectDataFromFile(file);
+      
+      // Pre-fill form with extracted data
+      setNewProjectName(extractedData.name || '');
+      setNewProjectLocation(extractedData.location || '');
+      setNewProjectClient(extractedData.client || '');
+      setNewProjectBudget(extractedData.budget?.toString() || '');
+      setNewProjectDuration(extractedData.duration?.toString() || '12');
+      setNewProjectDescription(extractedData.description || '');
+      setNewProjectStatus('Planning');
+      
+      // Open the project creation modal
+      setIsEditing(false);
+      setEditingProjectId(null);
+      setShowNewProject(true);
+      
+      toast({
+        title: "File Loaded",
+        description: "Project details extracted from file. Please review and save.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to process file",
+        variant: "destructive"
+      });
+    } finally {
+      setIsUploadingProject(false);
+      // Clear the input
+      if (event.target) {
+        event.target.value = '';
+      }
+    }
   };
 
   const toggleInvite = (memberId: string) => {
@@ -220,6 +350,23 @@ const MyProjects = () => {
                 <button onClick={() => setViewMode('card')} className={`p-1.5 rounded-md transition-all ${viewMode === 'card' ? 'bg-gray-100 dark:bg-white/10 text-black dark:text-white' : 'text-gray-400 dark:text-gray-500 hover:text-black dark:hover:text-white'}`}><Grid3x3 size={18} /></button>
                 <button onClick={() => setViewMode('table')} className={`p-1.5 rounded-md transition-all ${viewMode === 'table' ? 'bg-gray-100 dark:bg-white/10 text-black dark:text-white' : 'text-gray-400 dark:text-gray-500 hover:text-black dark:hover:text-white'}`}><List size={18} /></button>
               </div>
+              <div className="relative">
+                <Input
+                  type="file"
+                  accept=".pdf,.doc,.docx,.txt"
+                  onChange={handleFileUpload}
+                  className="absolute inset-0 opacity-0 cursor-pointer z-10 w-full h-full"
+                  disabled={isUploadingProject}
+                />
+                <Button 
+                  variant="outline" 
+                  className="h-11 border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-300 font-bold rounded-xl px-4 mr-2"
+                  disabled={isUploadingProject}
+                >
+                  <Upload size={18} className="mr-2" /> 
+                  {isUploadingProject ? 'Processing...' : 'Upload File'}
+                </Button>
+              </div>
               <Button onClick={() => { resetForm(); setShowNewProject(true); }} className="h-11 bg-accent hover:bg-accent/90 text-accent-foreground font-bold rounded-xl px-6"><Plus size={18} className="mr-2" /> New Project</Button>
             </div>
           )}
@@ -240,11 +387,20 @@ const MyProjects = () => {
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="h-8 w-8 text-black dark:text-white hover:bg-gray-100 dark:hover:bg-white/10 rounded-full"
-                            onClick={(e) => { e.stopPropagation(); navigate('/gc-dashboard/communications'); }}
-                            title="Project Chat"
+                            className="h-8 w-8 text-gray-400 hover:text-accent"
+                            onClick={(e) => { e.stopPropagation(); handleEditClick(e, project); }}
+                            title="Edit Project"
                           >
-                            <Users2 size={16} />
+                            <FileText size={16} />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-gray-400 hover:text-red-500"
+                            onClick={(e) => { e.stopPropagation(); handleDeleteClick(e, project.id); }}
+                            title="Delete Project"
+                          >
+                            <Trash2 size={16} />
                           </Button>
                         </div>
                       </div>
@@ -305,8 +461,8 @@ const MyProjects = () => {
                       </td>
                       <td className="px-6 py-4 text-right" onClick={(e) => e.stopPropagation()}>
                         <div className="flex justify-end gap-2">
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-400 hover:text-accent" onClick={(e) => handleEditClick(e, project)}><FileText size={16} /></Button>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-400 dark:text-gray-500 hover:text-black dark:hover:text-white"><MoreHorizontal size={16} /></Button>
+                          <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-400 hover:text-accent" onClick={(e) => handleEditClick(e, project)} title="Edit Project"><FileText size={16} /></Button>
+                          <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-400 hover:text-red-500" onClick={(e) => handleDeleteClick(e, project.id)} title="Delete Project"><Trash2 size={16} /></Button>
                         </div>
                       </td>
                     </tr>
@@ -393,15 +549,16 @@ const MyProjects = () => {
               <div className="space-y-2"><Label className="text-gray-700 dark:text-gray-300">Client / Owner</Label><Input placeholder="Client Name" className="bg-gray-50 dark:bg-black/20 border-gray-200 dark:border-white/10 text-gray-900 dark:text-white" value={newProjectClient} onChange={(e) => setNewProjectClient(e.target.value)} /></div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2"><Label className="text-gray-700 dark:text-gray-300">Estimated Budget</Label><Input placeholder="$0.00" className="bg-gray-50 dark:bg-black/20 border-gray-200 dark:border-white/10 text-gray-900 dark:text-white" value={newProjectBudget} onChange={(e) => setNewProjectBudget(e.target.value)} /></div>
-                <div className="space-y-2">
-                  <Label className="text-gray-700 dark:text-gray-300">Timeline / Status</Label>
-                  <Select value={newProjectStatus} onValueChange={setNewProjectStatus}>
-                    <SelectTrigger className="bg-gray-50 dark:bg-black/20 border-gray-200 dark:border-white/10 text-gray-900 dark:text-white"><SelectValue placeholder="Select status" /></SelectTrigger>
-                    <SelectContent className="bg-white dark:bg-[#1c1e24] border-gray-200 dark:border-white/10 text-gray-900 dark:text-white">
-                      <SelectItem value="Planning">Planning</SelectItem><SelectItem value="In Progress">In Progress</SelectItem><SelectItem value="Bidding">Bidding</SelectItem><SelectItem value="On Hold">On Hold</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+                <div className="space-y-2"><Label className="text-gray-700 dark:text-gray-300">Duration (Months)</Label><Input placeholder="12" type="number" className="bg-gray-50 dark:bg-black/20 border-gray-200 dark:border-white/10 text-gray-900 dark:text-white" value={newProjectDuration} onChange={(e) => setNewProjectDuration(e.target.value)} /></div>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-gray-700 dark:text-gray-300">Status</Label>
+                <Select value={newProjectStatus} onValueChange={setNewProjectStatus}>
+                  <SelectTrigger className="bg-gray-50 dark:bg-black/20 border-gray-200 dark:border-white/10 text-gray-900 dark:text-white"><SelectValue placeholder="Select status" /></SelectTrigger>
+                  <SelectContent className="bg-white dark:bg-[#1c1e24] border-gray-200 dark:border-white/10 text-gray-900 dark:text-white">
+                    <SelectItem value="Planning">Planning</SelectItem><SelectItem value="In Progress">In Progress</SelectItem><SelectItem value="Bidding">Bidding</SelectItem><SelectItem value="On Hold">On Hold</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               <div className="space-y-2"><Label className="text-gray-700 dark:text-gray-300">Description (Optional)</Label><Textarea placeholder="Brief details..." className="bg-gray-50 dark:bg-black/20 border-gray-200 dark:border-white/10 text-gray-900 dark:text-white min-h-[80px]" value={newProjectDescription} onChange={(e) => setNewProjectDescription(e.target.value)} /></div>
             </div>
@@ -435,6 +592,27 @@ const MyProjects = () => {
                 <Button className="bg-accent hover:bg-accent/90 text-accent-foreground" onClick={() => { toast({ title: "Team Invitation Sent", description: `${invitedMembers.length} members have been assigned.` }); setShowInviteModal(false); }}>Done</Button>
               </div>
             </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Delete Confirmation Dialog */}
+        <Dialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
+          <DialogContent className="bg-white dark:bg-[#1c1e24] border-gray-200 dark:border-white/10 text-gray-900 dark:text-white sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle className="text-xl font-bold text-red-600 dark:text-red-400">Delete Project</DialogTitle>
+              <DialogDescription className="text-gray-500 dark:text-gray-400">
+                Are you sure you want to delete this project? This action cannot be undone and will remove all associated data including documents and team assignments.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter className="gap-2">
+              <Button variant="ghost" onClick={() => { setShowDeleteConfirm(false); setProjectToDelete(null); }}>Cancel</Button>
+              <Button 
+                onClick={confirmDelete} 
+                className="bg-red-600 hover:bg-red-700 text-white font-bold"
+              >
+                Delete Project
+              </Button>
+            </DialogFooter>
           </DialogContent>
         </Dialog>
       </div>
