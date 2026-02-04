@@ -90,7 +90,7 @@ export const registerUser = createAsyncThunk(
       const user: User = {
         ...apiUser,
         id: apiUser.id,
-        name: (apiUser as any).name || `${apiUser.firstName} ${apiUser.lastName}`,
+        name: (apiUser as any).name || (apiUser.firstName && apiUser.lastName ? `${apiUser.firstName} ${apiUser.lastName}` : apiUser.firstName || apiUser.lastName || apiUser.email || 'User'),
         role: apiUser.role as any
       };
       return { ...response.data, user };
@@ -113,7 +113,7 @@ export const loginUser = createAsyncThunk(
       const user: User = {
         ...apiUser,
         id: apiUser.id,
-        name: (apiUser as any).name || `${apiUser.firstName} ${apiUser.lastName}`,
+        name: (apiUser as any).name || (apiUser.firstName && apiUser.lastName ? `${apiUser.firstName} ${apiUser.lastName}` : apiUser.firstName || apiUser.lastName || apiUser.email || 'User'),
         role: apiUser.role as any
       };
       return { ...response.data, user };

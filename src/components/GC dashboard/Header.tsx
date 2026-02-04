@@ -25,8 +25,10 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useToast } from '@/hooks/use-toast';
 import { useTheme } from '@/hooks/useTheme';
 
-import { useAppDispatch } from '@/store/hooks';
+import { useSelector, useDispatch } from 'react-redux';
+import { RootState } from '@/store';
 import { logoutUser } from '@/store/slices/authSlice';
+import { AppDispatch } from '@/store';
 
 interface HeaderProps {
   onMenuClick: () => void;
@@ -35,8 +37,20 @@ interface HeaderProps {
 const Header = ({ onMenuClick }: HeaderProps) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const dispatch = useAppDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const { isDark, toggleTheme } = useTheme();
+  const user = useSelector((state: RootState) => state.auth.user);
+
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map((n) => n[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  };
+
+  const userInitials = user?.name ? getInitials(user.name) : 'U';
   const [searchQuery, setSearchQuery] = useState('');
   const { toast } = useToast();
 
@@ -147,12 +161,14 @@ const Header = ({ onMenuClick }: HeaderProps) => {
               <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuLabel className="p-3">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-accent flex items-center justify-center text-accent-foreground shadow-md">
-                      <User className="w-5 h-5" />
-                    </div>
-                    <div className="flex-1">
-                      <p className="font-semibold text-gray-900 dark:text-white text-sm">Acme Construction</p>
-                      <p className="text-xs text-gray-600 dark:text-gray-400">General Contractor</p>
+                    <Avatar className="h-8 w-8 rounded-lg">
+                      <AvatarFallback className="bg-accent text-accent-foreground font-bold text-xs">
+                        {userInitials}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="hidden lg:block text-left">
+                      <p className="font-semibold text-gray-900 dark:text-white text-sm">{user?.name || 'User'}</p>
+                      <p className="text-xs text-gray-500 font-medium">{user?.role || 'Guest'}</p>
                     </div>
                   </div>
                 </DropdownMenuLabel>

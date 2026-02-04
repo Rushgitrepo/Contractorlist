@@ -34,7 +34,8 @@ import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useTheme } from '@/hooks/useTheme';
 
-import { useDispatch } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+import { RootState } from '@/store';
 import { logoutUser } from '@/store/slices/authSlice';
 import { AppDispatch } from '@/store';
 
@@ -47,6 +48,18 @@ const SubcontractorHeader = ({ onMenuClick }: SubcontractorHeaderProps) => {
   const location = useLocation();
   const dispatch = useDispatch<AppDispatch>();
   const { isDark, toggleTheme } = useTheme();
+  const user = useSelector((state: RootState) => state.auth.user);
+
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map((n) => n[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  };
+
+  const userInitials = user?.name ? getInitials(user.name) : 'U';
   const [searchQuery, setSearchQuery] = useState('');
 
   const handleNewProposal = () => {
@@ -137,11 +150,11 @@ const SubcontractorHeader = ({ onMenuClick }: SubcontractorHeaderProps) => {
                   className="flex items-center gap-2 hover:bg-gray-100 dark:hover:bg-gray-800 p-1 rounded-xl h-10 transition-all"
                 >
                   <Avatar className="w-8 h-8 rounded-lg ring-2 ring-transparent group-hover:ring-accent transition-all">
-                    <AvatarFallback className="bg-accent text-accent-foreground font-bold text-xs uppercase">AC</AvatarFallback>
+                    <AvatarFallback className="bg-accent text-accent-foreground font-bold text-xs uppercase">{userInitials}</AvatarFallback>
                   </Avatar>
                   <div className="hidden lg:block text-left">
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-gray-900 dark:text-white leading-none mb-1">Acme Construction</p>
-                    <p className="text-[9px] font-bold text-gray-500 uppercase tracking-tighter">HVAC Partner</p>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-gray-900 dark:text-white leading-none mb-1">{user?.name || 'User'}</p>
+                    <p className="text-[9px] font-bold text-gray-500 uppercase tracking-tighter">{user?.role || 'Partner'}</p>
                   </div>
                 </Button>
               </DropdownMenuTrigger>
@@ -149,11 +162,11 @@ const SubcontractorHeader = ({ onMenuClick }: SubcontractorHeaderProps) => {
                 <DropdownMenuLabel className="p-4">
                   <div className="flex items-center gap-3">
                     <div className="w-12 h-12 rounded-xl bg-accent flex items-center justify-center text-accent-foreground font-black shadow-lg">
-                      AC
+                      {userInitials}
                     </div>
                     <div>
-                      <p className="font-black text-gray-900 dark:text-white text-sm uppercase tracking-tight">Acme Construction</p>
-                      <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Partner Level: Gold</p>
+                      <p className="font-black text-gray-900 dark:text-white text-sm uppercase tracking-tight">{user?.name || 'User'}</p>
+                      <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">{user?.role || 'Partner'}</p>
                     </div>
                   </div>
                 </DropdownMenuLabel>
