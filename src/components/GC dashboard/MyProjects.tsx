@@ -1,4 +1,4 @@
-import { getProjects, createProject as createProjectAPI, updateProject as updateProjectAPI, deleteProject as deleteProjectAPI, getTeamMembers, assignTeamMember, removeTeamMemberFromProject, getProjectTeamMembers, uploadDocument } from '@/api/gc-apis';
+import { getProjects, createProject as createProjectAPI, updateProject as updateProjectAPI, deleteProject as deleteProjectAPI, getTeamMembers, assignTeamMember, removeTeamMemberFromProject, getProjectTeamMembers, uploadDocument, bulkUploadProjects } from '@/api/gc-apis';
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -89,6 +89,11 @@ const MyProjects = () => {
   const [globalUploadCategory, setGlobalUploadCategory] = useState("Other");
   const [isGlobalUploading, setIsGlobalUploading] = useState(false);
   const [selectedGlobalFile, setSelectedGlobalFile] = useState<File | null>(null);
+
+  // Bulk Project Upload State
+  const [showBulkUploadModal, setShowBulkUploadModal] = useState(false);
+  const [isBulkUploading, setIsBulkUploading] = useState(false);
+  const [selectedBulkFile, setSelectedBulkFile] = useState<File | null>(null);
 
   // Alert Dialog State
   const [alertConfig, setAlertConfig] = useState<{
@@ -403,31 +408,80 @@ const MyProjects = () => {
   const handleGlobalFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    setSelectedGlobalFile(file);
+  };
 
-    // File Type Validation
-    const allowedTypes = [
-      'image/jpeg', 'image/png', 'image/gif', 'image/webp',
-      'application/pdf',
-      'text/plain', 'text/csv',
-      'application/msword',
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-      'application/vnd.ms-excel',
-      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-    ];
-    // Check extension as fallback
-    const isValidType = allowedTypes.includes(file.type) ||
-      /\.(jpg|jpeg|png|gif|webp|pdf|txt|csv|doc|docx|xls|xlsx)$/i.test(file.name);
+  const handleBulkFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
 
-    if (!isValidType) {
+    const allowedExtensions = /\.(csv|xlsx|xls|pdf)$/i;
+    if (!allowedExtensions.test(file.name)) {
       toast({
-        title: "Unsupported File Format",
-        description: "Please upload a supported file type (PDF, Image, Word, Excel, CSV).",
+        title: "Unsupported Format",
+        description: "Please upload a CSV, Excel, or PDF file.",
         variant: "destructive"
       });
-      e.target.value = ''; // Reset input
+      e.target.value = '';
       return;
     }
-    setSelectedGlobalFile(file);
+    setSelectedBulkFile(file);
+  };
+
+  const handleBulkUpload = async () => {
+    if (!selectedBulkFile) {
+      toast({ title: "Error", description: "Please select a file first.", variant: "destructive" });
+      return;
+    }
+
+    try {
+      setIsBulkUploading(true);
+      const result = await bulkUploadProjects(selectedBulkFile);
+
+      toast({
+        title: "Bulk Upload Completed",
+        description: `${result.data.summary.success} projects created successfully.`,
+      });
+
+      if (result.data.summary.failed > 0) {
+        toast({
+          title: "Some Uploads Failed",
+          description: `${result.data.summary.failed} projects could not be created. Check the file format.`,
+          variant: "destructive"
+        });
+      }
+
+      setShowBulkUploadModal(false);
+      setSelectedBulkFile(null);
+
+      // Refresh projects
+      const projectsData = await getProjects({ search: searchQuery });
+      setProjects(projectsData);
+    } catch (error: any) {
+      console.error("Bulk upload error", error);
+      toast({
+        title: "Upload Failed",
+        description: error.response?.data?.error?.message || "Internal server error during bulk upload.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsBulkUploading(false);
+    }
+  };
+
+  const downloadCSVTemplate = () => {
+    const headers = ["Name", "Location", "Client", "Status", "Budget", "Duration", "Description"];
+    const row = ["Luxury Apartment Complex", "Houston, TX", "Hines Development", "Planning", "5000000", "18", "Full construction of a 50-unit complex"];
+    const csvContent = [headers.join(","), row.join(",")].join("\n");
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = "project_upload_template.csv";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
   };
 
   const handleStatusUpdate = async (projectId: number, newStatus: string) => {
@@ -463,6 +517,21 @@ const MyProjects = () => {
     setShowProjectDetails(true);
   };
 
+  const formatCurrency = (amount: any) => {
+    if (amount === undefined || amount === null) return '$0.00';
+    if (typeof amount === 'object') return amount.estimated || '$0.00';
+
+    const numericAmount = typeof amount === 'string'
+      ? parseFloat(amount.replace(/[$,]/g, ''))
+      : amount;
+
+    if (isNaN(numericAmount)) return amount.toString();
+
+    if (numericAmount >= 1000000) return `$${(numericAmount / 1000000).toFixed(1)}M`;
+    if (numericAmount >= 1000) return `$${(numericAmount / 1000).toFixed(0)}K`;
+    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(numericAmount);
+  };
+
   return (
     <div className="min-h-full bg-gray-50 dark:bg-[#0f1115] text-gray-900 dark:text-white p-6 font-sans transition-colors duration-300 relative">
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
@@ -472,10 +541,10 @@ const MyProjects = () => {
       <div className="max-w-7xl mx-auto space-y-6 relative z-10">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <div className="flex items-center gap-6 mb-1">
-              <button onClick={() => setSearchParams({ tab: 'projects' })} className={cn("text-2xl font-bold transition-all", activeTab === 'projects' ? "text-gray-900 dark:text-white" : "text-gray-400 dark:text-gray-600 hover:text-gray-500")}>My Projects</button>
-              <button onClick={() => setSearchParams({ tab: 'team' })} className={cn("text-2xl font-bold transition-all", activeTab === 'team' ? "text-gray-900 dark:text-white" : "text-gray-400 dark:text-gray-600 hover:text-gray-500")}>Team</button>
-              <button onClick={() => setSearchParams({ tab: 'documents' })} className={cn("text-2xl font-bold transition-all", activeTab === 'documents' ? "text-gray-900 dark:text-white" : "text-gray-400 dark:text-gray-600 hover:text-gray-500")}>Documents</button>
+            <div className="flex items-center gap-6 mb-1 overflow-x-auto no-scrollbar">
+              <button onClick={() => setSearchParams({ tab: 'projects' })} className={cn("text-2xl font-bold transition-all whitespace-nowrap", activeTab === 'projects' ? "text-gray-900 dark:text-white" : "text-gray-400 dark:text-gray-600 hover:text-gray-500")}>My Projects</button>
+              <button onClick={() => setSearchParams({ tab: 'team' })} className={cn("text-2xl font-bold transition-all whitespace-nowrap", activeTab === 'team' ? "text-gray-900 dark:text-white" : "text-gray-400 dark:text-gray-600 hover:text-gray-500")}>Team</button>
+              <button onClick={() => setSearchParams({ tab: 'documents' })} className={cn("text-2xl font-bold transition-all whitespace-nowrap", activeTab === 'documents' ? "text-gray-900 dark:text-white" : "text-gray-400 dark:text-gray-600 hover:text-gray-500")}>Documents</button>
             </div>
             <p className="text-gray-500 dark:text-gray-400 text-sm">
               {activeTab === 'projects' ? 'Manage and track all your construction jobs' : activeTab === 'team' ? 'Review team members and contractor onboarding status' : 'Centralized storage for all project related documents'}
@@ -483,7 +552,7 @@ const MyProjects = () => {
           </div>
 
           {activeTab === 'projects' && (
-            <div className="flex items-center gap-3 w-full sm:w-auto">
+            <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto justify-end">
               <div className="relative flex-1 sm:w-64">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                 <Input placeholder="Search projects..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-9 h-11 bg-white dark:bg-[#1c1e24] border-gray-200 dark:border-white/10 rounded-xl" />
@@ -492,7 +561,7 @@ const MyProjects = () => {
                 <button onClick={() => setViewMode('card')} className={`p-1.5 rounded-md transition-all ${viewMode === 'card' ? 'bg-gray-100 dark:bg-white/10 text-black dark:text-white' : 'text-gray-400 dark:text-gray-500 hover:text-black dark:hover:text-white'}`}><Grid3x3 size={18} /></button>
                 <button onClick={() => setViewMode('table')} className={`p-1.5 rounded-md transition-all ${viewMode === 'table' ? 'bg-gray-100 dark:bg-white/10 text-black dark:text-white' : 'text-gray-400 dark:text-gray-500 hover:text-black dark:hover:text-white'}`}><List size={18} /></button>
               </div>
-              <Button onClick={() => setShowGlobalUploadModal(true)} className="h-11 bg-white dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 text-gray-900 dark:text-white font-bold rounded-xl px-4 border border-gray-200 dark:border-white/10" variant="outline"><Upload size={18} className="mr-2" /> Upload Doc</Button>
+              <Button onClick={() => setShowBulkUploadModal(true)} className="h-11 bg-white dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 text-gray-900 dark:text-white font-bold rounded-xl px-4 border border-gray-200 dark:border-white/10" variant="outline"><Upload size={18} className="mr-2" /> Upload Projects</Button>
               <Button onClick={() => { resetForm(); setShowNewProject(true); }} className="h-11 bg-accent hover:bg-accent/90 text-accent-foreground font-bold rounded-xl px-6"><Plus size={18} className="mr-2" /> New Project</Button>
             </div>
           )}
@@ -503,14 +572,22 @@ const MyProjects = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredProjects.map((project, index) => (
                 <div key={project.id || index} className="group relative bg-white dark:bg-[#1c1e24]/80 backdrop-blur-md rounded-2xl border border-gray-200 dark:border-white/5 hover:border-accent dark:hover:border-accent/30 transition-all duration-300 overflow-hidden cursor-pointer hover:shadow-lg dark:hover:shadow-accent/5" onClick={() => handleViewDetails(project)}>
-                  <div className={`absolute left-0 top-0 bottom-0 w-1 ${project.status === 'On Track' ? 'bg-black dark:bg-white' : project.status === 'Planning' ? 'bg-accent' : project.status === 'Delayed' ? 'bg-gray-500' : 'bg-gray-500'}`} />
-                  <div className="p-6">
+                  <div className={`absolute left-0 top-0 bottom-0 w-1 ${project.status === 'Active' ? 'bg-black dark:bg-white' :
+                    project.status === 'Planning' ? 'bg-accent' :
+                      project.status === 'Bidding' ? 'bg-yellow-500' :
+                        project.status === 'Completed' ? 'bg-green-500' :
+                          'bg-gray-400'
+                    }`} />
+                  <div className="p-6 flex flex-col h-full">
                     <div className="mb-4">
                       <div className="flex justify-between items-start mb-1">
                         <div className="flex-1 pr-2">
-                          <h3 className="text-lg font-bold text-gray-900 dark:text-white group-hover:text-yellow-600 dark:group-hover:text-accent transition-colors line-clamp-1 pr-2">{project.name}</h3>
+                          <h3 className="text-lg font-bold text-gray-900 dark:text-white group-hover:text-yellow-600 dark:group-hover:text-accent transition-colors line-clamp-1 pr-2">{project.name || 'Untitled Project'}</h3>
                           <div className="flex items-center gap-2 mt-1">
-                            <Badge variant="outline" className={`border-0 bg-gray-100 dark:bg-white/5 whitespace-nowrap ${project.status === 'Active' ? 'text-black dark:text-white' : project.status === 'Planning' ? 'text-yellow-600 dark:text-accent' : 'text-gray-500 dark:text-gray-400'}`}>{project.status}</Badge>
+                            <Badge variant="outline" className={`border-0 bg-gray-100 dark:bg-white/5 whitespace-nowrap ${project.status === 'Active' ? 'text-black dark:text-white' :
+                              project.status === 'Planning' ? 'text-yellow-600 dark:text-accent' :
+                                'text-gray-500 dark:text-gray-400'
+                              }`}>{project.status}</Badge>
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
@@ -530,12 +607,12 @@ const MyProjects = () => {
                                 ? "bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-900/50 hover:bg-green-200 dark:hover:bg-green-900/50"
                                 : "bg-gray-100 text-gray-500 border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-white/10 hover:bg-gray-200 dark:hover:bg-white/10"
                             )}
-                            title={project.status === 'Active' ? "Deactivate Project" : "Activate Project"}
+                            title={project.status === 'Active' ? "Set On Hold" : "Set Active"}
                           >
                             {project.status === 'Active' ? (
                               <div className="flex items-center gap-1.5"><CheckCircle2 size={12} /> Active</div>
                             ) : (
-                              <div className="flex items-center gap-1.5"><Power size={12} /> Inactive</div>
+                              <div className="flex items-center gap-1.5"><Power size={12} /> {project.status === 'On Hold' ? 'On Hold' : 'Inactive'}</div>
                             )}
                           </Button>
 
@@ -583,37 +660,19 @@ const MyProjects = () => {
                           </DropdownMenu>
                         </div>
                       </div>
-                      <p className="text-sm text-gray-500 dark:text-gray-500">{project.client}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-500 line-clamp-1">{project.client || 'No Client'}</p>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4 mb-6">
+                    <div className="grid grid-cols-2 gap-4 mt-auto">
                       <div>
                         <p className="text-xs text-gray-400 dark:text-gray-500 uppercase tracking-wide mb-1">Location</p>
-                        <p className="text-sm text-gray-700 dark:text-gray-200 flex items-center gap-1"><MapPin size={12} className="text-gray-400 dark:text-gray-500" />{project.location}</p>
+                        <p className="text-sm text-gray-700 dark:text-gray-200 flex items-center gap-1 line-clamp-1"><MapPin size={12} className="text-gray-400 dark:text-gray-500" />{project.location || 'N/A'}</p>
                       </div>
                       <div>
                         <p className="text-xs text-gray-400 dark:text-gray-500 uppercase tracking-wide mb-1">Budget</p>
-                        <p className="text-sm text-gray-900 dark:text-white font-mono">
-                          {typeof project.budget === 'number'
-                            ? `$${(project.budget / 1000).toFixed(0)}K`
-                            : typeof project.budget === 'object' && project.budget !== null
-                              ? project.budget.estimated || '$0.00'
-                              : project.budget || '$0.00'}
+                        <p className="text-sm text-gray-900 dark:text-white font-mono font-bold">
+                          {formatCurrency(project.budget)}
                         </p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center justify-between">
-                      <div className="flex-1 mr-4">
-                        <div className="flex justify-between text-xs mb-1.5"><span className="text-gray-500">Completion</span><span className="text-gray-900 dark:text-white">{project.completion}</span></div>
-                        <Progress value={project.progress} className="h-1.5 bg-gray-100 dark:bg-white/10"><div className="h-full bg-gradient-to-r from-accent to-accent/80 dark:from-accent dark:to-accent/80" style={{ width: `${project.progress}%` }} /></Progress>
-                      </div>
-                      <div className="relative w-10 h-10 flex items-center justify-center">
-                        <svg className="w-full h-full transform -rotate-90">
-                          <circle cx="20" cy="20" r="18" stroke="currentColor" strokeWidth="3" fill="transparent" className="text-gray-200 dark:text-gray-800" />
-                          <circle cx="20" cy="20" r="18" stroke="currentColor" strokeWidth="3" fill="transparent" className="text-accent" strokeDasharray={113.1} strokeDashoffset={113.1 - (113.1 * project.progress) / 100} />
-                        </svg>
-                        <span className="absolute text-[9px] font-bold text-gray-900 dark:text-white">{project.progress}%</span>
                       </div>
                     </div>
                   </div>
@@ -621,7 +680,7 @@ const MyProjects = () => {
               ))}
             </div>
           ) : (
-            <div className="bg-white dark:bg-[#1c1e24] rounded-xl border border-gray-200 dark:border-white/5 overflow-hidden shadow-sm">
+            <div className="bg-white dark:bg-[#1c1e24] rounded-xl border border-gray-200 dark:border-white/5 overflow-x-auto shadow-sm">
               <table className="w-full">
                 <thead className="bg-gray-50 dark:bg-black/20 border-b border-gray-200 dark:border-white/5">
                   <tr>
@@ -639,12 +698,8 @@ const MyProjects = () => {
                       <td className="px-6 py-4"><div className="text-sm font-medium text-gray-900 dark:text-white group-hover:text-yellow-600 dark:group-hover:text-accent transition-colors">{project.name}</div><div className="text-xs text-gray-500">{project.location}</div></td>
                       <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">{project.client}</td>
                       <td className="px-6 py-4"><Badge variant="outline" className={`border-0 bg-gray-100 dark:bg-white/5 ${project.status === 'Active' ? 'text-black dark:text-white' : project.status === 'Planning' ? 'text-yellow-600 dark:text-accent' : 'text-gray-500 dark:text-gray-400'}`}>{project.status}</Badge></td>
-                      <td className="px-6 py-4 text-sm text-gray-900 dark:text-white font-mono">
-                        {typeof project.budget === 'number'
-                          ? `$${(project.budget / 1000).toFixed(0)}K`
-                          : typeof project.budget === 'object' && project.budget !== null
-                            ? project.budget.estimated || '$0.00'
-                            : project.budget || '$0.00'}
+                      <td className="px-6 py-4 text-sm text-gray-900 dark:text-white font-mono font-medium">
+                        {formatCurrency(project.budget)}
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-2"><Progress value={project.progress} className="w-24 h-1.5 bg-gray-200 dark:bg-white/10" /><span className="text-xs text-gray-500 whitespace-nowrap">{project.progress}%</span></div>
@@ -762,11 +817,7 @@ const MyProjects = () => {
                     <div>
                       <p className="text-xs text-gray-400 uppercase tracking-wider mb-1">Estimated Budget</p>
                       <p className="text-2xl font-bold font-mono text-gray-900 dark:text-white">
-                        {typeof selectedProjectData.budget === 'number'
-                          ? `$${selectedProjectData.budget.toLocaleString()}`
-                          : typeof selectedProjectData.budget === 'object' && selectedProjectData.budget !== null
-                            ? selectedProjectData.budget.estimated
-                            : selectedProjectData.budget || '$0.00'}
+                        {formatCurrency(selectedProjectData.budget)}
                       </p>
                     </div>
                     <div><p className="text-xs text-gray-400 uppercase tracking-wider mb-1">Target Completion</p><p className="text-lg font-semibold text-gray-900 dark:text-white">{selectedProjectData.completion}</p></div>
@@ -1079,6 +1130,70 @@ const MyProjects = () => {
                 disabled={!globalUploadProject || !selectedGlobalFile || isGlobalUploading}
               >
                 {isGlobalUploading ? "Uploading..." : "Upload Document"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Bulk Upload Modal */}
+        <Dialog open={showBulkUploadModal} onOpenChange={setShowBulkUploadModal}>
+          <DialogContent className="bg-white dark:bg-[#1c1e24] border-gray-200 dark:border-white/10 text-gray-900 dark:text-white sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle className="text-xl font-bold">Bulk Upload Projects</DialogTitle>
+              <DialogDescription>
+                Upload a CSV, Excel, or PDF file to import multiple projects at once.
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-6 py-4">
+              <div className="p-4 rounded-xl bg-gray-50 dark:bg-black/20 border border-gray-200 dark:border-white/5 space-y-3">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-gray-400">Required Format</h4>
+                <p className="text-[11px] text-black-800 dark:text-black-800 leading-relaxed">
+                  Your file should contain the following columns:
+                  <br />
+                  <code className="text">Name (required)</code>, <code className="text">Location</code>, <code className="text">Client</code>, <code className="text">Status</code>, <code className="text">Budget</code>, <code className="text">Duration</code>, <code className="text">Description</code>
+                </p>
+                <div className="pt-2">
+                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Status Values:</p>
+                  <p className="text-[10px] text-gray-500">Planning, Bidding, Active, Completed, On Hold</p>
+                </div>
+                <Button
+                  variant="link"
+                  className="h-auto p-0 text-black-600 dark:text-black-600 text-[11px] font-bold"
+                  onClick={downloadCSVTemplate}
+                >
+                  Download CSV Template
+                </Button>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-gray-700 dark:text-gray-300">Select File</Label>
+                <Input
+                  type="file"
+                  accept=".csv,.xlsx,.xls,.pdf"
+                  onChange={handleBulkFileChange}
+                  className="bg-gray-100 dark:bg-black/20 border-gray-200 dark:border-white/10 h-12 pt-2.5"
+                />
+                <p className="text-[10px] text-gray-400 italic">Supported formats: .csv, .xlsx, .xls, .pdf</p>
+              </div>
+
+              {selectedBulkFile && (
+                <div className="flex items-center gap-2 p-3 rounded-lg bg-accent/10 border border-accent/20">
+                  <FileText className="w-4 h-4 text-accent" />
+                  <span className="text-xs font-medium truncate">{selectedBulkFile.name}</span>
+                  <span className="text-[10px] text-gray-500">({(selectedBulkFile.size / 1024).toFixed(1)} KB)</span>
+                </div>
+              )}
+            </div>
+
+            <DialogFooter className="pt-2">
+              <Button variant="ghost" onClick={() => setShowBulkUploadModal(false)} className="text-gray-500">Cancel</Button>
+              <Button
+                onClick={handleBulkUpload}
+                disabled={!selectedBulkFile || isBulkUploading}
+                className="bg-accent hover:bg-accent/90 text-accent-foreground font-bold h-11 px-8 rounded-xl shadow-lg shadow-accent/10 transition-all active:scale-95"
+              >
+                {isBulkUploading ? "Processing..." : "Start Import"}
               </Button>
             </DialogFooter>
           </DialogContent>

@@ -18,6 +18,14 @@ export interface CompanySearchFilters {
   locally_owned?: boolean;
   offers_custom_work?: boolean;
   language?: string;
+  state?: string;
+  radius?: string | number;
+  certifications?: string;
+  project_type?: string;
+  bonded?: boolean;
+  insured?: boolean;
+  availability?: string;
+  search?: string;
   // Backend pagination support
   page?: number;
   limit?: number;
@@ -112,6 +120,14 @@ export const companyService = {
     if (filters.locally_owned !== undefined) params.append('locally_owned', filters.locally_owned.toString());
     if (filters.offers_custom_work !== undefined) params.append('offers_custom_work', filters.offers_custom_work.toString());
     if (filters.language) params.append('language', filters.language);
+    if (filters.state) params.append('state', filters.state);
+    if (filters.radius) params.append('radius', filters.radius.toString());
+    if (filters.certifications) params.append('certifications', filters.certifications);
+    if (filters.project_type) params.append('project_type', filters.project_type);
+    if (filters.bonded !== undefined) params.append('bonded', filters.bonded.toString());
+    if (filters.insured !== undefined) params.append('insured', filters.insured.toString());
+    if (filters.availability) params.append('availability', filters.availability);
+    if (filters.search) params.append('search', filters.search);
     if (filters.page !== undefined) params.append('page', filters.page.toString());
     if (filters.limit !== undefined) params.append('limit', filters.limit.toString());
 

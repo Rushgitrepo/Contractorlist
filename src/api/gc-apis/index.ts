@@ -30,6 +30,13 @@ export const createProject = async (projectData: any) => {
 };
 
 /**
+ * Bulk Upload Projects
+ */
+export const bulkUploadProjects = async (file: File) => {
+    return await gcAPI.bulkUploadProjects(file);
+};
+
+/**
  * Update Project
  */
 export const updateProject = async (id: number, projectData: any) => {

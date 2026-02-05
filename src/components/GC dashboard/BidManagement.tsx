@@ -13,6 +13,16 @@ import {
     DialogFooter
 } from "@/components/ui/dialog";
 import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
     Gavel,
     Search,
     Filter,
@@ -60,6 +70,25 @@ const BidManagement = () => {
     // Edit Mode State
     const [isEditing, setIsEditing] = useState(false);
     const [editableItems, setEditableItems] = useState<any[]>([]);
+
+    // Alert Dialog State
+    const [alertConfig, setAlertConfig] = useState<{
+        isOpen: boolean;
+        title: string;
+        description: string;
+        onConfirm: () => void;
+        variant: 'default' | 'destructive';
+    }>({
+        isOpen: false,
+        title: '',
+        description: '',
+        onConfirm: () => { },
+        variant: 'default'
+    });
+
+    const confirmAction = (title: string, description: string, onConfirm: () => void, variant: 'default' | 'destructive' = 'default') => {
+        setAlertConfig({ isOpen: true, title, description, onConfirm, variant });
+    };
 
     const handleEditItems = () => {
         if (!bidDetails) return;
@@ -181,24 +210,29 @@ const BidManagement = () => {
     };
 
     const handleDeleteBid = async (id: string) => {
-        if (!confirm("Are you sure you want to delete this bid? This action cannot be undone.")) return;
-
-        try {
-            await deleteBid(id);
-            toast({
-                title: "Bid Deleted",
-                description: "Your proposal has been removed from the system.",
-            });
-            if (isDetailOpen) setIsDetailOpen(false);
-            loadBids();
-        } catch (error: any) {
-            console.error("Failed to delete bid", error);
-            toast({
-                title: "Error",
-                description: error.message || "Failed to delete bid.",
-                variant: "destructive"
-            });
-        }
+        confirmAction(
+            "Delete Bid?",
+            "Are you sure you want to delete this bid? This action cannot be undone.",
+            async () => {
+                try {
+                    await deleteBid(id);
+                    toast({
+                        title: "Bid Deleted",
+                        description: "Your proposal has been removed from the system.",
+                    });
+                    if (isDetailOpen) setIsDetailOpen(false);
+                    loadBids();
+                } catch (error: any) {
+                    console.error("Failed to delete bid", error);
+                    toast({
+                        title: "Error",
+                        description: error.message || "Failed to delete bid.",
+                        variant: "destructive"
+                    });
+                }
+            },
+            "destructive"
+        );
     };
 
     const getStatusInfo = (status: string) => {
@@ -584,6 +618,31 @@ const BidManagement = () => {
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
+
+            <AlertDialog open={alertConfig.isOpen} onOpenChange={(open) => {
+                if (!open) setAlertConfig(prev => ({ ...prev, isOpen: false }));
+            }}>
+                <AlertDialogContent className="bg-white dark:bg-[#1c1e24] border-gray-200 dark:border-white/10 text-gray-900 dark:text-white">
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>{alertConfig.title}</AlertDialogTitle>
+                        <AlertDialogDescription className="text-gray-500 dark:text-gray-400">
+                            {alertConfig.description}
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel onClick={() => setAlertConfig(prev => ({ ...prev, isOpen: false }))}>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
+                            onClick={() => {
+                                alertConfig.onConfirm();
+                                setAlertConfig(prev => ({ ...prev, isOpen: false }));
+                            }}
+                            className={cn(alertConfig.variant === 'destructive' ? "bg-red-600 hover:bg-red-700 focus:ring-red-600 border-none" : "bg-accent hover:bg-accent/90 text-accent-foreground")}
+                        >
+                            Confirm
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     );
 };

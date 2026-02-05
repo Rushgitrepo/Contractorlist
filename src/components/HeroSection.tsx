@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
   Building,
@@ -25,6 +25,23 @@ const HeroSection = () => {
   const [showAllCategories, setShowAllCategories] = useState(false);
   const [zipCode, setZipCode] = useState("");
   const { toast } = useToast();
+
+  const [serviceQuery, setServiceQuery] = useState("");
+
+  useEffect(() => {
+    const fetchGeoLocation = async () => {
+      try {
+        const response = await fetch('https://ipapi.co/json/');
+        const data = await response.json();
+        if (data.postal) {
+          setZipCode(data.postal);
+        }
+      } catch (error) {
+        console.error("Error fetching geo location:", error);
+      }
+    };
+    fetchGeoLocation();
+  }, []);
 
   const handleZipCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.replace(/\D/g, "");
@@ -52,7 +69,6 @@ const HeroSection = () => {
       });
     }
   };
-  const [serviceQuery, setServiceQuery] = useState("");
 
   const categories = [
     { icon: Bath, label: "Bathroom Remodel", service: "Bathroom Remodel" },

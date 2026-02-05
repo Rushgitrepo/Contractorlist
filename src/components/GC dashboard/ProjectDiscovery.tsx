@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,7 +13,7 @@ import {
   DialogFooter
 } from '@/components/ui/dialog';
 import { useNavigate } from 'react-router-dom';
-import { createBid, finalizeBidSubmission } from '@/api/gc-apis/backend';
+import { createBid, finalizeBidSubmission, getProjectDiscovery } from '@/api/gc-apis/backend';
 import { Textarea } from '@/components/ui/textarea';
 import {
   Select,
@@ -54,33 +54,54 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import ProjectFilters, { ProjectFilterState, CSI_DIVISIONS } from '@/components/projects/ProjectFilters';
 
 const ProjectDiscovery = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
-  const [searchQuery, setSearchQuery] = useState('');
-  const [locationSearch, setLocationSearch] = useState('');
-  const [selectedSources, setSelectedSources] = useState<string[]>([]);
-  const [selectedProjectTypes, setSelectedProjectTypes] = useState<string[]>([]);
-  const [maxMileage, setMaxMileage] = useState<string>('100');
-  const [selectedTrades, setSelectedTrades] = useState<string[]>([]);
-  const [selectedStatus, setSelectedStatus] = useState<string[]>([]);
-  const [nigpCode, setNigpCode] = useState('');
-  const [viewMode, setViewMode] = useState<'table' | 'card'>('card');
-  const [selectedProject, setSelectedProject] = useState<any>(null);
-  const [showDetailsModal, setShowDetailsModal] = useState(false);
-  const [showAllTrades, setShowAllTrades] = useState(false);
-  const [minBudget, setMinBudget] = useState('');
-  const [maxBudget, setMaxBudget] = useState('');
-  const [minSize, setMinSize] = useState('');
-  const [maxSize, setMaxSize] = useState('');
-  const [dueWithin, setDueWithin] = useState('any');
-  const [multipleKeywords, setMultipleKeywords] = useState('');
 
-  // State for projects
+  // Advanced Filter States (Synced with Main Directory)
+  const [filters, setFilters] = useState<ProjectFilterState>({
+    location: "",
+    radius: 100,
+    keywords: "",
+    stages: [],
+    solicitationStatus: [],
+    categories: [],
+    sectors: [],
+    constructionTypes: [],
+    laborRequirements: [],
+    trades: [],
+    valueRanges: [],
+    minBudget: "",
+    maxBudget: "",
+    minSize: "",
+    maxSize: "",
+    sources: [],
+    nigpCode: "",
+    bidDateFrom: "",
+    bidDateTo: "",
+    documentsOnly: false,
+    savedOnly: false,
+    state: "",
+    city: "",
+    county: "",
+    publishDate: "",
+    biddingWithin: "",
+    materials: [],
+    experienceLevel: "",
+    bonded: false,
+    insured: false,
+    specAlerts: false
+  });
+
+  const [searchQuery, setSearchQuery] = useState('');
+  const [viewMode, setViewMode] = useState<'table' | 'card'>('card');
   const [projects, setProjects] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isCreatingBid, setIsCreatingBid] = useState(false);
+  const [selectedProject, setSelectedProject] = useState<any>(null);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
 
   // New Bid Form State
   const [showBidModal, setShowBidModal] = useState(false);
@@ -104,10 +125,8 @@ const ProjectDiscovery = () => {
 
     try {
       setIsCreatingBid(true);
-
       const totalPrice = calculateTotal();
 
-      // 1. Create the bid
       const bid = await createBid({
         projectId: selectedProject.id,
         totalPrice: totalPrice,
@@ -120,7 +139,6 @@ const ProjectDiscovery = () => {
         credentials: bidCredentials
       });
 
-      // 2. Automatically submit it
       await finalizeBidSubmission(bid.id);
 
       toast({
@@ -148,9 +166,7 @@ const ProjectDiscovery = () => {
     const fetchProjects = async () => {
       try {
         setIsLoading(true);
-        // Dynamically import the API client to avoid circular dependencies if any
-        const api = await import('@/api/gc-apis/backend');
-        const data = await api.getProjectDiscovery();
+        const data = await getProjectDiscovery();
         setProjects(data);
       } catch (error) {
         console.error("Failed to fetch marketplace projects:", error);
@@ -167,142 +183,87 @@ const ProjectDiscovery = () => {
     fetchProjects();
   }, [toast]);
 
-  const projectCategories = ['Commercial', 'Residential', 'Industrial', 'Healthcare', 'Educational', 'Multi-Family', 'Government'];
-  const sources = ['PlanHub', 'Dodge Construction'];
-  const projectStatuses = ['Open', 'Bidding', 'Awarded', 'Closed'];
-  const mileageOptions = ['10', '25', '50', '100', '250'];
-  const trades = [
-    'Procurement & Contracting',
-    'General Requirements',
-    'Existing Conditions',
-    'Concrete',
-    'Masonry',
-    'Metals',
-    'Wood, Plastics & Composites',
-    'Thermal & Moisture Protection',
-    'Openings',
-    'Finishes',
-    'Specialties',
-    'Equipment',
-    'Furnishings',
-    'Special Construction',
-    'Conveying Equipment',
-    'Fire Suppression',
-    'Plumbing',
-    'HVAC',
-    'Integrated Automation',
-    'Electrical',
-    'Communications',
-    'Electronic Safety & Security',
-    'Earthwork',
-    'Exterior Improvements',
-    'Utilities',
-    'Transportation',
-    'Waterway & Marine',
-    'Process Interconnections',
-    'Material Processing',
-    'Process Heating/Cooling',
-    'Gas/Liquid Handling',
-    'Pollution Control',
-    'Electrical Power Generation'
-  ];
-
-  // Consolidated Advanced Filtering Logic
-  const filteredProjects = projects
-    .filter(p => {
-      // 1. Header Search Phrase (OR match across title/description/trades)
+  // Combined Filtering Logic
+  const filteredProjects = useMemo(() => {
+    return projects.filter(p => {
+      // 1. Header Search Phrase
       const matchesSearch = !searchQuery ||
         p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         p.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        p.trades.some(t => t.toLowerCase().includes(searchQuery.toLowerCase()));
+        p.trades.some((t: string) => t.toLowerCase().includes(searchQuery.toLowerCase()));
 
-      // 2. Multiple Keywords (AND match - all terms must exist somewhere)
-      const keywordsList = multipleKeywords.split(',').map(k => k.trim().toLowerCase()).filter(k => k !== '');
-      const matchesMultipleKeywords = keywordsList.length === 0 ||
-        keywordsList.every(k =>
-          p.name.toLowerCase().includes(k) ||
-          p.description.toLowerCase().includes(k) ||
-          p.trades.some(t => t.toLowerCase().includes(k))
-        );
+      if (!filters) return matchesSearch;
 
-      // 3. Service Region
-      const matchesLocation = !locationSearch || locationSearch === 'AllRegions' ||
-        p.location.toLowerCase().includes(locationSearch.toLowerCase());
+      // 2. Keywords filter
+      const keywords = filters.keywords?.toLowerCase() || "";
+      const matchesKeywords = !keywords ||
+        p.name.toLowerCase().includes(keywords) ||
+        p.description.toLowerCase().includes(keywords);
 
-      // 4. NIGP Code (Prefix match)
-      const matchesNigp = !nigpCode || p.nigpCode.includes(nigpCode);
+      // 3. Location/Radius filter
+      const matchesLocation = !filters.location ||
+        p.location.toLowerCase().includes(filters.location.toLowerCase());
 
-      // 5. Project Category
-      const matchesType = selectedProjectTypes.length === 0 || selectedProjectTypes.includes(p.category);
+      const matchesMileage = !filters.radius || (p.distanceValue || 0) <= filters.radius;
 
-      // 6. Solicitation Status
-      const matchesStatus = selectedStatus.length === 0 || selectedStatus.includes(p.status);
+      // 4. NIGP Code
+      const matchesNigp = !filters.nigpCode || (p.nigpCode && p.nigpCode.includes(filters.nigpCode));
 
-      // 7. Marketplace Source
-      const matchesSource = selectedSources.length === 0 || selectedSources.includes(p.source);
+      // 5. Project Types / Categories
+      const matchesType = filters.categories.length === 0 || filters.categories.includes(p.category);
 
-      // 8. Operational Radius
-      const matchesMileage = p.distanceValue <= parseInt(maxMileage);
+      // 6. Status
+      const matchesStatus = filters.solicitationStatus.length === 0 || filters.solicitationStatus.includes(p.status);
 
-      // 9. CSI Divisions / Trades
-      const matchesTrades = selectedTrades.length === 0 || p.trades.some(t => selectedTrades.includes(t));
+      // 7. Sources
+      const matchesSource = filters.sources.length === 0 || filters.sources.includes(p.source);
 
-      // 10. Budget Range
+      // 8. Trades
+      const matchesTrades = filters.trades.length === 0 ||
+        p.trades.some((t: string) => filters.trades.some(ft => t.toLowerCase().includes(ft.toLowerCase())));
+
+      // 9. Budget
       const getBudgetValue = (b: string) => {
-        // Handle "$2.4M", "$100k", etc.
         const numeric = parseFloat(b.replace(/[^0-9.]/g, ''));
         if (isNaN(numeric)) return 0;
         if (b.toLowerCase().includes('m')) return numeric * 1000000;
         if (b.toLowerCase().includes('k')) return numeric * 1000;
         return numeric;
       };
-      // For range values take the min
-      const projectPrice = getBudgetValue(p.budget.split('-')[0]);
-      const filterMin = minBudget ? parseFloat(minBudget) : -Infinity;
-      const filterMax = maxBudget ? parseFloat(maxBudget) : Infinity;
-      const matchesBudget = projectPrice >= filterMin && projectPrice <= filterMax;
+      const projectPrice = getBudgetValue(p.budget || "0");
+      const minB = filters.minBudget ? parseFloat(filters.minBudget) : -Infinity;
+      const maxB = filters.maxBudget ? parseFloat(filters.maxBudget) : Infinity;
+      const matchesBudget = projectPrice >= minB && projectPrice <= maxB;
 
-      // 11. Size Range (SQFT)
-      const projectSqft = parseInt(p.sqft.replace(/[^0-9]/g, '')) || 0;
-      const filterMinSize = minSize ? parseInt(minSize) : -Infinity;
-      const filterMaxSize = maxSize ? parseInt(maxSize) : Infinity;
-      const matchesSize = projectSqft >= filterMinSize && projectSqft <= filterMaxSize;
+      // 10. Size
+      const projectSqft = parseInt((p.sqft || "0").replace(/[^0-9]/g, '')) || 0;
+      const minS = filters.minSize ? parseInt(filters.minSize) : -Infinity;
+      const maxS = filters.maxSize ? parseInt(filters.maxSize) : Infinity;
+      const matchesSize = projectSqft >= minS && projectSqft <= maxS;
 
-      // 12. Bid Due Urgency
+      // 11. Bid Due Urgency
       const deadlineDate = new Date(p.deadline);
       const today = new Date();
       const diffDays = Math.ceil((deadlineDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-      const matchesUrgency = dueWithin === 'any' ||
-        (dueWithin === '7' && diffDays <= 7) ||
-        (dueWithin === '30' && diffDays <= 30);
+      const matchesUrgency = !filters.biddingWithin || filters.biddingWithin === 'any' ||
+        (filters.biddingWithin === '7' && diffDays <= 7) ||
+        (filters.biddingWithin === '30' && diffDays <= 30);
 
-      return matchesSearch && matchesMultipleKeywords && matchesLocation && matchesNigp &&
-        matchesType && matchesStatus && matchesSource && matchesMileage &&
+      return matchesSearch && matchesKeywords && matchesLocation && matchesMileage &&
+        matchesNigp && matchesType && matchesStatus && matchesSource &&
         matchesTrades && matchesBudget && matchesSize && matchesUrgency;
-    })
-    .sort((a, b) => {
-      // Prioritize Profile Matches, then by score
+    }).sort((a, b) => {
       if (a.isProfileMatch && !b.isProfileMatch) return -1;
       if (!a.isProfileMatch && b.isProfileMatch) return 1;
       return b.matchScore - a.matchScore;
     });
-
-  const toggleFilter = (item: string, state: string[], setState: (val: string[]) => void) => {
-    setState(state.includes(item) ? state.filter(i => i !== item) : [...state, item]);
-  };
-
-  const handleSaveSearch = () => {
-    toast({
-      title: "Search Criteria Saved",
-      description: "You will receive alerts for new projects matching these industry filters.",
-    });
-  };
+  }, [projects, searchQuery, filters]);
 
   return (
-    <div className="flex h-full w-full flex-col bg-white dark:bg-[#0f1115] text-gray-900 dark:text-white transition-colors duration-500 overflow-hidden font-sans">
+    <div className="flex h-full w-full flex-col bg-white dark:bg-[#0f1115] text-gray-900 dark:text-white transition-colors overflow-hidden font-sans">
 
       {/* Re-themed Industry Search Header */}
-      <div className="relative bg-gray-50/80 dark:bg-[#1c1e24]/80 border-b border-gray-200 dark:border-white/5 px-8 py-8 z-20 backdrop-blur-xl">
+      <div className="relative bg-gray-50 dark:bg-[#1c1e24] border-b border-gray-200 dark:border-white/5 px-8 py-8 z-20">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-wrap items-end gap-6">
             {/* Search Phrase */}
@@ -319,30 +280,21 @@ const ProjectDiscovery = () => {
               </div>
             </div>
 
-
-            {/* Region Dropdown */}
+            {/* Region Input */}
             <div className="w-64 space-y-2">
               <label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Service Region</label>
-              <Select
-                value={locationSearch}
-                onValueChange={setLocationSearch}
-              >
-                <SelectTrigger className="h-11 bg-white dark:bg-black/20 border-gray-200 dark:border-white/10 rounded-xl text-gray-900 dark:text-white focus:ring-2 focus:ring-yellow-400 shadow-sm">
-                  <SelectValue placeholder="Select Region" />
-                </SelectTrigger>
-                <SelectContent className="dark:bg-[#1c1e24] dark:border-white/10">
-                  <SelectItem value="AllRegions">All Regions</SelectItem>
-                  <SelectItem value="Austin">Austin, TX</SelectItem>
-                  <SelectItem value="Round Rock">Round Rock, TX</SelectItem>
-                  <SelectItem value="San Marcos">San Marcos, TX</SelectItem>
-                </SelectContent>
-              </Select>
+              <Input
+                placeholder="Enter city or region..."
+                value={filters.location}
+                onChange={(e) => setFilters(prev => ({ ...prev, location: e.target.value }))}
+                className="h-11 bg-white dark:bg-black/20 border-gray-200 dark:border-white/10 rounded-xl text-gray-900 dark:text-white focus-visible:ring-2 focus-visible:ring-yellow-400 shadow-sm"
+              />
             </div>
 
             {/* Action Buttons */}
             <div className="flex flex-col items-end gap-2">
               <Button
-                className="h-11 px-10 bg-yellow-400 hover:bg-yellow-500 text-black font-black uppercase text-[11px] tracking-widest rounded-xl shadow-lg shadow-yellow-400/20 transition-all"
+                className="h-11 px-10 bg-yellow-400 hover:bg-yellow-500 text-black font-black uppercase text-[11px] tracking-widest rounded-xl shadow-sm transition-all"
                 onClick={() => {
                   toast({
                     title: "Fetching Results",
@@ -355,18 +307,39 @@ const ProjectDiscovery = () => {
               <button
                 onClick={() => {
                   setSearchQuery('');
-                  setSelectedProjectTypes([]);
-                  setSelectedSources([]);
-                  setSelectedStatus([]);
-                  setSelectedTrades([]);
-                  setLocationSearch('');
-                  setNigpCode('');
-                  setMinBudget('');
-                  setMaxBudget('');
-                  setMinSize('');
-                  setMaxSize('');
-                  setDueWithin('any');
-                  setMultipleKeywords('');
+                  setFilters({
+                    location: "",
+                    radius: 100,
+                    keywords: "",
+                    stages: [],
+                    solicitationStatus: [],
+                    categories: [],
+                    sectors: [],
+                    constructionTypes: [],
+                    laborRequirements: [],
+                    trades: [],
+                    valueRanges: [],
+                    minBudget: "",
+                    maxBudget: "",
+                    minSize: "",
+                    maxSize: "",
+                    sources: [],
+                    nigpCode: "",
+                    bidDateFrom: "",
+                    bidDateTo: "",
+                    documentsOnly: false,
+                    savedOnly: false,
+                    state: "",
+                    city: "",
+                    county: "",
+                    publishDate: "",
+                    biddingWithin: "",
+                    materials: [],
+                    experienceLevel: "",
+                    bonded: false,
+                    insured: false,
+                    specAlerts: false
+                  });
                 }}
                 className="text-yellow-600 dark:text-yellow-500 text-[10px] font-black uppercase tracking-widest hover:underline flex items-center gap-1"
               >
@@ -385,194 +358,8 @@ const ProjectDiscovery = () => {
 
       <div className="flex-1 flex overflow-hidden relative z-10">
         {/* Industry Advanced Filters Sidebar */}
-        <aside className="hidden xl:flex w-80 flex-col border-r border-gray-200 dark:border-white/5 bg-gray-50/50 dark:bg-black/10 overflow-y-auto p-6 scrollbar-hide space-y-8">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="text-[10px] font-black uppercase tracking-widest text-gray-400">Advanced Filters</h3>
-            <Button variant="link" size="sm" onClick={() => {
-              setSelectedProjectTypes([]); setSelectedSources([]); setSelectedStatus([]);
-              setSelectedTrades([]); setMaxMileage('100'); setNigpCode('');
-              setMinBudget(''); setMaxBudget(''); setMinSize(''); setMaxSize('');
-              setDueWithin('any'); setMultipleKeywords('');
-            }} className="text-[9px] uppercase font-bold text-yellow-600">Reset Signals</Button>
-          </div>
-
-          <div className="space-y-7">
-            {/* NIGP / Category Codes */}
-            <div className="space-y-3 p-4 rounded-2xl bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10">
-              <Label className="text-[10px] font-black uppercase tracking-widest text-gray-900 dark:text-white flex items-center gap-2">
-                <Tag size={12} /> NIGP/Classification Code
-              </Label>
-              <Input
-                placeholder="Ex: 910-00, 906-00"
-                value={nigpCode}
-                onChange={(e) => setNigpCode(e.target.value)}
-                className="h-9 bg-white dark:bg-black/20 border-gray-200 dark:border-white/10 text-xs rounded-xl"
-              />
-              <p className="text-[9px] text-gray-500 italic">Standardized Procurement Codes</p>
-            </div>
-
-            {/* Keyword Search (Multiple) */}
-            <div className="space-y-3">
-              <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 flex items-center gap-2">
-                <FileSearch size={12} className="text-yellow-600" /> Multiple Key Terms
-              </Label>
-              <Input
-                placeholder="Comma separated: retail, HVAC, hospital"
-                value={multipleKeywords}
-                onChange={(e) => setMultipleKeywords(e.target.value)}
-                className="h-9 bg-white dark:bg-black/20 border-gray-200 dark:border-white/10 text-xs rounded-xl"
-              />
-            </div>
-
-            {/* Budget Range (PlanHub centric) */}
-            <div className="space-y-3">
-              <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 flex items-center gap-2">
-                <DollarSign size={12} className="text-yellow-600" /> Project Value Range
-              </Label>
-              <div className="grid grid-cols-2 gap-2">
-                <Input
-                  placeholder="Min $"
-                  value={minBudget}
-                  onChange={(e) => setMinBudget(e.target.value)}
-                  className="h-9 bg-white dark:bg-black/20 border-gray-200 dark:border-white/10 text-xs rounded-xl"
-                />
-                <Input
-                  placeholder="Max $"
-                  value={maxBudget}
-                  onChange={(e) => setMaxBudget(e.target.value)}
-                  className="h-9 bg-white dark:bg-black/20 border-gray-200 dark:border-white/10 text-xs rounded-xl"
-                />
-              </div>
-            </div>
-
-            {/* Project Size Range */}
-            <div className="space-y-3">
-              <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 flex items-center gap-2">
-                <Building2 size={12} className="text-yellow-600" /> Size Range (SQFT)
-              </Label>
-              <div className="grid grid-cols-2 gap-2">
-                <Input
-                  placeholder="Min SQFT"
-                  value={minSize}
-                  onChange={(e) => setMinSize(e.target.value)}
-                  className="h-9 bg-white dark:bg-black/20 border-gray-200 dark:border-white/10 text-xs rounded-xl"
-                />
-                <Input
-                  placeholder="Max SQFT"
-                  value={maxSize}
-                  onChange={(e) => setMaxSize(e.target.value)}
-                  className="h-9 bg-white dark:bg-black/20 border-gray-200 dark:border-white/10 text-xs rounded-xl"
-                />
-              </div>
-            </div>
-
-            {/* Bid Urgency */}
-            <div className="space-y-3">
-              <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 flex items-center gap-2">
-                <Clock size={12} className="text-yellow-600" /> Bid Due Urgency
-              </Label>
-              <Select value={dueWithin} onValueChange={setDueWithin}>
-                <SelectTrigger className="h-9 bg-white dark:bg-black/20 border-gray-200 dark:border-white/10 text-xs rounded-xl">
-                  <SelectValue placeholder="All Timelines" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="any">All Timelines</SelectItem>
-                  <SelectItem value="7">Due within 7 days</SelectItem>
-                  <SelectItem value="30">Due within 30 days</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* PlanHub Style: Proximity/Mileage */}
-            <div className="space-y-3">
-              <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 flex items-center gap-2">
-                <Navigation size={12} className="text-yellow-600" /> Operational Radius
-              </Label>
-              <div className="flex flex-wrap gap-1.5">
-                {mileageOptions.map(m => (
-                  <button
-                    key={m}
-                    onClick={() => setMaxMileage(m)}
-                    className={cn(
-                      "px-3 py-1.5 rounded-lg text-[9px] font-bold border transition-all",
-                      maxMileage === m ? "bg-yellow-400 border-yellow-400 text-black" : "border-gray-200 dark:border-white/5 text-gray-500 hover:border-yellow-400"
-                    )}
-                  >
-                    {m} mi
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Status Filters */}
-            <div className="space-y-3">
-              <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 flex items-center gap-2">
-                <ShieldCheck size={12} className="text-yellow-600" /> Solictation Status
-              </Label>
-              <div className="grid grid-cols-2 gap-2">
-                {projectStatuses.map(status => (
-                  <button
-                    key={status}
-                    onClick={() => toggleFilter(status, selectedStatus, setSelectedStatus)}
-                    className={cn(
-                      "py-1.5 rounded-lg text-[9px] font-bold border transition-all",
-                      selectedStatus.includes(status) ? "bg-black dark:bg-white border-black dark:border-white text-white dark:text-black" : "border-gray-200 dark:border-white/5 text-gray-500"
-                    )}
-                  >
-                    {status}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Project Categories (PlanHub style) */}
-            <div className="space-y-3">
-              <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 flex items-center gap-2">
-                <Building2 size={12} className="text-yellow-600" /> Project Categories
-              </Label>
-              <div className="flex flex-wrap gap-2">
-                {['Commercial', 'Residential', 'Industrial', 'Institutional', 'Infrastructure', 'Healthcare'].map(cat => (
-                  <button
-                    key={cat}
-                    onClick={() => toggleFilter(cat, selectedProjectTypes, setSelectedProjectTypes)}
-                    className={cn(
-                      "px-3 py-1.5 rounded-lg text-[9px] font-bold border transition-all",
-                      selectedProjectTypes.includes(cat) ? "bg-black dark:bg-white border-black dark:border-white text-white dark:text-black" : "border-gray-200 dark:border-white/5 text-gray-500"
-                    )}
-                  >
-                    {cat}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-
-
-            {/* Trade Specialty (PlanHub centric) */}
-            <div className="space-y-3">
-              <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 flex items-center gap-2">
-                <Hammer size={12} className="text-yellow-600" /> Trades
-              </Label>
-              <div className="grid grid-cols-1 gap-1">
-                {(showAllTrades ? trades : trades.slice(0, 10)).map(t => (
-                  <div key={t} className="flex items-center gap-2 cursor-pointer group py-1" onClick={() => toggleFilter(t, selectedTrades, setSelectedTrades)}>
-                    <div className={cn("w-3.5 h-3.5 rounded border flex items-center justify-center transition-all", selectedTrades.includes(t) ? "bg-yellow-500 border-yellow-500" : "border-gray-300 dark:border-white/10 group-hover:border-yellow-400")}>
-                      {selectedTrades.includes(t) && <CheckCircle2 size={10} className="text-black" />}
-                    </div>
-                    <span className={cn("text-[11px] font-bold transition-all", selectedTrades.includes(t) ? "text-gray-900 dark:text-white" : "text-gray-500 dark:text-gray-400 group-hover:pl-0.5")}>{t}</span>
-                  </div>
-                ))}
-                <Button
-                  variant="link"
-                  size="sm"
-                  onClick={(e) => { e.stopPropagation(); setShowAllTrades(!showAllTrades); }}
-                  className="h-auto p-0 text-[10px] font-black uppercase text-yellow-600 dark:text-yellow-500 hover:no-underline flex items-center gap-1 mt-2 w-fit"
-                >
-                  {showAllTrades ? 'Show Less' : `+${trades.length - 10} More Divisions`}
-                </Button>
-              </div>
-            </div>
-          </div>
+        <aside className="w-80 bg-gray-50 dark:bg-[#13151b] border-r border-gray-200 dark:border-white/10 hidden xl:flex flex-col overflow-y-auto custom-scrollbar">
+          <ProjectFilters onFiltersChange={setFilters} initialFilters={filters} />
         </aside>
 
         {/* Project Feed */}
@@ -584,7 +371,6 @@ const ProjectDiscovery = () => {
                 <h2 className="text-xl font-black">Consolidated Bid Feed</h2>
                 <div className="flex gap-2">
                   <Badge variant="outline" className="text-[9px] border-none text-gray-500 bg-gray-100 dark:bg-white/5 px-3 py-1 uppercase">{filteredProjects.length} Projects Available</Badge>
-                  {selectedSources.length > 0 && <Badge className="bg-black dark:bg-white text-white dark:text-black text-[9px] px-2">{selectedSources.join(' + ')}</Badge>}
                 </div>
               </div>
             </div>
@@ -594,7 +380,7 @@ const ProjectDiscovery = () => {
                 <Card
                   key={p.id}
                   className={cn(
-                    "group relative overflow-hidden bg-white dark:bg-[#1c1e24] border-gray-200 dark:border-white/5 transition-all duration-500 hover:scale-[1.02] cursor-pointer rounded-[2rem] hover:shadow-2xl",
+                    "group relative overflow-hidden bg-white dark:bg-[#1c1e24] border-gray-200 dark:border-white/5 transition-all cursor-pointer rounded-2xl hover:shadow-lg",
                     p.isProfileMatch ? "ring-2 ring-yellow-400/30" : ""
                   )}
                   onClick={() => { setSelectedProject(p); setShowDetailsModal(true); }}
@@ -613,7 +399,7 @@ const ProjectDiscovery = () => {
                   <CardContent className="p-8">
                     <div className="flex flex-col h-full gap-6">
                       <div className="flex justify-between items-start">
-                        <Badge className="bg-gray-100 dark:bg-white/10 text-gray-900 dark:text-white border-none font-black text-[9px] h-5 tracking-widest">{p.source.toUpperCase()}</Badge>
+                        <Badge className="bg-gray-100 dark:bg-white/10 text-gray-900 dark:text-white border-none font-black text-[9px] h-5 tracking-widest uppercase">{p.source}</Badge>
                         <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">{p.posted}</span>
                       </div>
 
@@ -629,8 +415,8 @@ const ProjectDiscovery = () => {
                         </div>
                       </div>
 
-                      <div className="flex flex-wrap gap-1.5">
-                        {p.trades.map(t => (
+                      <div className="flex flex-wrap gap-1.5 focus-visible:ring-0">
+                        {p.trades?.map((t: string) => (
                           <span key={t} className="text-[9px] font-bold px-2 py-0.5 rounded-md bg-gray-100 dark:bg-white/5 text-gray-500">{t}</span>
                         ))}
                       </div>
@@ -648,10 +434,10 @@ const ProjectDiscovery = () => {
               ))}
 
               {filteredProjects.length === 0 && (
-                <div className="col-span-full py-24 flex flex-col items-center justify-center text-center bg-gray-50 dark:bg-white/[0.02] rounded-[3rem] border-2 border-dashed border-gray-200 dark:border-white/5">
+                <div className="col-span-full py-24 flex flex-col items-center justify-center text-center bg-gray-50 dark:bg-white/[0.02] rounded-2xl border-2 border-dashed border-gray-200 dark:border-white/5">
                   <FileSearch size={48} className="text-gray-300 mb-4" />
                   <h4 className="text-2xl font-black tracking-tight mb-2">No Market Signals Found</h4>
-                  <p className="text-gray-500 max-w-sm font-bold text-sm">No solicitations match your NIGP codes or multiple keyword criteria. Try clearing some industry signals.</p>
+                  <p className="text-gray-500 max-w-sm font-bold text-sm">No solicitations match your criteria. Try clearing some industry signals.</p>
                 </div>
               )}
             </div>
@@ -659,9 +445,9 @@ const ProjectDiscovery = () => {
         </main>
       </div>
 
-      {/* Industry Standard Details Modal */}
+      {/* Details Modal */}
       <Dialog open={showDetailsModal} onOpenChange={setShowDetailsModal}>
-        <DialogContent className="max-w-2xl p-0 overflow-hidden bg-white dark:bg-[#111318] border-gray-200 dark:border-white/10 shadow-3xl rounded-[2rem]">
+        <DialogContent className="max-w-2xl p-0 overflow-hidden bg-white dark:bg-[#111318] border-gray-200 dark:border-white/10 shadow-2xl rounded-2xl">
           {selectedProject && (
             <div className="flex flex-col">
               <div className="bg-gray-100/50 dark:bg-black/30 p-8 border-b border-gray-100 dark:border-white/5">
@@ -692,7 +478,7 @@ const ProjectDiscovery = () => {
                     <p className="text-sm font-black font-mono">{selectedProject.budget}</p>
                   </div>
                   <div className="p-4 rounded-2xl bg-gray-50 dark:bg-white/[0.02] border border-gray-100 dark:border-white/5">
-                    <p className="text-[9px] font-black uppercase text-gray-400 tracking-widest mb-1">Operational Area</p>
+                    <p className="text-[9px] font-black uppercase text-gray-400 tracking-widest mb-1">Scale</p>
                     <p className="text-sm font-black">{selectedProject.sqft} SQFT</p>
                   </div>
                   <div className="p-4 rounded-2xl bg-gray-50 dark:bg-white/[0.02] border border-gray-100 dark:border-white/5">
@@ -723,19 +509,11 @@ const ProjectDiscovery = () => {
                     </div>
                   </div>
                 </div>
-
-                <div className="p-6 rounded-2xl bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 space-y-4">
-                  <h4 className="text-[10px] font-black uppercase tracking-widest text-gray-900 dark:text-white">Market Integration</h4>
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="text-gray-500 font-bold italic">This lead is synchronized with external procurement networks. View matching documents below.</span>
-                    <Button variant="link" className="h-auto p-0 text-black dark:text-white font-black text-[10px] uppercase">Analyze Solicitation</Button>
-                  </div>
-                </div>
               </div>
 
               <div className="p-8 bg-gray-100 dark:bg-black/30 border-t border-gray-100 dark:border-white/5 flex gap-4">
                 <Button onClick={() => setShowDetailsModal(false)} variant="outline" className="flex-1 h-12 rounded-xl text-[10px] font-black uppercase tracking-widest dark:border-white/10">Dismiss</Button>
-                <Button onClick={handleOpenBidModal} className="flex-[2] h-12 rounded-xl bg-yellow-400 hover:bg-yellow-500 text-black font-black uppercase text-[10px] tracking-widest shadow-xl">
+                <Button onClick={handleOpenBidModal} className="flex-[2] h-12 rounded-xl bg-yellow-400 hover:bg-yellow-500 text-black font-black uppercase text-[10px] tracking-widest shadow-lg">
                   {isCreatingBid ? 'Starting Bid...' : 'Bid on Project'}
                 </Button>
               </div>
@@ -746,7 +524,7 @@ const ProjectDiscovery = () => {
 
       {/* Bid Proposal Form Modal */}
       <Dialog open={showBidModal} onOpenChange={setShowBidModal}>
-        <DialogContent className="max-w-3xl bg-white dark:bg-[#111318] p-0 overflow-hidden border-gray-200 dark:border-white/10 shadow-3xl rounded-[2rem]">
+        <DialogContent className="max-w-3xl bg-white dark:bg-[#111318] p-0 overflow-hidden border-gray-200 dark:border-white/10 shadow-2xl rounded-2xl">
           <div className="flex flex-col max-h-[90vh]">
             <div className="p-8 bg-gray-100/50 dark:bg-black/30 border-b border-gray-100 dark:border-white/5">
               <div className="flex justify-between items-center mb-2">
@@ -786,7 +564,7 @@ const ProjectDiscovery = () => {
 
               <div className="space-y-3">
                 <div className="flex justify-between items-center">
-                  <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Proposal Items (Line Items)</Label>
+                  <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Line Items</Label>
                   <Button
                     size="sm"
                     variant="outline"
@@ -801,7 +579,7 @@ const ProjectDiscovery = () => {
                     <div key={index} className="flex gap-2 items-start p-4 bg-gray-50 dark:bg-white/[0.02] rounded-2xl border border-gray-100 dark:border-white/5">
                       <div className="flex-1 space-y-2">
                         <Input
-                          placeholder="Item Name (e.g., HVAC Installation)"
+                          placeholder="Item Name"
                           value={item.name}
                           onChange={(e) => {
                             const newItems = [...bidItems];
@@ -811,7 +589,7 @@ const ProjectDiscovery = () => {
                           className="h-9 bg-white dark:bg-black/20 text-xs rounded-xl"
                         />
                         <Input
-                          placeholder="Short description"
+                          placeholder="Description"
                           value={item.description}
                           onChange={(e) => {
                             const newItems = [...bidItems];
@@ -841,7 +619,7 @@ const ProjectDiscovery = () => {
                             variant="ghost"
                             size="sm"
                             onClick={() => setBidItems(bidItems.filter((_, i) => i !== index))}
-                            className="w-full text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 text-[10px] font-bold h-7 rounded-lg"
+                            className="w-full text-red-500 hover:text-red-600 text-[10px] font-bold h-7 rounded-lg"
                           >
                             <Trash2 className="w-3 h-3 mr-1" /> Remove
                           </Button>
@@ -855,7 +633,7 @@ const ProjectDiscovery = () => {
               <div className="p-6 rounded-3xl bg-yellow-50 dark:bg-yellow-900/10 border border-yellow-100 dark:border-yellow-900/20 space-y-6">
                 <div className="flex items-center gap-2">
                   <Star className="w-4 h-4 text-yellow-600 fill-current" />
-                  <h4 className="text-[11px] font-black uppercase tracking-tighter text-yellow-800 dark:text-yellow-500">The GC Edge (Attract the Client)</h4>
+                  <h4 className="text-[11px] font-black uppercase tracking-tighter text-yellow-800 dark:text-yellow-500">The GC Edge</h4>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -880,9 +658,9 @@ const ProjectDiscovery = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-[9px] font-black uppercase tracking-widest text-yellow-700/60">Relevant Experience (Prior Success)</Label>
+                  <Label className="text-[9px] font-black uppercase tracking-widest text-yellow-700/60">Relevant Experience</Label>
                   <Textarea
-                    placeholder="Describe similar projects you've handled..."
+                    placeholder="Describe similar projects..."
                     value={bidRelevantExperience}
                     onChange={(e) => setBidRelevantExperience(e.target.value)}
                     className="min-h-[80px] bg-white dark:bg-black/40 border-yellow-200 dark:border-yellow-900/30 text-xs rounded-xl"
@@ -891,9 +669,9 @@ const ProjectDiscovery = () => {
               </div>
 
               <div className="space-y-2">
-                <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Proposal Summary / Cover Notes</Label>
+                <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Proposal Summary</Label>
                 <Textarea
-                  placeholder="Summarize your expertise and project approach..."
+                  placeholder="Summarize your expertise..."
                   value={bidNotes}
                   onChange={(e) => setBidNotes(e.target.value)}
                   className="min-h-[120px] bg-white dark:bg-black/20 border-gray-200 dark:border-white/10 rounded-2xl p-4 text-sm"
@@ -902,14 +680,14 @@ const ProjectDiscovery = () => {
             </div>
 
             <div className="p-8 bg-gray-100 dark:bg-black/30 border-t border-gray-100 dark:border-white/5 flex gap-4">
-              <Button onClick={() => setShowBidModal(false)} variant="outline" className="flex-1 h-12 rounded-xl text-[10px] font-black uppercase tracking-widest dark:border-white/10">Back to Details</Button>
+              <Button onClick={() => setShowBidModal(false)} variant="outline" className="flex-1 h-12 rounded-xl text-[10px] font-black uppercase tracking-widest dark:border-white/10">Cancel</Button>
               <Button
                 onClick={handleSubmitBid}
                 disabled={isCreatingBid || calculateTotal() <= 0}
-                className="flex-[2] h-12 rounded-xl bg-yellow-400 hover:bg-yellow-500 text-black font-black uppercase text-[10px] tracking-widest shadow-xl disabled:opacity-50"
+                className="flex-[2] h-12 rounded-xl bg-yellow-400 hover:bg-yellow-500 text-black font-black uppercase text-[10px] tracking-widest shadow-lg disabled:opacity-50"
               >
                 <Briefcase className="w-4 h-4 mr-2" />
-                {isCreatingBid ? 'Submitting Proposal...' : 'Submit Official Proposal'}
+                {isCreatingBid ? 'Submitting...' : 'Submit Proposal'}
               </Button>
             </div>
           </div>

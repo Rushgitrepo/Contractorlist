@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import ReduxHeader from "@/components/ReduxHeader";
 import Footer from "@/components/Footer";
@@ -11,7 +11,8 @@ import {
   Bookmark,
   Bell,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Loader2
 } from "lucide-react";
 import ProductServiceTemplate from "@/components/projects/ProductServiceTemplate";
 import { Input } from "@/components/ui/input";
@@ -33,6 +34,7 @@ import {
 } from "@/components/ui/sheet";
 import ProjectCard, { Project } from "@/components/projects/ProjectCard";
 import ProjectFilters, { ProjectFilterState, CSI_DIVISIONS } from "@/components/projects/ProjectFilters";
+import { getProjectDiscovery } from "@/api/gc-apis/backend";
 
 // Mock data for demonstration
 const MOCK_PROJECTS: Project[] = [
@@ -85,16 +87,12 @@ const MOCK_PROJECTS: Project[] = [
     privatelyFunded: true,
     matchScore: 5,
     postedDate: "5 days ago",
-    sector: "Private",
-    sector: "Private",
-    constructionType: "New Construction",
-    laborRequirements: "Non-Union",
-    country: "United States",
-    county: "Bexar",
-    materials: ["Concrete", "Glass", "HVAC Equipment"],
     experienceRequired: "5-10 Years in Business",
     bondedRequired: false,
-    insuredRequired: true
+    insuredRequired: true,
+    status: "Bidding",
+    source: "Dodge Construction",
+    nigpCode: "912-00"
   },
   {
     id: "3",
@@ -124,7 +122,10 @@ const MOCK_PROJECTS: Project[] = [
     materials: ["Plumbing Fixtures", "Electrical Gear", "Flooring"],
     experienceRequired: "1-5 Years in Business",
     bondedRequired: true,
-    insuredRequired: true
+    insuredRequired: true,
+    status: "Open",
+    source: "ConstructConnect",
+    nigpCode: "910-00"
   },
   {
     id: "4",
@@ -145,9 +146,11 @@ const MOCK_PROJECTS: Project[] = [
     privatelyFunded: true,
     postedDate: "3 days ago",
     sector: "Private",
-    sector: "Private",
     constructionType: "New Construction",
     laborRequirements: "Non-Union",
+    status: "Closed",
+    source: "PlanHub",
+    nigpCode: "914-38",
     country: "United States",
     county: "Dallas",
     materials: ["Steel", "Concrete", "Heavy Machinery"],
@@ -747,158 +750,185 @@ const benefits = [
 const Projects = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const showListing = searchParams.get("view") === "listing";
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState(() => searchParams.get("query") || "");
   const [sortBy, setSortBy] = useState("newest");
   const [viewMode, setViewMode] = useState<"list" | "grid">("list" as "list" | "grid");
   const [currentPage, setCurrentPage] = useState(1);
   const [savedProjects, setSavedProjects] = useState<string[]>([]);
-  const [filters, setFilters] = useState<ProjectFilterState | null>(null);
+  const [filters, setFilters] = useState<ProjectFilterState | null>(() => {
+    const loc = searchParams.get("location");
+    if (loc) {
+      return {
+        location: loc,
+        radius: 50,
+        keywords: "",
+        stages: [],
+        solicitationStatus: [],
+        categories: [],
+        sectors: [],
+        constructionTypes: [],
+        laborRequirements: [],
+        documentsOnly: false,
+        savedOnly: false,
+        state: "",
+        city: "",
+        county: "",
+        publishDate: "any",
+        biddingWithin: "any",
+        materials: [],
+        experienceLevel: "",
+        bonded: false,
+        insured: false,
+        specAlerts: false,
+      };
+    }
+    return null;
+  });
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   const projectsPerPage = 10;
 
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        setIsLoading(true);
+        const data = await getProjectDiscovery();
+
+        // Map backend data to local Project interface if necessary
+        const mappedProjects: Project[] = data.map((p: any) => ({
+          id: p.id.toString(),
+          title: p.name,
+          projectId: `PRJ-${p.id.toString().substring(0, 8)}`,
+          location: p.location,
+          city: p.location.split(',')[0].trim(),
+          state: p.location.split(',')[1]?.trim() || "TX",
+          category: p.category,
+          subcategory: p.projectType,
+          stage: p.status === 'Open' ? 'Bidding' :
+            p.status === 'Bidding' ? 'Bidding' :
+              p.status === 'Planning' ? 'Planning' :
+                p.status === 'Closed' ? 'Post-Bid' :
+                  p.status === 'Awarded' ? 'Under Construction' : 'Planning',
+          bidDate: p.deadline,
+          estimatedValue: p.budget,
+          description: p.description,
+          owner: p.owner,
+          trades: p.trades || [],
+          documentsAvailable: true, // DB shows documents linked elsewhere, defaulting to true for marketplace
+          addendaAvailable: false,
+          privatelyFunded: p.sector === 'private',
+          matchScore: p.matchScore / 10, // Scale to 1-10
+          postedDate: p.posted,
+          sector: p.sector,
+          status: p.status,
+          source: p.source,
+          nigpCode: p.nigpCode
+        }));
+
+        setProjects(mappedProjects);
+      } catch (error) {
+        console.error("Failed to fetch projects from database:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (showListing) {
+      fetchProjects();
+    }
+  }, [showListing]);
+
   const filteredProjects = useMemo(() => {
-    let result = [...MOCK_PROJECTS];
+    const source = projects.length > 0 ? projects : MOCK_PROJECTS;
+    const filtered = source
+      .filter(p => {
+        // 1. Header Search Phrase
+        const matchesSearch = !searchQuery ||
+          p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          p.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          p.trades.some(t => t.toLowerCase().includes(searchQuery.toLowerCase()));
 
-    // Search filter
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
-      result = result.filter(
-        (p) =>
-          p.title.toLowerCase().includes(query) ||
-          p.projectId.toLowerCase().includes(query) ||
-          p.city.toLowerCase().includes(query) ||
-          p.category.toLowerCase().includes(query) ||
-          p.trades.some((t) => t.toLowerCase().includes(query))
-      );
-    }
+        if (!filters) return matchesSearch;
 
-    // Category filter
-    if (filters?.categories && filters.categories.length > 0) {
-      result = result.filter((p) => filters.categories.includes(p.category));
-    }
+        // 2. Keywords filter
+        const keywords = filters.keywords?.toLowerCase() || "";
+        const matchesKeywords = !keywords ||
+          p.title.toLowerCase().includes(keywords) ||
+          p.description.toLowerCase().includes(keywords);
 
-    // Stage filter
-    if (filters?.stages && filters.stages.length > 0) {
-      result = result.filter((p) => filters.stages.includes(p.stage));
-    }
+        // 3. Location/Radius filter
+        const matchesLocation = !filters.location ||
+          p.city.toLowerCase().includes(filters.location.toLowerCase()) ||
+          p.state.toLowerCase().includes(filters.location.toLowerCase());
 
-    // Sector filter
-    if (filters?.sectors && filters.sectors.length > 0) {
-      result = result.filter((p) => p.sector && filters.sectors.includes(p.sector));
-    }
+        const matchesMileage = !filters.radius || (p.matchScore || 0) >= (10 - filters.radius / 20); // Mock radius match
 
-    // Construction Type filter
-    if (filters?.constructionTypes && filters.constructionTypes.length > 0) {
-      result = result.filter((p) => p.constructionType && filters.constructionTypes.includes(p.constructionType));
-    }
+        // 4. NIGP Code
+        const matchesNigp = !filters.nigpCode || (p.nigpCode && p.nigpCode.includes(filters.nigpCode));
 
-    // Labor Requirements filter
-    if (filters?.laborRequirements && filters.laborRequirements.length > 0) {
-      result = result.filter((p) => p.laborRequirements && filters.laborRequirements.includes(p.laborRequirements));
-    }
+        // 5. Project Types / Categories
+        const matchesType = filters.categories.length === 0 || filters.categories.includes(p.category);
 
-    // Trades filter
-    if (filters?.trades && filters.trades.length > 0) {
-      const selectedTradeNames = CSI_DIVISIONS
-        .filter(d => filters.trades.includes(d.code))
-        .map(d => d.name.toLowerCase());
+        // 6. Status
+        const matchesStatus = filters.solicitationStatus.length === 0 || filters.solicitationStatus.includes(p.status || "");
 
-      result = result.filter((p) =>
-        p.trades.some(t => selectedTradeNames.includes(t.toLowerCase()))
-      );
-    }
+        // 7. Sources
+        const matchesSource = filters.sources.length === 0 || filters.sources.includes(p.source || "");
 
-    // Value filter (Rough match for mock data)
-    if (filters?.valueRanges && filters.valueRanges.length > 0) {
-      result = result.filter((p) => {
-        return filters.valueRanges.some(range => p.estimatedValue.includes(range.split(' ')[0]));
+        // 8. Trades
+        const matchesTrades = filters.trades.length === 0 ||
+          p.trades.some(t => filters.trades.some(ft => t.toLowerCase().includes(ft.toLowerCase())));
+
+        // 9. Budget
+        const getBudgetValue = (b: string) => {
+          const numeric = parseFloat(b.replace(/[^0-9.]/g, ''));
+          if (isNaN(numeric)) return 0;
+          if (b.toLowerCase().includes('m')) return numeric * 1000000;
+          if (b.toLowerCase().includes('k')) return numeric * 1000;
+          return numeric;
+        };
+        const projectPrice = getBudgetValue(p.estimatedValue.split('-')[0]);
+        const minB = filters.minBudget ? parseFloat(filters.minBudget) : -Infinity;
+        const maxB = filters.maxBudget ? parseFloat(filters.maxBudget) : Infinity;
+        const matchesBudget = projectPrice >= minB && projectPrice <= maxB;
+
+        // 10. Size
+        const sqftMatch = p.description.match(/(\d+,?\d*) SF/);
+        const projectSqft = sqftMatch ? parseInt(sqftMatch[1].replace(/,/g, '')) : 0;
+        const minS = filters.minSize ? parseInt(filters.minSize) : -Infinity;
+        const maxS = filters.maxSize ? parseInt(filters.maxSize) : Infinity;
+        const matchesSize = projectSqft >= minS && projectSqft <= maxS;
+
+        // 11. Bid Due
+        const bidDateObj = p.bidDate ? new Date(p.bidDate) : null;
+        const today = new Date();
+        const diffDays = bidDateObj ? Math.ceil((bidDateObj.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)) : Infinity;
+
+        const matchesUrgency = !filters.biddingWithin || filters.biddingWithin === 'any' ||
+          (filters.biddingWithin === '7' && diffDays <= 7) ||
+          (filters.biddingWithin === '30' && diffDays <= 30);
+
+        // 12. State/City/County (Region Specific)
+        const matchesRegion = (filters.state === "All" || !filters.state || p.state === filters.state || (p.state === "TX" && filters.state === "Texas")) &&
+          (filters.city === "All" || !filters.city || p.city === filters.city) &&
+          (filters.county === "All" || !filters.county || p.county === filters.county);
+
+        // 13. Other filters
+        const matchesDocs = !filters.documentsOnly || p.documentsAvailable;
+        const matchesSaved = !filters.savedOnly || savedProjects.includes(p.id);
+        const matchesMaterials = filters.materials.length === 0 || p.materials?.some(m => filters.materials.includes(m));
+        const matchesExp = !filters.experienceLevel || p.experienceRequired === filters.experienceLevel;
+        const matchesBonded = !filters.bonded || p.bondedRequired === true;
+        const matchesInsured = !filters.insured || p.insuredRequired === true;
+
+        return matchesSearch && matchesKeywords && matchesLocation && matchesMileage &&
+          matchesNigp && matchesType && matchesStatus && matchesSource &&
+          matchesTrades && matchesBudget && matchesSize && matchesUrgency &&
+          matchesRegion && matchesDocs && matchesSaved && matchesMaterials &&
+          matchesExp && matchesBonded && matchesInsured;
       });
-    }
 
-    // Quick filters
-    if (filters?.documentsOnly) {
-      result = result.filter((p) => p.documentsAvailable);
-    }
-    if (filters?.savedOnly) {
-      result = result.filter((p) => savedProjects.includes(p.id));
-    }
-
-    // Bid Date filter
-    if (filters?.bidDateFrom || filters?.bidDateTo) {
-      result = result.filter((p) => {
-        if (!p.bidDate) return false;
-        const bidDate = new Date(p.bidDate).getTime();
-        const from = filters.bidDateFrom ? new Date(filters.bidDateFrom).getTime() : -Infinity;
-        const to = filters.bidDateTo ? new Date(filters.bidDateTo).getTime() : Infinity;
-        return bidDate >= from && bidDate <= to;
-      });
-    }
-
-
-    // Region Filter (State, City)
-    // Country filter removed (US only)
-    if (filters?.state && filters.state !== "All") {
-      result = result.filter(p => p.state === filters.state || (p.state === "TX" && filters.state === "Texas")); // Mock mapping
-    }
-    if (filters?.city && filters.city !== "All") {
-      result = result.filter(p => !p.city || p.city === filters.city);
-    }
-    if (filters?.county && filters.county !== "All") {
-      result = result.filter(p => !p.county || p.county === filters.county);
-    }
-
-    // Materials Filter
-    if (filters?.materials && filters.materials.length > 0) {
-      result = result.filter(p =>
-        p.materials?.some(m => filters.materials.includes(m))
-      );
-    }
-
-    // Requirements Filter
-    if (filters?.experienceLevel) {
-      result = result.filter(p => p.experienceRequired === filters.experienceLevel);
-    }
-    if (filters?.bonded) {
-      result = result.filter(p => p.bondedRequired === true);
-    }
-    if (filters?.insured) {
-      result = result.filter(p => p.insuredRequired === true);
-    }
-
-    // Publish Date Filter (Mock logic parsing "X days ago")
-    if (filters?.publishDate && filters.publishDate !== "any") {
-      const days = parseInt(filters.publishDate);
-      result = result.filter(p => {
-        if (!p.postedDate) return false;
-        const match = p.postedDate.match(/(\d+) (day|week|month)/);
-        if (!match) return true; // Keep if format unknown
-        let postedDays = parseInt(match[1]);
-        if (match[2].startsWith("week")) postedDays *= 7;
-        if (match[2].startsWith("month")) postedDays *= 30;
-        return postedDays <= days;
-      });
-    }
-
-    // Bidding Within Filter
-    if (filters?.biddingWithin && filters.biddingWithin !== "any") {
-      const days = parseInt(filters.biddingWithin);
-      const now = new Date();
-      result = result.filter(p => {
-        if (!p.bidDate) return false;
-        const bidDate = new Date(p.bidDate);
-        const diffTime = bidDate.getTime() - now.getTime();
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        return diffDays >= 0 && diffDays <= days;
-      });
-    }
-
-    // Location/Radius (Mock)
-    if (filters?.location) {
-      const loc = filters.location.toLowerCase();
-      result = result.filter(p =>
-        p.city.toLowerCase().includes(loc) ||
-        p.state.toLowerCase().includes(loc)
-      );
-    }
+    const result = [...filtered];
 
     // Sort
     switch (sortBy) {
@@ -944,7 +974,7 @@ const Projects = () => {
     }
 
     return result;
-  }, [searchQuery, sortBy, filters, savedProjects]);
+  }, [projects, searchQuery, sortBy, filters, savedProjects]);
 
   const totalPages = Math.ceil(filteredProjects.length / projectsPerPage);
   const paginatedProjects = filteredProjects.slice(
@@ -972,9 +1002,9 @@ const Projects = () => {
           setSearchParams({ view: "listing" });
           window.scrollTo(0, 0);
         }}
-        secondaryCtaText="View Pricing"
-        secondaryCtaLink="/subscription"
-        accentColor="accent"
+        secondaryCtaText="Contact Us"
+        secondaryCtaLink="/contact"
+        accentColor="#EAB308"
         heroImage="/assets/projects-hero.png"
         secondaryImage="/assets/benefits-image.png"
       />
@@ -1026,142 +1056,151 @@ const Projects = () => {
             {/* Filters Sidebar - Desktop */}
             <aside className="hidden lg:block w-80 flex-shrink-0">
               <div className="sticky top-24">
-                <ProjectFilters onFiltersChange={setFilters} />
+                <ProjectFilters onFiltersChange={setFilters} initialFilters={filters} />
               </div>
             </aside>
 
             {/* Projects List */}
             <div className="flex-1 min-w-0">
-              {/* Toolbar */}
-              <div className="flex items-center justify-between gap-4 mb-6 p-4 bg-white dark:bg-gray-900 rounded-xl border border-border shadow-sm">
-                <div className="flex items-center gap-3">
-                  {/* Mobile Filter Button */}
-                  <Sheet>
-                    <SheetTrigger asChild>
-                      <Button variant="outline" size="sm" className="lg:hidden gap-2 h-10 rounded-lg">
-                        <SlidersHorizontal className="w-4 h-4" />
-                        Filters
-                      </Button>
-                    </SheetTrigger>
-                    <SheetContent side="left" className="w-full sm:w-96 p-0 border-r-0">
-                      <SheetHeader className="p-4 border-b">
-                        <SheetTitle className="text-xl font-black uppercase">Filter Projects</SheetTitle>
-                      </SheetHeader>
-                      <ProjectFilters onFiltersChange={setFilters} />
-                    </SheetContent>
-                  </Sheet>
-
-                  {/* Sort */}
-                  <div className="flex items-center gap-2">
-                    <ArrowUpDown className="w-4 h-4 text-muted-foreground hidden sm:block" />
-                    <Select value={sortBy} onValueChange={setSortBy}>
-                      <SelectTrigger className="w-[180px] h-10 rounded-lg border-border font-medium">
-                        <SelectValue placeholder="Sort by" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="newest" className="font-medium">Newest First</SelectItem>
-                        <SelectItem value="bidDate" className="font-medium">Bid Date</SelectItem>
-                        <SelectItem value="valueHigh" className="font-medium">Value: High to Low</SelectItem>
-                        <SelectItem value="valueLow" className="font-medium">Value: Low to High</SelectItem>
-                        <SelectItem value="matchScore" className="font-medium">Match Score</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
+              {isLoading ? (
+                <div className="flex flex-col items-center justify-center py-20 bg-white dark:bg-gray-900 rounded-3xl border border-border shadow-sm">
+                  <Loader2 className="w-12 h-12 text-accent animate-spin mb-4" />
+                  <p className="text-muted-foreground font-medium animate-pulse">Establishing secure link to project database...</p>
                 </div>
+              ) : (
+                <>
+                  {/* Toolbar */}
+                  <div className="flex items-center justify-between gap-4 mb-6 p-4 bg-white dark:bg-gray-900 rounded-xl border border-border shadow-sm">
+                    <div className="flex items-center gap-3">
+                      {/* Mobile Filter Button */}
+                      <Sheet>
+                        <SheetTrigger asChild>
+                          <Button variant="outline" size="sm" className="lg:hidden gap-2 h-10 rounded-lg">
+                            <SlidersHorizontal className="w-4 h-4" />
+                            Filters
+                          </Button>
+                        </SheetTrigger>
+                        <SheetContent side="left" className="w-full sm:w-96 p-0 border-r-0">
+                          <SheetHeader className="p-4 border-b">
+                            <SheetTitle className="text-xl font-black uppercase">Filter Projects</SheetTitle>
+                          </SheetHeader>
+                          <ProjectFilters onFiltersChange={setFilters} initialFilters={filters} />
+                        </SheetContent>
+                      </Sheet>
 
-                {/* View Toggle */}
-                <div className="flex items-center gap-1 bg-muted/50 rounded-lg p-1 border border-border">
-                  <Button
-                    variant={viewMode === "list" ? "white" : "ghost"}
-                    size="sm"
-                    className={`h-8 w-8 p-0 rounded-md transition-all ${viewMode === "list" ? "shadow-sm" : ""}`}
-                    onClick={() => setViewMode("list")}
-                  >
-                    <List className="w-4 h-4" />
-                  </Button>
-                  <Button
-                    variant={viewMode === "grid" ? "white" : "ghost"}
-                    size="sm"
-                    className={`h-8 w-8 p-0 rounded-md transition-all ${viewMode === "grid" ? "shadow-sm" : ""}`}
-                    onClick={() => setViewMode("grid")}
-                  >
-                    <Grid3X3 className="w-4 h-4" />
-                  </Button>
-                </div>
-              </div>
+                      {/* Sort */}
+                      <div className="flex items-center gap-2">
+                        <ArrowUpDown className="w-4 h-4 text-muted-foreground hidden sm:block" />
+                        <Select value={sortBy} onValueChange={setSortBy}>
+                          <SelectTrigger className="w-[180px] h-10 rounded-lg border-border font-medium">
+                            <SelectValue placeholder="Sort by" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="newest" className="font-medium">Newest First</SelectItem>
+                            <SelectItem value="bidDate" className="font-medium">Bid Date</SelectItem>
+                            <SelectItem value="valueHigh" className="font-medium">Value: High to Low</SelectItem>
+                            <SelectItem value="valueLow" className="font-medium">Value: Low to High</SelectItem>
+                            <SelectItem value="matchScore" className="font-medium">Match Score</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
 
-              {/* Project Cards */}
-              <div className={viewMode === "grid" ? "grid md:grid-cols-2 gap-6" : "space-y-6"}>
-                {paginatedProjects.map((project) => (
-                  <ProjectCard
-                    key={project.id}
-                    project={project}
-                    onSave={handleSaveProject}
-                    isSaved={savedProjects.includes(project.id)}
-                  />
-                ))}
-              </div>
-
-              {/* Empty State */}
-              {paginatedProjects.length === 0 && (
-                <div className="text-center py-20 bg-white dark:bg-gray-900 rounded-2xl border border-dashed border-border shadow-sm">
-                  <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-6">
-                    <Search className="w-8 h-8 text-muted-foreground" />
-                  </div>
-                  <h3 className="text-xl font-black text-foreground mb-2 uppercase">
-                    No projects found
-                  </h3>
-                  <p className="text-muted-foreground mb-8 font-medium">
-                    We couldn't find any projects matching your current search or filter criteria.
-                  </p>
-                  <Button
-                    onClick={() => {
-                      setSearchQuery("");
-                      setSortBy("newest");
-                    }}
-                    variant="accent"
-                    className="h-11 px-8 rounded-xl transition-all"
-                  >
-                    Reset All Filters
-                  </Button>
-                </div>
-              )}
-
-              {/* Pagination */}
-              {totalPages > 1 && (
-                <div className="flex items-center justify-center gap-3 mt-12">
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    className="w-10 h-10 rounded-xl"
-                    disabled={currentPage === 1}
-                    onClick={() => setCurrentPage((p) => p - 1)}
-                  >
-                    <ChevronLeft className="w-5 h-5" />
-                  </Button>
-                  <div className="flex items-center gap-2">
-                    {[...Array(totalPages)].map((_, i) => (
+                    {/* View Toggle */}
+                    <div className="flex items-center gap-1 bg-muted/50 rounded-lg p-1 border border-border">
                       <Button
-                        key={i}
-                        variant={currentPage === i + 1 ? "default" : "outline"}
-                        className={`w-10 h-10 rounded-xl font-bold transition-all ${currentPage === i + 1 ? "bg-black text-white hover:bg-black/90" : "hover:bg-muted"
-                          }`}
-                        onClick={() => setCurrentPage(i + 1)}
+                        variant={viewMode === "list" ? "white" : "ghost"}
+                        size="sm"
+                        className={`h-8 w-8 p-0 rounded-md transition-all ${viewMode === "list" ? "shadow-sm" : ""}`}
+                        onClick={() => setViewMode("list")}
                       >
-                        {i + 1}
+                        <List className="w-4 h-4" />
                       </Button>
+                      <Button
+                        variant={viewMode === "grid" ? "white" : "ghost"}
+                        size="sm"
+                        className={`h-8 w-8 p-0 rounded-md transition-all ${viewMode === "grid" ? "shadow-sm" : ""}`}
+                        onClick={() => setViewMode("grid")}
+                      >
+                        <Grid3X3 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* Project Cards */}
+                  <div className={viewMode === "grid" ? "grid md:grid-cols-2 gap-6" : "space-y-6"}>
+                    {paginatedProjects.map((project) => (
+                      <ProjectCard
+                        key={project.id}
+                        project={project}
+                        onSave={handleSaveProject}
+                        isSaved={savedProjects.includes(project.id)}
+                      />
                     ))}
                   </div>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    className="w-10 h-10 rounded-xl"
-                    disabled={currentPage === totalPages}
-                    onClick={() => setCurrentPage((p) => p + 1)}
-                  >
-                    <ChevronRight className="w-5 h-5" />
-                  </Button>
-                </div>
+
+                  {/* Empty State */}
+                  {paginatedProjects.length === 0 && (
+                    <div className="text-center py-20 bg-white dark:bg-gray-900 rounded-2xl border border-dashed border-border shadow-sm">
+                      <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-6">
+                        <Search className="w-8 h-8 text-muted-foreground" />
+                      </div>
+                      <h3 className="text-xl font-black text-foreground mb-2 uppercase">
+                        No projects found
+                      </h3>
+                      <p className="text-muted-foreground mb-8 font-medium">
+                        We couldn't find any projects matching your current search or filter criteria.
+                      </p>
+                      <Button
+                        onClick={() => {
+                          setSearchQuery("");
+                          setSortBy("newest");
+                        }}
+                        variant="accent"
+                        className="h-11 px-8 rounded-xl transition-all"
+                      >
+                        Reset All Filters
+                      </Button>
+                    </div>
+                  )}
+
+                  {/* Pagination */}
+                  {totalPages > 1 && (
+                    <div className="flex items-center justify-center gap-3 mt-12">
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="w-10 h-10 rounded-xl"
+                        disabled={currentPage === 1}
+                        onClick={() => setCurrentPage((p) => p - 1)}
+                      >
+                        <ChevronLeft className="w-5 h-5" />
+                      </Button>
+                      <div className="flex items-center gap-2">
+                        {[...Array(totalPages)].map((_, i) => (
+                          <Button
+                            key={i}
+                            variant={currentPage === i + 1 ? "default" : "outline"}
+                            className={`w-10 h-10 rounded-xl font-bold transition-all ${currentPage === i + 1 ? "bg-black text-white hover:bg-black/90" : "hover:bg-muted"
+                              }`}
+                            onClick={() => setCurrentPage(i + 1)}
+                          >
+                            {i + 1}
+                          </Button>
+                        ))}
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="w-10 h-10 rounded-xl"
+                        disabled={currentPage === totalPages}
+                        onClick={() => setCurrentPage((p) => p + 1)}
+                      >
+                        <ChevronRight className="w-5 h-5" />
+                      </Button>
+                    </div>
+                  )}
+                </>
               )}
             </div>
           </div>

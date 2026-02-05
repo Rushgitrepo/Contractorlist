@@ -53,27 +53,47 @@ import { scDashboardService, Bid } from '@/services/scDashboardService';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import ProjectFilters, { ProjectFilterState, CSI_DIVISIONS } from '@/components/projects/ProjectFilters';
 
 const FindProjects = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [savedProjectIds, setSavedProjectIds] = useState<string[]>([]);
-
-  // Advanced Filter States (Synced from GC Directory)
+  // Advanced Filter States (Synced with Main Directory)
+  const [filters, setFilters] = useState<ProjectFilterState>({
+    location: "",
+    radius: 50,
+    keywords: "",
+    stages: [],
+    solicitationStatus: [],
+    categories: [],
+    sectors: [],
+    constructionTypes: [],
+    laborRequirements: [],
+    trades: [],
+    valueRanges: [],
+    minBudget: "",
+    maxBudget: "",
+    minSize: "",
+    maxSize: "",
+    sources: [],
+    nigpCode: "",
+    bidDateFrom: "",
+    bidDateTo: "",
+    documentsOnly: false,
+    savedOnly: false,
+    state: "",
+    city: "",
+    county: "",
+    publishDate: "",
+    biddingWithin: "",
+    materials: [],
+    experienceLevel: "",
+    bonded: false,
+    insured: false,
+    specAlerts: false
+  });
   const [searchQuery, setSearchQuery] = useState('');
-  const [locationSearch, setLocationSearch] = useState('');
-  const [selectedProjectTypes, setSelectedProjectTypes] = useState<string[]>([]);
-  const [selectedSources, setSelectedSources] = useState<string[]>([]);
-  const [selectedStatus, setSelectedStatus] = useState<string[]>([]);
-  const [selectedTrades, setSelectedTrades] = useState<string[]>([]);
-  const [maxMileage, setMaxMileage] = useState<string>('100');
-  const [minBudget, setMinBudget] = useState('');
-  const [maxBudget, setMaxBudget] = useState('');
-  const [minSize, setMinSize] = useState('');
-  const [maxSize, setMaxSize] = useState('');
-  const [dueWithin, setDueWithin] = useState('any');
-  const [multipleKeywords, setMultipleKeywords] = useState('');
-  const [nigpCode, setNigpCode] = useState('');
 
   const [viewMode, setViewMode] = useState<'card' | 'table'>('card');
   const [sortBy, setSortBy] = useState('match');
@@ -208,7 +228,7 @@ const FindProjects = () => {
   ];
 
   const filteredProjects = useMemo(() => {
-    return rawProjects
+    const filteredProjects = rawProjects
       .filter(p => {
         // 1. Header Search Phrase
         const matchesSearch = !searchQuery ||
@@ -216,58 +236,56 @@ const FindProjects = () => {
           p.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
           p.trades.some(t => t.toLowerCase().includes(searchQuery.toLowerCase()));
 
-        // 2. Multiple Keywords
-        const keywordsList = multipleKeywords.split(',').map(k => k.trim().toLowerCase()).filter(k => k !== '');
-        const matchesMultipleKeywords = keywordsList.length === 0 ||
-          keywordsList.every(k =>
-            p.title.toLowerCase().includes(k) ||
-            p.description.toLowerCase().includes(k) ||
-            p.trades.some(t => t.toLowerCase().includes(k))
-          );
+        // 2. Keywords filter
+        const keywords = filters.keywords?.toLowerCase() || "";
+        const matchesKeywords = !keywords ||
+          p.title.toLowerCase().includes(keywords) ||
+          p.description.toLowerCase().includes(keywords);
 
-        // 3. Service Region
-        const matchesLocation = !locationSearch ||
-          p.location.toLowerCase().includes(locationSearch.toLowerCase());
+        // 3. Location/Radius filter
+        const matchesLocation = !filters.location ||
+          p.location.toLowerCase().includes(filters.location.toLowerCase());
+
+        const matchesMileage = !filters.radius || (p.distanceValue || 0) <= filters.radius;
 
         // 4. NIGP Code
-        const matchesNigp = !nigpCode || p.nigpCode.includes(nigpCode);
+        const matchesNigp = !filters.nigpCode || (p.nigpCode && p.nigpCode.includes(filters.nigpCode));
 
-        // 5. Project Category
-        const matchesType = selectedProjectTypes.length === 0 || selectedProjectTypes.includes(p.category);
+        // 5. Project Types / Categories
+        const matchesType = filters.categories.length === 0 || filters.categories.includes(p.category);
 
-        // 6. Solicitation Status
-        const matchesStatus = selectedStatus.length === 0 || selectedStatus.includes(p.status);
+        // 6. Status
+        const matchesStatus = filters.solicitationStatus.length === 0 || filters.solicitationStatus.includes(p.status);
 
-        // 7. Marketplace Source
-        const matchesSource = selectedSources.length === 0 || selectedSources.includes(p.source);
+        // 7. Sources
+        const matchesSource = filters.sources.length === 0 || filters.sources.includes(p.source);
 
-        // 8. Operational Radius
-        const matchesMileage = p.distanceValue <= parseInt(maxMileage);
+        // 8. Trades
+        const matchesTrades = filters.trades.length === 0 ||
+          p.trades.some(t => filters.trades.some(ft => t.toLowerCase().includes(ft.toLowerCase())));
 
-        // 9. Trades
-        const matchesTrades = selectedTrades.length === 0 || p.trades.some(t => selectedTrades.includes(t));
+        // 9. Budget
+        const projectPrice = p.budgetValue || 0;
+        const minB = filters.minBudget ? parseFloat(filters.minBudget) : -Infinity;
+        const maxB = filters.maxBudget ? parseFloat(filters.maxBudget) : Infinity;
+        const matchesBudget = projectPrice >= minB && projectPrice <= maxB;
 
-        // 10. Budget Range
-        const filterMin = minBudget ? parseFloat(minBudget) : -Infinity;
-        const filterMax = maxBudget ? parseFloat(maxBudget) : Infinity;
-        const matchesBudget = p.budgetValue >= filterMin && p.budgetValue <= filterMax;
-
-        // 11. Size Range (SQFT)
+        // 10. Size
         const projectSqft = parseInt(p.sqft.replace(/[^0-9]/g, '')) || 0;
-        const filterMinSize = minSize ? parseInt(minSize) : -Infinity;
-        const filterMaxSize = maxSize ? parseInt(maxSize) : Infinity;
-        const matchesSize = projectSqft >= filterMinSize && projectSqft <= filterMaxSize;
+        const minS = filters.minSize ? parseInt(filters.minSize) : -Infinity;
+        const maxS = filters.maxSize ? parseInt(filters.maxSize) : Infinity;
+        const matchesSize = projectSqft >= minS && projectSqft <= maxS;
 
-        // 12. Bid Due Urgency
+        // 11. Bid Due Urgency
         const deadlineDate = new Date(p.deadline);
         const today = new Date();
         const diffDays = Math.ceil((deadlineDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-        const matchesUrgency = dueWithin === 'any' ||
-          (dueWithin === '7' && diffDays <= 7) ||
-          (dueWithin === '30' && diffDays <= 30);
+        const matchesUrgency = !filters.biddingWithin || filters.biddingWithin === 'any' ||
+          (filters.biddingWithin === '7' && diffDays <= 7) ||
+          (filters.biddingWithin === '30' && diffDays <= 30);
 
-        return matchesSearch && matchesMultipleKeywords && matchesLocation && matchesNigp &&
-          matchesType && matchesStatus && matchesSource && matchesMileage &&
+        return matchesSearch && matchesKeywords && matchesLocation && matchesMileage &&
+          matchesNigp && matchesType && matchesStatus && matchesSource &&
           matchesTrades && matchesBudget && matchesSize && matchesUrgency;
       })
       .sort((a, b) => {
@@ -276,7 +294,8 @@ const FindProjects = () => {
         if (sortBy === 'deadline') return a.deadlineDate.getTime() - b.deadlineDate.getTime();
         return 0;
       });
-  }, [searchQuery, multipleKeywords, locationSearch, nigpCode, selectedProjectTypes, selectedStatus, selectedSources, maxMileage, selectedTrades, minBudget, maxBudget, minSize, maxSize, dueWithin, sortBy]);
+    return filteredProjects;
+  }, [searchQuery, filters, sortBy]);
 
   const handleInitiateBid = (project: any) => {
     const newBid: Bid = {
@@ -298,10 +317,6 @@ const FindProjects = () => {
     scDashboardService.saveBid(newBid);
     setLastInitiatedProject(project.title);
     setIsSuccessModalOpen(true);
-  };
-
-  const toggleFilter = (item: string, state: string[], setState: (val: string[]) => void) => {
-    setState(state.includes(item) ? state.filter(i => i !== item) : [...state, item]);
   };
 
   return (
@@ -338,8 +353,8 @@ const FindProjects = () => {
                 <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-yellow-600 transition-colors w-4 h-4" />
                 <Input
                   placeholder="Region"
-                  value={locationSearch}
-                  onChange={(e) => setLocationSearch(e.target.value)}
+                  value={filters?.location || ""}
+                  onChange={(e) => setFilters(prev => ({ ...prev!, location: e.target.value }))}
                   className="w-48 h-12 bg-transparent border-none focus-visible:ring-0 text-sm font-bold pl-11"
                 />
               </div>
@@ -351,126 +366,10 @@ const FindProjects = () => {
         </div>
       </div>
 
-      <div className="flex-1 flex overflow-hidden">
-        {/* Advanced Filter Sidebar */}
-        <aside className="w-[320px] bg-gray-50/50 dark:bg-black/10 border-r border-gray-200 dark:border-white/5 overflow-y-auto hidden xl:block z-10">
-          <ScrollArea className="h-full">
-            <div className="p-8 space-y-10 pb-20">
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="text-[10px] font-black uppercase tracking-widest text-gray-400">Signal Filters</h3>
-                <Button variant="link" size="sm" onClick={() => {
-                  setSearchQuery(''); setLocationSearch(''); setMultipleKeywords('');
-                  setSelectedProjectTypes([]); setSelectedSources([]); setSelectedStatus([]);
-                  setSelectedTrades([]); setMaxMileage('100'); setMinBudget('');
-                  setMaxBudget(''); setMinSize(''); setMaxSize(''); setDueWithin('any');
-                  setNigpCode('');
-                }} className="text-[9px] uppercase font-bold text-yellow-600">Reset All</Button>
-              </div>
-
-              <div className="space-y-4">
-                <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 flex items-center gap-2">
-                  <Layers size={14} className="text-yellow-600" /> Complex Keywords (AND)
-                </Label>
-                <Input
-                  placeholder="HVAC, Austin, Phase 2..."
-                  value={multipleKeywords}
-                  onChange={(e) => setMultipleKeywords(e.target.value)}
-                  className="bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 text-xs font-bold rounded-xl h-10"
-                />
-              </div>
-
-              <div className="space-y-4">
-                <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 flex items-center gap-2">
-                  <Navigation size={14} className="text-yellow-600" /> Search Radius
-                </Label>
-                <div className="grid grid-cols-5 gap-1.5 p-1 bg-white dark:bg-white/5 rounded-xl border border-gray-200 dark:border-white/5 shadow-sm">
-                  {mileageOptions.map(m => (
-                    <button
-                      key={m}
-                      onClick={() => setMaxMileage(m)}
-                      className={cn(
-                        "py-2 text-[9px] font-bold rounded-lg transition-all",
-                        maxMileage === m ? "bg-accent text-accent-foreground shadow-sm" : "text-gray-400 hover:text-gray-600"
-                      )}
-                    >{m}m</button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Trade Segments</Label>
-                <div className="flex flex-wrap gap-2">
-                  {trades.slice(0, showAllTrades ? undefined : 8).map(t => (
-                    <Badge
-                      key={t}
-                      onClick={() => toggleFilter(t, selectedTrades, setSelectedTrades)}
-                      className={cn(
-                        "cursor-pointer px-3 py-1 text-[9px] font-bold uppercase tracking-tight border-none transition-all",
-                        selectedTrades.includes(t) ? "bg-accent text-accent-foreground" : "bg-gray-100 dark:bg-white/5 text-gray-500 hover:bg-gray-200 dark:hover:bg-white/10"
-                      )}
-                    >{t}</Badge>
-                  ))}
-                  <button onClick={() => setShowAllTrades(!showAllTrades)} className="text-[9px] font-bold text-yellow-600 uppercase hover:underline p-1">
-                    {showAllTrades ? '- Less' : '+ More'}
-                  </button>
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 flex items-center gap-2">
-                  <DollarSign size={14} className="text-yellow-600" /> Revenue Potential
-                </Label>
-                <div className="grid grid-cols-2 gap-3">
-                  <Input placeholder="Min $" value={minBudget} onChange={(e) => setMinBudget(e.target.value)} className="bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 h-10 text-[11px] font-bold" />
-                  <Input placeholder="Max $" value={maxBudget} onChange={(e) => setMaxBudget(e.target.value)} className="bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 h-10 text-[11px] font-bold" />
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 flex items-center gap-2">
-                  <Clock size={14} className="text-yellow-600" /> Bid Timeline
-                </Label>
-                <Select value={dueWithin} onValueChange={setDueWithin}>
-                  <SelectTrigger className="h-10 bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 rounded-xl text-[11px] font-bold">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="bg-white dark:bg-[#1c1e24] border-none text-xs font-bold">
-                    <SelectItem value="any">ANYTIME</SelectItem>
-                    <SelectItem value="7">NEXT 7 DAYS</SelectItem>
-                    <SelectItem value="30">NEXT 30 DAYS</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-4">
-                <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Solicitation Status</Label>
-                <div className="flex flex-wrap gap-2">
-                  {projectStatuses.map(s => (
-                    <Badge
-                      key={s}
-                      onClick={() => toggleFilter(s, selectedStatus, setSelectedStatus)}
-                      className={cn(
-                        "cursor-pointer px-3 py-1 text-[9px] font-bold uppercase tracking-tight border-none transition-all",
-                        selectedStatus.includes(s) ? "bg-black dark:bg-white text-white dark:text-black" : "bg-gray-100 dark:bg-white/5 text-gray-400"
-                      )}
-                    >{s}</Badge>
-                  ))}
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 flex items-center gap-2">
-                  <Tag size={14} className="text-yellow-600" /> NIGP Industry Codes
-                </Label>
-                <Input
-                  placeholder="e.g. 914-00..."
-                  value={nigpCode}
-                  onChange={(e) => setNigpCode(e.target.value)}
-                  className="bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 text-xs font-bold rounded-xl h-10"
-                />
-              </div>
-            </div>
-          </ScrollArea>
+      <div className="flex flex-1 overflow-hidden">
+        {/* Sidebar Filters */}
+        <aside className="w-80 bg-gray-50 dark:bg-[#13151b] border-r border-gray-200 dark:border-white/10 overflow-y-auto hidden xl:block custom-scrollbar">
+          <ProjectFilters onFiltersChange={setFilters} initialFilters={filters} />
         </aside>
 
         {/* Main Opportunity Feed */}
@@ -591,7 +490,9 @@ const FindProjects = () => {
                 <Target size={60} className="text-gray-200 dark:text-white/5 mb-8 animate-pulse" />
                 <h3 className="text-2xl font-black uppercase tracking-tighter mb-4">No Opportunity Detected</h3>
                 <p className="text-gray-500 max-w-sm font-bold text-sm tracking-wide leading-relaxed uppercase opacity-60">Adjust your industry signals or search query to re-establish the connection to active marketplace bids.</p>
-                <Button variant="link" onClick={() => { setSearchQuery(''); setLocationSearch(''); }} className="mt-8 text-yellow-600 font-black uppercase tracking-widest text-xs underline decoration-2 underline-offset-8">Reset Detection Grid</Button>
+                <Button variant="link" size="sm" onClick={() => {
+                  setSearchQuery('');
+                }} className="text-[9px] uppercase font-bold text-yellow-600">Reset Search</Button>
               </div>
             )}
           </div>

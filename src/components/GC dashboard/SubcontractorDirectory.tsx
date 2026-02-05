@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { getProjectDiscovery } from '@/api/gc-apis';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -30,6 +29,9 @@ import {
     AlertCircle
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useAppSelector } from '@/store/hooks';
+import { companyService } from '@/api/companyService';
+import { normalizeCompanyData } from '@/utils/normalizeCompany';
 
 const SubcontractorDirectory = () => {
     const { toast } = useToast();
@@ -48,43 +50,98 @@ const SubcontractorDirectory = () => {
     const [selectedAvailability, setSelectedAvailability] = useState<string[]>([]);
     const [selectedTiers, setSelectedTiers] = useState<string[]>([]);
 
+    // New Filters
+    const [selectedState, setSelectedState] = useState('');
+    const [selectedCity, setSelectedCity] = useState('');
+    const [radius, setRadius] = useState('');
+    const [serviceArea, setServiceArea] = useState('');
+    const [projectExperience, setProjectExperience] = useState('');
+    const [hasLicense, setHasLicense] = useState(false);
+    const [hasInsurance, setHasInsurance] = useState(false);
+    const [selectedCerts, setSelectedCerts] = useState<string[]>([]);
+    const [minRating, setMinRating] = useState<number>(0);
+    const [selectedTrade, setSelectedTrade] = useState<string>('');
+
     const [contractors, setContractors] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
+    const { user } = useAppSelector((state) => state.auth);
+
     useEffect(() => {
         loadContractors();
-    }, [searchQuery, selectedLocation, selectedCategory, selectedAvailability, selectedTiers]);
+    }, [
+        searchQuery,
+        selectedLocation,
+        selectedCategory,
+        selectedAvailability,
+        selectedTiers,
+        selectedState,
+        selectedCity,
+        radius,
+        serviceArea,
+        projectExperience,
+        hasLicense,
+        hasInsurance,
+        selectedCerts,
+        minRating,
+        selectedTrade
+    ]);
 
     const loadContractors = async () => {
         try {
             setIsLoading(true);
-            const filters: any = {};
+            const filters: any = {
+                limit: 50
+            };
             if (searchQuery) filters.search = searchQuery;
-            if (selectedLocation) filters.location = selectedLocation;
-            if (selectedCategory.length > 0) filters.type = selectedCategory[0]; // Backend usually takes one type or we joins
+            if (selectedLocation && selectedLocation !== 'All Locations') filters.location = selectedLocation;
+            if (selectedCategory.length > 0) filters.professional_category = selectedCategory[0];
 
-            const data = await getProjectDiscovery(filters);
+            // Apply New Filters
+            if (selectedState) filters.state = selectedState;
+            if (selectedCity) filters.city = selectedCity;
+            if (radius) filters.radius = radius;
+            if (serviceArea) filters.serviceArea = serviceArea;
+            if (projectExperience) filters.project_type = projectExperience;
+            if (hasLicense) filters.verified_license = true;
+            if (hasInsurance) filters.insured = true;
+            if (selectedCerts.length > 0) filters.certifications = selectedCerts.join(',');
+            if (minRating > 0) filters.rating = minRating;
+            if (selectedTrade) filters.professional_category = selectedTrade;
+            if (selectedAvailability.length > 0) filters.availability = selectedAvailability[0];
 
-            // Map backend data to local structure if needed
-            const mappedData = data.map((c: any) => ({
-                id: c.id,
-                name: c.name,
-                location: c.location || 'N/A',
-                distance: c.distance || 'N/A',
-                rating: c.rating || 0,
-                reviews: c.reviews || 0,
-                verified: c.verified || false,
-                tier: c.tier || 'New',
-                specialties: c.specialties || (c.trade ? [c.trade] : []),
-                status: c.status || 'Available',
-                projects: c.projects || 0,
-                avatar: c.avatar || c.name.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase(),
-                phone: c.phone || 'N/A',
-                email: c.email || 'N/A',
-                yearsExperience: c.yearsExperience || 0,
-                bonded: c.bonded || false,
-                insured: c.insured || false
-            }));
+            const response = await companyService.searchCompanies(filters);
+
+            // Exclude current user's company from the directory
+            const filteredData = response.data.filter((item: any) => {
+                const c = item.company || item;
+                const companyName = c.name || c.company_name;
+                return companyName !== user?.company;
+            });
+
+            // Map backend data to local structure
+            const mappedData = filteredData.map((item: any) => {
+                const c = normalizeCompanyData(item);
+                return {
+                    id: c.id,
+                    name: c.name,
+                    location: c.address || 'N/A',
+                    distance: 'N/A',
+                    rating: c.rating || 0,
+                    reviews: c.reviewsCount || 0,
+                    verified: c.verifiedBusiness || false,
+                    tier: c.rating >= 4.5 ? 'Platinum' : c.rating >= 4.0 ? 'Gold' : c.rating >= 3.0 ? 'Silver' : 'Bronze',
+                    specialties: c.specialties.length > 0 ? c.specialties : c.professionalCategory ? [c.professionalCategory] : [],
+                    status: 'Available',
+                    projects: c.verifiedHires || 0,
+                    avatar: c.name.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase(),
+                    phone: c.phone || 'N/A',
+                    email: c.email || 'N/A',
+                    yearsExperience: c.yearsInBusiness || 0,
+                    bonded: true, // Mocked for now as not in normalized data
+                    insured: true  // Mocked for now as not in normalized data
+                };
+            });
 
             setContractors(mappedData);
         } catch (error) {
@@ -157,9 +214,9 @@ const SubcontractorDirectory = () => {
 
     return (
         <div className="flex h-full w-full flex-col overflow-hidden">
-            <div className="relative border-b border-gray-200 dark:border-white/5 py-8">
-                <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-                    <div className="flex items-center gap-2 bg-white dark:bg-black/30 p-1 rounded-xl border border-gray-200 dark:border-white/5">
+            <div className="relative border-b border-gray-200 dark:border-white/5 py-4">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 px-4">
+                    <div className="flex items-center gap-2 bg-white dark:bg-black/30 p-1 rounded-xl border border-gray-200 dark:border-white/5 shrink-0">
                         <button onClick={() => setViewMode('grid')} className={cn("p-2 rounded-lg transition-all", viewMode === 'grid' ? "bg-yellow-400 text-black shadow-lg" : "text-gray-400 hover:text-black dark:hover:text-white")}>
                             <Grid3x3 className="w-4 h-4" />
                         </button>
@@ -167,31 +224,31 @@ const SubcontractorDirectory = () => {
                             <ListIcon className="w-4 h-4" />
                         </button>
                     </div>
-                </div>
 
-                <div className="flex flex-col md:flex-row gap-4 p-1.5 bg-white dark:bg-black/40 rounded-2xl border border-gray-200 dark:border-white/5 shadow-xl mt-6">
-                    <div className="flex-1 relative">
-                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
-                        <Input
-                            placeholder="Search by company name or trade (e.g. 'Electrical')"
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            className="pl-10 h-12 border-none bg-transparent text-base focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-gray-400"
-                        />
+                    <div className="flex flex-col md:flex-row items-center flex-1 max-w-4xl gap-4 p-1 bg-white dark:bg-black/40 rounded-2xl border border-gray-200 dark:border-white/5 shadow-lg">
+                        <div className="flex-1 relative w-full">
+                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+                            <Input
+                                placeholder="Search by name or trade..."
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                className="pl-10 h-10 border-none bg-transparent text-sm focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-gray-400 w-full"
+                            />
+                        </div>
+                        <div className="hidden md:block w-[1px] h-5 bg-gray-200 dark:bg-white/10" />
+                        <div className="w-full md:w-[180px] relative">
+                            <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+                            <Input
+                                placeholder="Location"
+                                value={selectedLocation}
+                                onChange={(e) => setSelectedLocation(e.target.value)}
+                                className="pl-10 h-10 border-none bg-transparent text-sm placeholder:text-gray-400 focus-visible:ring-0 w-full"
+                            />
+                        </div>
+                        <Button className="h-10 px-6 bg-black dark:bg-yellow-500 text-white dark:text-black font-black uppercase text-xs tracking-tighter rounded-xl hover:bg-yellow-500 transition-all shrink-0">
+                            Find Partners
+                        </Button>
                     </div>
-                    <div className="hidden md:block w-[1px] h-6 bg-gray-200 dark:bg-white/10 self-center" />
-                    <div className="w-full md:w-[220px] relative">
-                        <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
-                        <Input
-                            placeholder="Location Search"
-                            value={selectedLocation}
-                            onChange={(e) => setSelectedLocation(e.target.value)}
-                            className="pl-10 h-12 border-none bg-transparent placeholder:text-gray-400 focus-visible:ring-0"
-                        />
-                    </div>
-                    <Button className="h-12 px-8 bg-black dark:bg-yellow-500 text-white dark:text-black font-black uppercase text-xs tracking-tighter rounded-xl hover:bg-yellow-500 transition-all">
-                        Find Partners
-                    </Button>
                 </div>
             </div>
 
@@ -207,6 +264,16 @@ const SubcontractorDirectory = () => {
                                 setSelectedTiers([]);
                                 setSearchQuery('');
                                 setSelectedLocation('');
+                                setSelectedState('');
+                                setSelectedCity('');
+                                setRadius('');
+                                setServiceArea('');
+                                setProjectExperience('');
+                                setHasLicense(false);
+                                setHasInsurance(false);
+                                setSelectedCerts([]);
+                                setMinRating(0);
+                                setSelectedTrade('');
                             }}
                             className="text-[10px] font-black uppercase text-yellow-600 dark:text-yellow-500 hover:underline"
                         >
@@ -215,6 +282,173 @@ const SubcontractorDirectory = () => {
                     </div>
 
                     <div className="space-y-10">
+                        {/* Trade / Professional Category */}
+                        <div>
+                            <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-4 block underline decoration-yellow-500/30 underline-offset-4">Trade</Label>
+                            <Select value={selectedTrade} onValueChange={setSelectedTrade}>
+                                <SelectTrigger className="w-full h-10 border-gray-200 dark:border-white/10 bg-white dark:bg-black/20 text-xs font-bold rounded-xl">
+                                    <SelectValue placeholder="Select Trade" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="All Trades">All Trades</SelectItem>
+                                    <SelectItem value="Electrical">Electrical</SelectItem>
+                                    <SelectItem value="Plumbing">Plumbing</SelectItem>
+                                    <SelectItem value="HVAC">HVAC</SelectItem>
+                                    <SelectItem value="Roofing">Roofing</SelectItem>
+                                    <SelectItem value="Masonry">Masonry</SelectItem>
+                                    <SelectItem value="Framing">Framing</SelectItem>
+                                    <SelectItem value="Painting">Painting</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+
+                        {/* Location Details */}
+                        <div>
+                            <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-4 block underline decoration-yellow-500/30 underline-offset-4">Location (State, City, Radius)</Label>
+                            <div className="space-y-3">
+                                <Select value={selectedState} onValueChange={setSelectedState}>
+                                    <SelectTrigger className="w-full h-10 border-gray-200 dark:border-white/10 bg-white dark:bg-black/20 text-xs font-bold rounded-xl">
+                                        <SelectValue placeholder="Select State" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="TX">Texas</SelectItem>
+                                        <SelectItem value="CA">California</SelectItem>
+                                        <SelectItem value="NY">New York</SelectItem>
+                                        <SelectItem value="FL">Florida</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                                <Input
+                                    placeholder="City"
+                                    value={selectedCity}
+                                    onChange={(e) => setSelectedCity(e.target.value)}
+                                    className="h-10 border-gray-200 dark:border-white/10 bg-white dark:bg-black/20 text-xs font-bold rounded-xl"
+                                />
+                                <div className="flex items-center gap-2">
+                                    <Input
+                                        type="number"
+                                        placeholder="Radius"
+                                        value={radius}
+                                        onChange={(e) => setRadius(e.target.value)}
+                                        className="h-10 border-gray-200 dark:border-white/10 bg-white dark:bg-black/20 text-xs font-bold rounded-xl"
+                                    />
+                                    <span className="text-[10px] font-bold text-gray-400">Miles</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Service Area */}
+                        <div>
+                            <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-4 block underline decoration-yellow-500/30 underline-offset-4">Service Area</Label>
+                            <Input
+                                placeholder="E.g. Austin Metro"
+                                value={serviceArea}
+                                onChange={(e) => setServiceArea(e.target.value)}
+                                className="h-10 border-gray-200 dark:border-white/10 bg-white dark:bg-black/20 text-xs font-bold rounded-xl"
+                            />
+                        </div>
+
+                        {/* Availability */}
+                        <div>
+                            <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-4 block underline decoration-yellow-500/30 underline-offset-4">Availability</Label>
+                            <div className="space-y-3">
+                                {['Available Now', 'Accepting Bids', 'Busy'].map(status => (
+                                    <div key={status} className="flex items-center group cursor-pointer" onClick={() => {
+                                        setSelectedAvailability(prev => prev.includes(status) ? prev.filter(s => s !== status) : [...prev, status]);
+                                    }}>
+                                        <div className={cn(
+                                            "w-4 h-4 rounded border flex items-center justify-center transition-all mr-3",
+                                            selectedAvailability.includes(status) ? "bg-yellow-500 border-yellow-500 text-black" : "border-gray-300 dark:border-white/10 group-hover:border-yellow-400"
+                                        )}>
+                                            {selectedAvailability.includes(status) && <CheckCircle2 className="w-3 h-3" />}
+                                        </div>
+                                        <span className={cn("text-xs font-bold transition-all", selectedAvailability.includes(status) ? "text-gray-900 dark:text-white" : "text-gray-500 dark:text-gray-400 group-hover:pl-1")}>{status}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Project Type Experience */}
+                        <div>
+                            <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-4 block underline decoration-yellow-500/30 underline-offset-4">Project Type Experience</Label>
+                            <Select value={projectExperience} onValueChange={setProjectExperience}>
+                                <SelectTrigger className="w-full h-10 border-gray-200 dark:border-white/10 bg-white dark:bg-black/20 text-xs font-bold rounded-xl">
+                                    <SelectValue placeholder="Select Experience" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="Residential">Residential</SelectItem>
+                                    <SelectItem value="Commercial">Commercial</SelectItem>
+                                    <SelectItem value="Industrial">Industrial</SelectItem>
+                                    <SelectItem value="Infrastructure">Infrastructure</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+
+                        {/* Licensing & Insurance */}
+                        <div>
+                            <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-4 block underline decoration-yellow-500/30 underline-offset-4">Licensing & Insurance</Label>
+                            <div className="space-y-4">
+                                <div className="flex items-center group cursor-pointer" onClick={() => setHasLicense(!hasLicense)}>
+                                    <div className={cn(
+                                        "w-4 h-4 rounded border flex items-center justify-center transition-all mr-3",
+                                        hasLicense ? "bg-yellow-500 border-yellow-500 text-black" : "border-gray-300 dark:border-white/10 group-hover:border-yellow-400"
+                                    )}>
+                                        {hasLicense && <CheckCircle2 className="w-3 h-3" />}
+                                    </div>
+                                    <span className={cn("text-xs font-bold transition-all", hasLicense ? "text-gray-900 dark:text-white" : "text-gray-500 dark:text-gray-400 group-hover:pl-1")}>Licensed Professional</span>
+                                </div>
+                                <div className="flex items-center group cursor-pointer" onClick={() => setHasInsurance(!hasInsurance)}>
+                                    <div className={cn(
+                                        "w-4 h-4 rounded border flex items-center justify-center transition-all mr-3",
+                                        hasInsurance ? "bg-yellow-500 border-yellow-500 text-black" : "border-gray-300 dark:border-white/10 group-hover:border-yellow-400"
+                                    )}>
+                                        {hasInsurance && <CheckCircle2 className="w-3 h-3" />}
+                                    </div>
+                                    <span className={cn("text-xs font-bold transition-all", hasInsurance ? "text-gray-900 dark:text-white" : "text-gray-500 dark:text-gray-400 group-hover:pl-1")}>Insured & Bonded</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Certifications */}
+                        <div>
+                            <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-4 block underline decoration-yellow-500/30 underline-offset-4">Certifications</Label>
+                            <div className="space-y-3">
+                                {['OSHA 30', 'LEED AP', 'NABCEP', 'EPA Lead-Safe'].map(cert => (
+                                    <div key={cert} className="flex items-center group cursor-pointer" onClick={() => {
+                                        setSelectedCerts(prev => prev.includes(cert) ? prev.filter(c => c !== cert) : [...prev, cert]);
+                                    }}>
+                                        <div className={cn(
+                                            "w-4 h-4 rounded border flex items-center justify-center transition-all mr-3",
+                                            selectedCerts.includes(cert) ? "bg-yellow-500 border-yellow-500 text-black" : "border-gray-300 dark:border-white/10 group-hover:border-yellow-400"
+                                        )}>
+                                            {selectedCerts.includes(cert) && <CheckCircle2 className="w-3 h-3" />}
+                                        </div>
+                                        <span className={cn("text-xs font-bold transition-all", selectedCerts.includes(cert) ? "text-gray-900 dark:text-white" : "text-gray-500 dark:text-gray-400 group-hover:pl-1")}>{cert}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Rating */}
+                        <div>
+                            <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-4 block underline decoration-yellow-500/30 underline-offset-4">Minimum Rating</Label>
+                            <div className="flex items-center gap-1.5 mt-2">
+                                {[4.5, 4.0, 3.0, 0].map((rating) => (
+                                    <button
+                                        key={rating}
+                                        onClick={() => setMinRating(rating)}
+                                        className={cn(
+                                            "flex-1 py-2 rounded-lg text-[10px] font-black border transition-all",
+                                            minRating === rating
+                                                ? "bg-yellow-400 border-yellow-400 text-black shadow-md"
+                                                : "bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 text-gray-400 hover:border-yellow-400/50"
+                                        )}
+                                    >
+                                        {rating === 0 ? 'Any' : `${rating}+`}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
                         <div>
                             <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-4 block underline decoration-yellow-500/30 underline-offset-4">CSI Divisions</Label>
                             <div className="grid grid-cols-1 gap-2">

@@ -12,8 +12,10 @@ import {
     Filter,
     Landmark,
     Hammer,
-    Users
+    Users,
+    Target
 } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -77,6 +79,9 @@ const LABOR_REQUIREMENTS = [
 ];
 
 export const CSI_DIVISIONS = [
+    { code: "00", name: "Procurement & Contracting" },
+    { code: "01", name: "General Requirements" },
+    { code: "02", name: "Existing Conditions" },
     { code: "03", name: "Concrete" },
     { code: "04", name: "Masonry" },
     { code: "05", name: "Metals" },
@@ -92,12 +97,21 @@ export const CSI_DIVISIONS = [
     { code: "21", name: "Fire Suppression" },
     { code: "22", name: "Plumbing" },
     { code: "23", name: "HVAC" },
+    { code: "25", name: "Integrated Automation" },
     { code: "26", name: "Electrical" },
     { code: "27", name: "Communications" },
-    { code: "28", name: "Electronic Safety" },
+    { code: "28", name: "Electronic Safety & Security" },
     { code: "31", name: "Earthwork" },
     { code: "32", name: "Exterior Improvements" },
     { code: "33", name: "Utilities" },
+    { code: "34", name: "Transportation" },
+    { code: "35", name: "Waterway & Marine" },
+    { code: "40", name: "Process Interconnections" },
+    { code: "41", name: "Material Processing" },
+    { code: "42", name: "Process Heating/Cooling" },
+    { code: "43", name: "Gas/Liquid Handling" },
+    { code: "44", name: "Pollution Control" },
+    { code: "48", name: "Electrical Power Generation" },
 ];
 
 const VALUE_RANGES = [
@@ -109,6 +123,20 @@ const VALUE_RANGES = [
     "$10M - $50M",
     "$50M - $100M",
     "Over $100M",
+];
+
+const SOURCES = [
+    "PlanHub",
+    "Dodge Construction",
+    "ConstructConnect",
+    "Internal",
+];
+
+const SOLICITATION_STATUS = [
+    "Open",
+    "Bidding",
+    "Awarded",
+    "Closed",
 ];
 
 
@@ -314,18 +342,27 @@ const FilterCheckboxList = <T,>({
 
 interface ProjectFiltersProps {
     onFiltersChange?: (filters: ProjectFilterState) => void;
+    initialFilters?: ProjectFilterState | null;
 }
 
 export interface ProjectFilterState {
     location: string;
     radius: number;
+    keywords: string;
     stages: string[];
+    solicitationStatus: string[];
     categories: string[];
-    sectors: string[];             // Added
-    constructionTypes: string[];   // Added
-    laborRequirements: string[];   // Added
+    sectors: string[];
+    constructionTypes: string[];
+    laborRequirements: string[];
     trades: string[];
     valueRanges: string[];
+    minBudget: string;
+    maxBudget: string;
+    minSize: string;
+    maxSize: string;
+    sources: string[];
+    nigpCode: string;
     bidDateFrom: string;
     bidDateTo: string;
     documentsOnly: boolean;
@@ -343,45 +380,61 @@ export interface ProjectFilterState {
     specAlerts: boolean;
 }
 
-const ProjectFilters = ({ onFiltersChange }: ProjectFiltersProps) => {
-    const [location, setLocation] = useState("");
-    const [radius, setRadius] = useState([50]);
-    const [selectedStages, setSelectedStages] = useState<string[]>([]);
-    const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-    const [selectedSectors, setSelectedSectors] = useState<string[]>([]);
-    const [selectedConstructionTypes, setSelectedConstructionTypes] = useState<string[]>([]);
-    const [selectedLaborRequirements, setSelectedLaborRequirements] = useState<string[]>([]);
-    const [selectedTrades, setSelectedTrades] = useState<string[]>([]);
-    const [selectedValueRanges, setSelectedValueRanges] = useState<string[]>([]);
+const ProjectFilters = ({ onFiltersChange, initialFilters }: ProjectFiltersProps) => {
+    const [location, setLocation] = useState(initialFilters?.location || "");
+    const [radius, setRadius] = useState([initialFilters?.radius || 50]);
+    const [keywords, setKeywords] = useState(initialFilters?.keywords || "");
+    const [selectedStages, setSelectedStages] = useState<string[]>(initialFilters?.stages || []);
+    const [selectedSolicitationStatus, setSelectedSolicitationStatus] = useState<string[]>(initialFilters?.solicitationStatus || []);
+    const [selectedCategories, setSelectedCategories] = useState<string[]>(initialFilters?.categories || []);
+    const [selectedSectors, setSelectedSectors] = useState<string[]>(initialFilters?.sectors || []);
+    const [selectedConstructionTypes, setSelectedConstructionTypes] = useState<string[]>(initialFilters?.constructionTypes || []);
+    const [selectedLaborRequirements, setSelectedLaborRequirements] = useState<string[]>(initialFilters?.laborRequirements || []);
+    const [selectedTrades, setSelectedTrades] = useState<string[]>(initialFilters?.trades || []);
+    const [selectedValueRanges, setSelectedValueRanges] = useState<string[]>(initialFilters?.valueRanges || []);
+    const [minBudget, setMinBudget] = useState(initialFilters?.minBudget || "");
+    const [maxBudget, setMaxBudget] = useState(initialFilters?.maxBudget || "");
+    const [minSize, setMinSize] = useState(initialFilters?.minSize || "");
+    const [maxSize, setMaxSize] = useState(initialFilters?.maxSize || "");
+    const [selectedSources, setSelectedSources] = useState<string[]>(initialFilters?.sources || []);
+    const [nigpCode, setNigpCode] = useState(initialFilters?.nigpCode || "");
     const [tradeSearch, setTradeSearch] = useState("");
-    const [bidDateFrom, setBidDateFrom] = useState("");
-    const [bidDateTo, setBidDateTo] = useState("");
-    const [documentsOnly, setDocumentsOnly] = useState(false);
-    const [savedOnly, setSavedOnly] = useState(false);
+    const [bidDateFrom, setBidDateFrom] = useState(initialFilters?.bidDateFrom || "");
+    const [bidDateTo, setBidDateTo] = useState(initialFilters?.bidDateTo || "");
+    const [documentsOnly, setDocumentsOnly] = useState(initialFilters?.documentsOnly || false);
+    const [savedOnly, setSavedOnly] = useState(initialFilters?.savedOnly || false);
 
-    const [state, setState] = useState("");
-    const [city, setCity] = useState("");
-    const [county, setCounty] = useState("");
-    const [publishDate, setPublishDate] = useState("");
-    const [biddingWithin, setBiddingWithin] = useState("");
-    const [selectedMaterials, setSelectedMaterials] = useState<string[]>([]);
-    const [experienceLevel, setExperienceLevel] = useState("");
-    const [bonded, setBonded] = useState(false);
-    const [insured, setInsured] = useState(false);
-    const [specAlerts, setSpecAlerts] = useState(false);
+    const [state, setState] = useState(initialFilters?.state || "");
+    const [city, setCity] = useState(initialFilters?.city || "");
+    const [county, setCounty] = useState(initialFilters?.county || "");
+    const [publishDate, setPublishDate] = useState(initialFilters?.publishDate || "");
+    const [biddingWithin, setBiddingWithin] = useState(initialFilters?.biddingWithin || "");
+    const [selectedMaterials, setSelectedMaterials] = useState<string[]>(initialFilters?.materials || []);
+    const [experienceLevel, setExperienceLevel] = useState(initialFilters?.experienceLevel || "");
+    const [bonded, setBonded] = useState(initialFilters?.bonded || false);
+    const [insured, setInsured] = useState(initialFilters?.insured || false);
+    const [specAlerts, setSpecAlerts] = useState(initialFilters?.specAlerts || false);
 
     useEffect(() => {
         if (onFiltersChange) {
             onFiltersChange({
                 location,
                 radius: radius[0],
+                keywords,
                 stages: selectedStages,
+                solicitationStatus: selectedSolicitationStatus,
                 categories: selectedCategories,
                 sectors: selectedSectors,
                 constructionTypes: selectedConstructionTypes,
                 laborRequirements: selectedLaborRequirements,
                 trades: selectedTrades,
                 valueRanges: selectedValueRanges,
+                minBudget,
+                maxBudget,
+                minSize,
+                maxSize,
+                sources: selectedSources,
+                nigpCode,
                 bidDateFrom,
                 bidDateTo,
                 documentsOnly,
@@ -401,13 +454,21 @@ const ProjectFilters = ({ onFiltersChange }: ProjectFiltersProps) => {
     }, [
         location,
         radius,
+        keywords,
         selectedStages,
+        selectedSolicitationStatus,
         selectedCategories,
         selectedSectors,
         selectedConstructionTypes,
         selectedLaborRequirements,
         selectedTrades,
         selectedValueRanges,
+        minBudget,
+        maxBudget,
+        minSize,
+        maxSize,
+        selectedSources,
+        nigpCode,
         bidDateFrom,
         bidDateTo,
         documentsOnly,
@@ -432,13 +493,21 @@ const ProjectFilters = ({ onFiltersChange }: ProjectFiltersProps) => {
 
     const totalFilters =
         selectedStages.length +
+        selectedSolicitationStatus.length +
         selectedCategories.length +
         selectedSectors.length +
         selectedConstructionTypes.length +
         selectedLaborRequirements.length +
         selectedTrades.length +
         selectedValueRanges.length +
+        selectedSources.length +
         (location ? 1 : 0) +
+        (keywords ? 1 : 0) +
+        (minBudget ? 1 : 0) +
+        (maxBudget ? 1 : 0) +
+        (minSize ? 1 : 0) +
+        (maxSize ? 1 : 0) +
+        (nigpCode ? 1 : 0) +
         (bidDateFrom ? 1 : 0) +
         (bidDateTo ? 1 : 0) +
         (documentsOnly ? 1 : 0) +
@@ -457,13 +526,21 @@ const ProjectFilters = ({ onFiltersChange }: ProjectFiltersProps) => {
     const clearAllFilters = () => {
         setLocation("");
         setRadius([50]);
+        setKeywords("");
         setSelectedStages([]);
+        setSelectedSolicitationStatus([]);
         setSelectedCategories([]);
         setSelectedSectors([]);
         setSelectedConstructionTypes([]);
         setSelectedLaborRequirements([]);
         setSelectedTrades([]);
         setSelectedValueRanges([]);
+        setMinBudget("");
+        setMaxBudget("");
+        setMinSize("");
+        setMaxSize("");
+        setSelectedSources([]);
+        setNigpCode("");
         setTradeSearch("");
         setBidDateFrom("");
         setBidDateTo("");
@@ -569,9 +646,30 @@ const ProjectFilters = ({ onFiltersChange }: ProjectFiltersProps) => {
 
             <ScrollArea className="h-[calc(100vh-280px)]">
                 <div className="p-4 space-y-0">
+                    <FilterSection
+                        title="Search"
+                        icon={<Search className="w-4 h-4" />}
+                        defaultOpen={true}
+                    >
+                        <div className="space-y-4">
+                            <div className="space-y-2">
+                                <Label className="text-xs text-muted-foreground uppercase tracking-wider font-bold">Complex Keywords (AND)</Label>
+                                <div className="relative">
+                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                                    <Input
+                                        placeholder="HVAC, Austin, Phase 2..."
+                                        value={keywords}
+                                        onChange={(e) => setKeywords(e.target.value)}
+                                        className="pl-9"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </FilterSection>
+
                     {/* Location */}
                     <FilterSection
-                        title="Location"
+                        title="Radius Search"
                         icon={<MapPin className="w-4 h-4" />}
                         defaultOpen={true}
                     >
@@ -594,7 +692,7 @@ const ProjectFilters = ({ onFiltersChange }: ProjectFiltersProps) => {
                                     value={radius}
                                     onValueChange={setRadius}
                                     min={5}
-                                    max={200}
+                                    max={250}
                                     step={5}
                                     className="w-full"
                                 />
@@ -684,7 +782,7 @@ const ProjectFilters = ({ onFiltersChange }: ProjectFiltersProps) => {
                     <FilterSection
                         title="Project Stage"
                         icon={<Briefcase className="w-4 h-4" />}
-                        defaultOpen={true}
+                        defaultOpen={false}
                         count={selectedStages.length}
                     >
                         <div className="space-y-2">
@@ -700,6 +798,31 @@ const ProjectFilters = ({ onFiltersChange }: ProjectFiltersProps) => {
                                         className="text-sm font-normal cursor-pointer flex-1"
                                     >
                                         {stage}
+                                    </Label>
+                                </div>
+                            ))}
+                        </div>
+                    </FilterSection>
+
+                    {/* Solicitation Status */}
+                    <FilterSection
+                        title="Solicitation Status"
+                        icon={<Briefcase className="w-4 h-4" />}
+                        count={selectedSolicitationStatus.length}
+                    >
+                        <div className="space-y-2">
+                            {SOLICITATION_STATUS.map((status) => (
+                                <div key={status} className="flex items-center space-x-2">
+                                    <Checkbox
+                                        id={`solicitation-${status}`}
+                                        checked={selectedSolicitationStatus.includes(status)}
+                                        onCheckedChange={() => toggleArrayItem(selectedSolicitationStatus, status, setSelectedSolicitationStatus)}
+                                    />
+                                    <Label
+                                        htmlFor={`solicitation-${status}`}
+                                        className="text-sm font-normal cursor-pointer flex-1"
+                                    >
+                                        {status}
                                     </Label>
                                 </div>
                             ))}
@@ -834,18 +957,79 @@ const ProjectFilters = ({ onFiltersChange }: ProjectFiltersProps) => {
 
                     {/* Project Value */}
                     <FilterSection
-                        title="Estimated Value"
+                        title="Financial Data"
                         icon={<DollarSign className="w-4 h-4" />}
-                        count={selectedValueRanges.length}
+                        count={selectedValueRanges.length + (minBudget ? 1 : 0) + (maxBudget ? 1 : 0)}
                     >
-                        <FilterCheckboxList
-                            items={VALUE_RANGES}
-                            selectedItems={selectedValueRanges}
-                            onToggle={(item) => toggleArrayItem(selectedValueRanges, item, setSelectedValueRanges)}
-                            valueFn={(item) => item}
-                            labelFn={(item) => item}
-                            idPrefix="value"
-                        />
+                        <div className="space-y-4">
+                            <div className="space-y-2">
+                                <Label className="text-xs text-muted-foreground uppercase tracking-widest font-bold">Revenue Potential</Label>
+                                <div className="grid grid-cols-2 gap-2">
+                                    <Input placeholder="Min $" value={minBudget} onChange={(e) => setMinBudget(e.target.value)} className="h-9 text-xs" />
+                                    <Input placeholder="Max $" value={maxBudget} onChange={(e) => setMaxBudget(e.target.value)} className="h-9 text-xs" />
+                                </div>
+                            </div>
+                            <div className="space-y-2 pt-2 border-t border-border">
+                                <Label className="text-xs text-muted-foreground">Estimated Value Ranges</Label>
+                                <FilterCheckboxList
+                                    items={VALUE_RANGES}
+                                    selectedItems={selectedValueRanges}
+                                    onToggle={(item) => toggleArrayItem(selectedValueRanges, item, setSelectedValueRanges)}
+                                    valueFn={(item) => item}
+                                    labelFn={(item) => item}
+                                    idPrefix="value"
+                                />
+                            </div>
+                        </div>
+                    </FilterSection>
+
+                    {/* Project Size */}
+                    <FilterSection
+                        title="Project Scale"
+                        icon={<Hammer className="w-4 h-4" />}
+                        count={(minSize ? 1 : 0) + (maxSize ? 1 : 0)}
+                    >
+                        <div className="space-y-2">
+                            <Label className="text-xs text-muted-foreground uppercase tracking-widest font-bold">Size Range (SQFT)</Label>
+                            <div className="grid grid-cols-2 gap-2">
+                                <Input placeholder="Min SQFT" value={minSize} onChange={(e) => setMinSize(e.target.value)} className="h-9 text-xs" />
+                                <Input placeholder="Max SQFT" value={maxSize} onChange={(e) => setMaxSize(e.target.value)} className="h-9 text-xs" />
+                            </div>
+                        </div>
+                    </FilterSection>
+
+                    {/* Industry Signals */}
+                    <FilterSection
+                        title="Industry Signals"
+                        icon={<Target className="w-4 h-4" />}
+                        count={(nigpCode ? 1 : 0) + selectedSources.length}
+                    >
+                        <div className="space-y-4">
+                            <div className="space-y-2">
+                                <Label className="text-xs text-muted-foreground uppercase tracking-widest font-bold">NIGP Codes</Label>
+                                <Input
+                                    placeholder="e.g. 914-00..."
+                                    value={nigpCode}
+                                    onChange={(e) => setNigpCode(e.target.value)}
+                                    className="h-9 text-xs"
+                                />
+                            </div>
+                            <div className="space-y-2 pt-2 border-t border-border">
+                                <Label className="text-xs text-muted-foreground uppercase tracking-widest">Marketplace Source</Label>
+                                <div className="flex flex-wrap gap-2">
+                                    {SOURCES.map(source => (
+                                        <Badge
+                                            key={source}
+                                            onClick={() => toggleArrayItem(selectedSources, source, setSelectedSources)}
+                                            className={cn(
+                                                "cursor-pointer px-3 py-1 text-[9px] font-bold uppercase tracking-tight border-none transition-all",
+                                                selectedSources.includes(source) ? "bg-accent text-accent-foreground" : "bg-muted text-muted-foreground hover:bg-muted/80"
+                                            )}
+                                        >{source}</Badge>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
                     </FilterSection>
 
                     {/* Materials & Equipment */}

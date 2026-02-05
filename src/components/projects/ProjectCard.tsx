@@ -43,6 +43,9 @@ export interface Project {
     experienceRequired?: string;    // Added
     bondedRequired?: boolean;       // Added
     insuredRequired?: boolean;      // Added
+    status?: string;                // Added
+    source?: string;                // Added
+    nigpCode?: string;              // Added
 }
 
 interface ProjectCardProps {

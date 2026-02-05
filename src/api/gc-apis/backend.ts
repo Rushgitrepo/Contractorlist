@@ -176,6 +176,18 @@ export const createTeamMember = async (memberData: {
 };
 
 /**
+ * Bulk Upload Projects
+ */
+export const bulkUploadProjects = async (file: File): Promise<any> => {
+  const formData = new FormData();
+  formData.append('file', file);
+  const response = await api.post('/gc-dashboard/projects/bulk-upload', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  });
+  return response.data;
+};
+
+/**
  * Get Single Team Member
  */
 export const getTeamMemberById = async (id: number): Promise<any> => {
