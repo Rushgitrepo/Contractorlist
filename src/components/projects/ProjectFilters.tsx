@@ -588,6 +588,47 @@ const ProjectFilters = ({ onFiltersChange, initialFilters }: ProjectFiltersProps
                             </Badge>
                         )}
                     </div>
+                       <button
+                onClick={() => {
+                  setSearchQuery('');
+                  setFilters({
+                    location: "",
+                    radius: 100,
+                    keywords: "",
+                    stages: [],
+                    solicitationStatus: [],
+                    categories: [],
+                    sectors: [],
+                    constructionTypes: [],
+                    laborRequirements: [],
+                    trades: [],
+                    valueRanges: [],
+                    minBudget: "",
+                    maxBudget: "",
+                    minSize: "",
+                    maxSize: "",
+                    sources: [],
+                    nigpCode: "",
+                    bidDateFrom: "",
+                    bidDateTo: "",
+                    documentsOnly: false,
+                    savedOnly: false,
+                    state: "",
+                    city: "",
+                    county: "",
+                    publishDate: "",
+                    biddingWithin: "",
+                    materials: [],
+                    experienceLevel: "",
+                    bonded: false,
+                    insured: false,
+                    specAlerts: false
+                  });
+                }}
+                className="text-yellow-600 dark:text-yellow-500 text-[10px] font-black uppercase tracking-widest hover:underline flex items-center gap-1"
+              >
+                Clear Search
+              </button>
                     {totalFilters > 0 && (
                         <Button
                             variant="ghost"
@@ -645,7 +686,9 @@ const ProjectFilters = ({ onFiltersChange, initialFilters }: ProjectFiltersProps
             </div>
 
             <ScrollArea className="h-[calc(100vh-280px)]">
+                
                 <div className="p-4 space-y-0">
+                    
                     <FilterSection
                         title="Search"
                         icon={<Search className="w-4 h-4" />}

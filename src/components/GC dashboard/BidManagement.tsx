@@ -279,11 +279,6 @@ const BidManagement = () => {
                     </h1>
                     <p className="text-gray-500 text-sm">Track and manage your project proposals</p>
                 </div>
-                <div className="flex gap-2">
-                    <Button variant="outline" size="sm">
-                        <Filter className="w-4 h-4 mr-2" /> Filters
-                    </Button>
-                </div>
             </div>
 
             {/* Quick Stats */}

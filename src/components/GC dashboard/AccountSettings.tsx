@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import {
   Building,
   Shield,
@@ -25,7 +26,9 @@ import {
   Plus,
   Smartphone,
   RefreshCw,
-  X
+  X,
+  Trash2,
+  Calendar
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -40,6 +43,28 @@ const AccountSettings = () => {
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncStatus, setSyncStatus] = useState<null | 'success' | 'error'>(null);
   const [uploading, setUploading] = useState<string | null>(null);
+
+  // License Management State
+  const [isLicenseModalOpen, setIsLicenseModalOpen] = useState(false);
+  const [editingLicenseIndex, setEditingLicenseIndex] = useState<number | null>(null);
+  const [licenseForm, setLicenseForm] = useState({
+    name: '',
+    license_number: '',
+    issuing_authority: '',
+    issue_date: '',
+    expiry_date: ''
+  });
+
+  // Certification Management State
+  const [isCertificationModalOpen, setIsCertificationModalOpen] = useState(false);
+  const [editingCertificationIndex, setEditingCertificationIndex] = useState<number | null>(null);
+  const [certificationForm, setCertificationForm] = useState({
+    name: '',
+    certification_number: '',
+    issuing_organization: '',
+    issue_date: '',
+    expiry_date: ''
+  });
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, fieldName: string) => {
     const file = e.target.files?.[0];
@@ -176,29 +201,185 @@ const AccountSettings = () => {
     });
   };
 
-  const licenses = [
-    {
-      name: 'General Contractor License',
-      details: 'State of Texas • #GC-994821',
-      status: 'Active',
-      expiryDate: 'Dec 31, 2025',
-      icon: Shield
-    },
-    {
-      name: 'OSHA 30 Certification',
-      details: 'Safety Compliance • Exp: Dec 2024',
-      status: 'Expires Soon',
-      expiryDate: 'Dec 15, 2024',
-      icon: Shield
-    },
-    {
-      name: 'Workers Compensation Insurance',
-      details: 'Active Coverage • Policy #WC-4521',
-      status: 'Active',
-      expiryDate: 'Mar 31, 2025',
-      icon: Shield
+  // Parse licenses from licenses field
+  const parseLicenses = () => {
+    try {
+      if (Array.isArray(companyData.licenses)) {
+        return companyData.licenses.map((lic: any) => {
+          if (typeof lic === 'string') {
+            try {
+              return JSON.parse(lic);
+            } catch {
+              return { name: lic, license_number: '', issuing_authority: '', issue_date: '', expiry_date: '' };
+            }
+          }
+          return lic;
+        });
+      }
+      return [];
+    } catch {
+      return [];
     }
-  ];
+  };
+
+  // Parse certifications from certifications field
+  const parseCertifications = () => {
+    try {
+      if (Array.isArray(companyData.certifications)) {
+        return companyData.certifications.map((cert: any) => {
+          if (typeof cert === 'string') {
+            try {
+              return JSON.parse(cert);
+            } catch {
+              return { name: cert, certification_number: '', issuing_organization: '', issue_date: '', expiry_date: '' };
+            }
+          }
+          return cert;
+        });
+      }
+      return [];
+    } catch {
+      return [];
+    }
+  };
+
+  const licenses = parseLicenses();
+  const certifications = parseCertifications();
+
+  const getLicenseStatus = (expiryDate: string) => {
+    if (!expiryDate) return 'Active';
+    const expiry = new Date(expiryDate);
+    const now = new Date();
+    const daysUntilExpiry = Math.ceil((expiry.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+
+    if (daysUntilExpiry < 0) return 'Expired';
+    if (daysUntilExpiry < 30) return 'Expires Soon';
+    return 'Active';
+  };
+
+  // License Management Functions
+  const handleAddLicense = () => {
+    setEditingLicenseIndex(null);
+    setLicenseForm({
+      name: '',
+      license_number: '',
+      issuing_authority: '',
+      issue_date: '',
+      expiry_date: ''
+    });
+    setIsLicenseModalOpen(true);
+  };
+
+  const handleEditLicense = (index: number) => {
+    setEditingLicenseIndex(index);
+    setLicenseForm(licenses[index]);
+    setIsLicenseModalOpen(true);
+  };
+
+  const handleDeleteLicense = (index: number) => {
+    const updatedLicenses = licenses.filter((_: any, i: number) => i !== index);
+    setCompanyData((prev: any) => ({
+      ...prev,
+      licenses: updatedLicenses
+    }));
+    toast({
+      title: "License Deleted",
+      description: "The license has been removed."
+    });
+  };
+
+  const handleSaveLicense = () => {
+    if (!licenseForm.name || !licenseForm.license_number) {
+      toast({
+        title: "Missing Information",
+        description: "Please provide at least a license name and number.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    let updatedLicenses;
+    if (editingLicenseIndex !== null) {
+      updatedLicenses = licenses.map((lic: any, i: number) =>
+        i === editingLicenseIndex ? licenseForm : lic
+      );
+    } else {
+      updatedLicenses = [...licenses, licenseForm];
+    }
+
+    setCompanyData((prev: any) => ({
+      ...prev,
+      licenses: updatedLicenses
+    }));
+
+    setIsLicenseModalOpen(false);
+    toast({
+      title: editingLicenseIndex !== null ? "License Updated" : "License Added",
+      description: `${licenseForm.name} has been ${editingLicenseIndex !== null ? 'updated' : 'added'} successfully.`
+    });
+  };
+
+  // Certification Management Functions
+  const handleAddCertification = () => {
+    setEditingCertificationIndex(null);
+    setCertificationForm({
+      name: '',
+      certification_number: '',
+      issuing_organization: '',
+      issue_date: '',
+      expiry_date: ''
+    });
+    setIsCertificationModalOpen(true);
+  };
+
+  const handleEditCertification = (index: number) => {
+    setEditingCertificationIndex(index);
+    setCertificationForm(certifications[index]);
+    setIsCertificationModalOpen(true);
+  };
+
+  const handleDeleteCertification = (index: number) => {
+    const updatedCertifications = certifications.filter((_: any, i: number) => i !== index);
+    setCompanyData((prev: any) => ({
+      ...prev,
+      certifications: updatedCertifications
+    }));
+    toast({
+      title: "Certification Deleted",
+      description: "The certification has been removed."
+    });
+  };
+
+  const handleSaveCertification = () => {
+    if (!certificationForm.name) {
+      toast({
+        title: "Missing Information",
+        description: "Please provide at least a certification name.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    let updatedCertifications;
+    if (editingCertificationIndex !== null) {
+      updatedCertifications = certifications.map((cert: any, i: number) =>
+        i === editingCertificationIndex ? certificationForm : cert
+      );
+    } else {
+      updatedCertifications = [...certifications, certificationForm];
+    }
+
+    setCompanyData((prev: any) => ({
+      ...prev,
+      certifications: updatedCertifications
+    }));
+
+    setIsCertificationModalOpen(false);
+    toast({
+      title: editingCertificationIndex !== null ? "Certification Updated" : "Certification Added",
+      description: `${certificationForm.name} has been ${editingCertificationIndex !== null ? 'updated' : 'added'} successfully.`
+    });
+  };
 
   const notifications = [
     {
@@ -615,66 +796,229 @@ const AccountSettings = () => {
 
           {/* Licenses & Certifications Tab */}
           <TabsContent value="licenses" className="space-y-6">
+            {/* Licenses Section */}
             <Card className="border-gray-200 dark:border-white/5 bg-white dark:bg-[#1c1e24] shadow-sm">
               <CardHeader>
-                <CardTitle className="text-gray-900 dark:text-white">Licenses & Certifications</CardTitle>
+                <CardTitle className="text-gray-900 dark:text-white">Professional Licenses</CardTitle>
                 <CardDescription className="text-gray-500 dark:text-gray-400">
-                  Manage your professional licenses and certifications
+                  Manage your professional licenses and permits
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
-                {licenses.map((license, index) => (
-                  <div
-                    key={index}
-                    className="flex items-start justify-between p-4 border border-gray-200 dark:border-white/5 rounded-xl bg-gray-50 dark:bg-black/20 hover:border-yellow-400 dark:hover:border-yellow-500/20 transition-all"
-                  >
-                    <div className="flex items-start gap-4">
-                      <div className={`p-3 rounded-lg ${license.status === 'Active'
-                        ? 'bg-gray-100 dark:bg-white/10 text-black dark:text-white'
-                        : 'bg-yellow-100 dark:bg-yellow-500/10 text-yellow-600 dark:text-yellow-500'
-                        }`}>
-                        <license.icon className="w-5 h-5" />
-                      </div>
-                      <div>
-                        <h4 className="font-semibold text-gray-900 dark:text-white mb-1">
-                          {license.name}
-                        </h4>
-                        <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">
-                          {license.details}
-                        </p>
-                        <div className="flex items-center gap-4 text-xs text-gray-400 dark:text-gray-500">
-                          <span>Expires: {license.expiryDate}</span>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Badge className={`${license.status === 'Active'
-                        ? 'bg-gray-100 dark:bg-white/10 text-black dark:text-white border-black dark:border-white'
-                        : 'bg-yellow-100 dark:bg-yellow-500/10 text-yellow-600 dark:text-yellow-500 border-yellow-200 dark:border-yellow-500/20'
-                        }`}>
-                        {license.status === 'Active' && <CheckCircle2 className="w-3 h-3 mr-1" />}
-                        {license.status === 'Expires Soon' && <AlertTriangle className="w-3 h-3 mr-1" />}
-                        {license.status}
-                      </Badge>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="text-gray-400 hover:text-black dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/5"
-                        onClick={() => toast({ title: "View Document", description: `Opening ${license.name} documentation.` })}
-                      >
-                        <FileText className="w-4 h-4" />
-                      </Button>
-                    </div>
+              <CardContent className={`space-y-4 ${!isEditing ? 'cursor-not-allowed' : ''}`}>
+                {licenses.length === 0 ? (
+                  <div className="text-center py-12 border border-dashed border-gray-200 dark:border-white/10 rounded-xl">
+                    <Shield className="w-12 h-12 mx-auto text-gray-300 dark:text-gray-600 mb-3" />
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">No licenses added yet</p>
+                    <Button
+                      variant="outline"
+                      className="border-gray-300 dark:border-white/10 text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white hover:bg-gray-50 dark:hover:bg-white/5"
+                      onClick={handleAddLicense}
+                      disabled={!isEditing}
+                    >
+                      <Plus className="w-4 h-4 mr-2" />
+                      Add Your First License
+                    </Button>
                   </div>
-                ))}
-                <Button
-                  variant="outline"
-                  className="w-full mt-4 border-gray-300 dark:border-white/10 text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white hover:bg-gray-50 dark:hover:bg-white/5 bg-transparent border-dashed"
-                  onClick={() => toast({ title: "Add License", description: "Please upload your license file and enter details." })}
-                >
-                  <Plus className="w-4 h-4 mr-2" />
-                  Add License or Certification
-                </Button>
+                ) : (
+                  <>
+                    {licenses.map((license: any, index: number) => {
+                      const status = getLicenseStatus(license.expiry_date);
+                      return (
+                        <div
+                          key={index}
+                          className="flex items-start justify-between p-4 border border-gray-200 dark:border-white/5 rounded-xl bg-gray-50 dark:bg-black/20 hover:border-yellow-400 dark:hover:border-yellow-500/20 transition-all group"
+                        >
+                          <div className="flex items-start gap-4 flex-1">
+                            <div className={`p-3 rounded-lg ${status === 'Active'
+                              ? 'bg-gray-100 dark:bg-white/10 text-black dark:text-white'
+                              : status === 'Expired'
+                                ? 'bg-red-100 dark:bg-red-500/10 text-red-600 dark:text-red-500'
+                                : 'bg-yellow-100 dark:bg-yellow-500/10 text-yellow-600 dark:text-yellow-500'
+                              }`}>
+                              <Shield className="w-5 h-5" />
+                            </div>
+                            <div className="flex-1">
+                              <h4 className="font-semibold text-gray-900 dark:text-white mb-1">
+                                {license.name}
+                              </h4>
+                              <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">
+                                {license.issuing_authority && `${license.issuing_authority} • `}
+                                {license.license_number && `#${license.license_number}`}
+                              </p>
+                              <div className="flex items-center gap-4 text-xs text-gray-400 dark:text-gray-500">
+                                {license.issue_date && (
+                                  <span className="flex items-center gap-1">
+                                    <Calendar className="w-3 h-3" />
+                                    Issued: {new Date(license.issue_date).toLocaleDateString()}
+                                  </span>
+                                )}
+                                {license.expiry_date && (
+                                  <span className="flex items-center gap-1">
+                                    <Calendar className="w-3 h-3" />
+                                    Expires: {new Date(license.expiry_date).toLocaleDateString()}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Badge className={`${status === 'Active'
+                              ? 'bg-gray-100 dark:bg-white/10 text-black dark:text-white border-black dark:border-white'
+                              : status === 'Expired'
+                                ? 'bg-red-100 dark:bg-red-500/10 text-red-600 dark:text-red-500 border-red-200 dark:border-red-500/20'
+                                : 'bg-yellow-100 dark:bg-yellow-500/10 text-yellow-600 dark:text-yellow-500 border-yellow-200 dark:border-yellow-500/20'
+                              }`}>
+                              {status === 'Active' && <CheckCircle2 className="w-3 h-3 mr-1" />}
+                              {status === 'Expires Soon' && <AlertTriangle className="w-3 h-3 mr-1" />}
+                              {status === 'Expired' && <X className="w-3 h-3 mr-1" />}
+                              {status}
+                            </Badge>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="text-gray-400 hover:text-black dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/5"
+                              onClick={() => handleEditLicense(index)}
+                              disabled={!isEditing}
+                            >
+                              <Edit className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="text-gray-400 hover:text-red-600 dark:hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10"
+                              onClick={() => handleDeleteLicense(index)}
+                              disabled={!isEditing}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                    <Button
+                      variant="outline"
+                      className="w-full mt-4 border-gray-300 dark:border-white/10 text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white hover:bg-gray-50 dark:hover:bg-white/5 bg-transparent border-dashed"
+                      onClick={handleAddLicense}
+                      disabled={!isEditing}
+                    >
+                      <Plus className="w-4 h-4 mr-2" />
+                      Add License
+                    </Button>
+                  </>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Certifications Section */}
+            <Card className="border-gray-200 dark:border-white/5 bg-white dark:bg-[#1c1e24] shadow-sm">
+              <CardHeader>
+                <CardTitle className="text-gray-900 dark:text-white">Professional Certifications</CardTitle>
+                <CardDescription className="text-gray-500 dark:text-gray-400">
+                  Manage your professional certifications and training credentials
+                </CardDescription>
+              </CardHeader>
+              <CardContent className={`space-y-4 ${!isEditing ? 'cursor-not-allowed' : ''}`}>
+                {certifications.length === 0 ? (
+                  <div className="text-center py-12 border border-dashed border-gray-200 dark:border-white/10 rounded-xl">
+                    <Shield className="w-12 h-12 mx-auto text-gray-300 dark:text-gray-600 mb-3" />
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">No certifications added yet</p>
+                    <Button
+                      variant="outline"
+                      className="border-gray-300 dark:border-white/10 text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white hover:bg-gray-50 dark:hover:bg-white/5"
+                      onClick={handleAddCertification}
+                      disabled={!isEditing}
+                    >
+                      <Plus className="w-4 h-4 mr-2" />
+                      Add Your First Certification
+                    </Button>
+                  </div>
+                ) : (
+                  <>
+                    {certifications.map((certification: any, index: number) => {
+                      const status = getLicenseStatus(certification.expiry_date);
+                      return (
+                        <div
+                          key={index}
+                          className="flex items-start justify-between p-4 border border-gray-200 dark:border-white/5 rounded-xl bg-gray-50 dark:bg-black/20 hover:border-yellow-400 dark:hover:border-yellow-500/20 transition-all group"
+                        >
+                          <div className="flex items-start gap-4 flex-1">
+                            <div className={`p-3 rounded-lg ${status === 'Active'
+                              ? 'bg-gray-100 dark:bg-white/10 text-black dark:text-white'
+                              : status === 'Expired'
+                                ? 'bg-red-100 dark:bg-red-500/10 text-red-600 dark:text-red-500'
+                                : 'bg-yellow-100 dark:bg-yellow-500/10 text-yellow-600 dark:text-yellow-500'
+                              }`}>
+                              <Shield className="w-5 h-5" />
+                            </div>
+                            <div className="flex-1">
+                              <h4 className="font-semibold text-gray-900 dark:text-white mb-1">
+                                {certification.name}
+                              </h4>
+                              <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">
+                                {certification.issuing_organization && `${certification.issuing_organization} • `}
+                                {certification.certification_number && `#${certification.certification_number}`}
+                              </p>
+                              <div className="flex items-center gap-4 text-xs text-gray-400 dark:text-gray-500">
+                                {certification.issue_date && (
+                                  <span className="flex items-center gap-1">
+                                    <Calendar className="w-3 h-3" />
+                                    Issued: {new Date(certification.issue_date).toLocaleDateString()}
+                                  </span>
+                                )}
+                                {certification.expiry_date && (
+                                  <span className="flex items-center gap-1">
+                                    <Calendar className="w-3 h-3" />
+                                    Expires: {new Date(certification.expiry_date).toLocaleDateString()}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Badge className={`${status === 'Active'
+                              ? 'bg-gray-100 dark:bg-white/10 text-black dark:text-white border-black dark:border-white'
+                              : status === 'Expired'
+                                ? 'bg-red-100 dark:bg-red-500/10 text-red-600 dark:text-red-500 border-red-200 dark:border-red-500/20'
+                                : 'bg-yellow-100 dark:bg-yellow-500/10 text-yellow-600 dark:text-yellow-500 border-yellow-200 dark:border-yellow-500/20'
+                              }`}>
+                              {status === 'Active' && <CheckCircle2 className="w-3 h-3 mr-1" />}
+                              {status === 'Expires Soon' && <AlertTriangle className="w-3 h-3 mr-1" />}
+                              {status === 'Expired' && <X className="w-3 h-3 mr-1" />}
+                              {status}
+                            </Badge>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="text-gray-400 hover:text-black dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/5"
+                              onClick={() => handleEditCertification(index)}
+                              disabled={!isEditing}
+                            >
+                              <Edit className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="text-gray-400 hover:text-red-600 dark:hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10"
+                              onClick={() => handleDeleteCertification(index)}
+                              disabled={!isEditing}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                    <Button
+                      variant="outline"
+                      className="w-full mt-4 border-gray-300 dark:border-white/10 text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white hover:bg-gray-50 dark:hover:bg-white/5 bg-transparent border-dashed"
+                      onClick={handleAddCertification}
+                      disabled={!isEditing}
+                    >
+                      <Plus className="w-4 h-4 mr-2" />
+                      Add Certification
+                    </Button>
+                  </>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
@@ -789,6 +1133,172 @@ const AccountSettings = () => {
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* License Add/Edit Modal */}
+      <Dialog open={isLicenseModalOpen} onOpenChange={setIsLicenseModalOpen}>
+        <DialogContent className="sm:max-w-[500px] bg-white dark:bg-[#1c1e24] border-gray-200 dark:border-white/10">
+          <DialogHeader>
+            <DialogTitle className="text-gray-900 dark:text-white">
+              {editingLicenseIndex !== null ? 'Edit License' : 'Add New License'}
+            </DialogTitle>
+            <DialogDescription className="text-gray-500 dark:text-gray-400">
+              Enter the details of your professional license
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="license_name" className="text-gray-700 dark:text-gray-300">License Name *</Label>
+              <Input
+                id="license_name"
+                value={licenseForm.name}
+                onChange={(e) => setLicenseForm(prev => ({ ...prev, name: e.target.value }))}
+                placeholder="e.g., General Contractor License"
+                className="border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-black/20"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="license_num" className="text-gray-700 dark:text-gray-300">License Number *</Label>
+              <Input
+                id="license_num"
+                value={licenseForm.license_number}
+                onChange={(e) => setLicenseForm(prev => ({ ...prev, license_number: e.target.value }))}
+                placeholder="e.g., GC-994821"
+                className="border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-black/20"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="issuing_auth" className="text-gray-700 dark:text-gray-300">Issuing Authority</Label>
+              <Input
+                id="issuing_auth"
+                value={licenseForm.issuing_authority}
+                onChange={(e) => setLicenseForm(prev => ({ ...prev, issuing_authority: e.target.value }))}
+                placeholder="e.g., State of Texas"
+                className="border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-black/20"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="issue_date" className="text-gray-700 dark:text-gray-300">Issue Date</Label>
+                <Input
+                  id="issue_date"
+                  type="date"
+                  value={licenseForm.issue_date}
+                  onChange={(e) => setLicenseForm(prev => ({ ...prev, issue_date: e.target.value }))}
+                  className="border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-black/20"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="expiry_date" className="text-gray-700 dark:text-gray-300">Expiry Date</Label>
+                <Input
+                  id="expiry_date"
+                  type="date"
+                  value={licenseForm.expiry_date}
+                  onChange={(e) => setLicenseForm(prev => ({ ...prev, expiry_date: e.target.value }))}
+                  className="border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-black/20"
+                />
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setIsLicenseModalOpen(false)}
+              className="border-gray-200 dark:border-white/10"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleSaveLicense}
+              className="bg-yellow-400 hover:bg-yellow-500 dark:bg-yellow-500 dark:hover:bg-yellow-400 text-black font-semibold"
+            >
+              {editingLicenseIndex !== null ? 'Update License' : 'Add License'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Certification Add/Edit Modal */}
+      <Dialog open={isCertificationModalOpen} onOpenChange={setIsCertificationModalOpen}>
+        <DialogContent className="sm:max-w-[500px] bg-white dark:bg-[#1c1e24] border-gray-200 dark:border-white/10">
+          <DialogHeader>
+            <DialogTitle className="text-gray-900 dark:text-white">
+              {editingCertificationIndex !== null ? 'Edit Certification' : 'Add New Certification'}
+            </DialogTitle>
+            <DialogDescription className="text-gray-500 dark:text-gray-400">
+              Enter the details of your professional certification
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="cert_name" className="text-gray-700 dark:text-gray-300">Certification Name *</Label>
+              <Input
+                id="cert_name"
+                value={certificationForm.name}
+                onChange={(e) => setCertificationForm(prev => ({ ...prev, name: e.target.value }))}
+                placeholder="e.g., OSHA 30 Certification"
+                className="border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-black/20"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="cert_num" className="text-gray-700 dark:text-gray-300">Certification Number</Label>
+              <Input
+                id="cert_num"
+                value={certificationForm.certification_number}
+                onChange={(e) => setCertificationForm(prev => ({ ...prev, certification_number: e.target.value }))}
+                placeholder="e.g., OSHA-30-12345"
+                className="border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-black/20"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="issuing_org" className="text-gray-700 dark:text-gray-300">Issuing Organization</Label>
+              <Input
+                id="issuing_org"
+                value={certificationForm.issuing_organization}
+                onChange={(e) => setCertificationForm(prev => ({ ...prev, issuing_organization: e.target.value }))}
+                placeholder="e.g., OSHA"
+                className="border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-black/20"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="cert_issue_date" className="text-gray-700 dark:text-gray-300">Issue Date</Label>
+                <Input
+                  id="cert_issue_date"
+                  type="date"
+                  value={certificationForm.issue_date}
+                  onChange={(e) => setCertificationForm(prev => ({ ...prev, issue_date: e.target.value }))}
+                  className="border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-black/20"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="cert_expiry_date" className="text-gray-700 dark:text-gray-300">Expiry Date</Label>
+                <Input
+                  id="cert_expiry_date"
+                  type="date"
+                  value={certificationForm.expiry_date}
+                  onChange={(e) => setCertificationForm(prev => ({ ...prev, expiry_date: e.target.value }))}
+                  className="border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-black/20"
+                />
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setIsCertificationModalOpen(false)}
+              className="border-gray-200 dark:border-white/10"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleSaveCertification}
+              className="bg-yellow-400 hover:bg-yellow-500 dark:bg-yellow-500 dark:hover:bg-yellow-400 text-black font-semibold"
+            >
+              {editingCertificationIndex !== null ? 'Update Certification' : 'Add Certification'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

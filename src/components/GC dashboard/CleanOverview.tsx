@@ -284,20 +284,6 @@ const CleanOverview = () => {
                         <p className="text-sm text-gray-700 dark:text-gray-300">{project.completion || 'TBD'}</p>
                       </div>
                     </div>
-
-                    {/* Progress Bar */}
-                    <div className="space-y-2">
-                      <div className="flex justify-between items-center text-xs">
-                        <span className="text-gray-500 dark:text-gray-400 font-medium">Progress</span>
-                        <span className="text-gray-900 dark:text-white font-bold">{project.progress}%</span>
-                      </div>
-                      <div className="h-2 w-full bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
-                        <div
-                          className="h-full bg-accent rounded-full transition-all duration-500"
-                          style={{ width: `${project.progress}%` }}
-                        ></div>
-                      </div>
-                    </div>
                   </div>
                 </div>
               );

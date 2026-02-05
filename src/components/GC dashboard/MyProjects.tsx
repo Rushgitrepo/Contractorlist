@@ -76,12 +76,14 @@ const MyProjects = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [editingProjectId, setEditingProjectId] = useState<number | null>(null);
   const [newProjectName, setNewProjectName] = useState('');
-  const [newProjectLocation, setNewProjectLocation] = useState('');
   const [newProjectClient, setNewProjectClient] = useState('');
-  const [newProjectBudget, setNewProjectBudget] = useState('');
-  const [newProjectDuration, setNewProjectDuration] = useState('');
+  const [newProjectType, setNewProjectType] = useState('');
+  const [newProjectCity, setNewProjectCity] = useState('');
+  const [newProjectState, setNewProjectState] = useState('');
+  const [newProjectContractValue, setNewProjectContractValue] = useState('');
   const [newProjectStatus, setNewProjectStatus] = useState('Planning');
-  const [newProjectDescription, setNewProjectDescription] = useState('');
+  const [newProjectStartDate, setNewProjectStartDate] = useState('');
+  const [newProjectExpectedCompletion, setNewProjectExpectedCompletion] = useState('');
 
   // Custom Global Upload State
   const [showGlobalUploadModal, setShowGlobalUploadModal] = useState(false);
@@ -240,37 +242,37 @@ const MyProjects = () => {
 
   const resetForm = () => {
     setNewProjectName('');
-    setNewProjectLocation('');
     setNewProjectClient('');
-    setNewProjectBudget('');
-    setNewProjectDuration('');
+    setNewProjectType('');
+    setNewProjectCity('');
+    setNewProjectState('');
+    setNewProjectContractValue('');
     setNewProjectStatus('Planning');
-    setNewProjectDescription('');
+    setNewProjectStartDate('');
+    setNewProjectExpectedCompletion('');
     setIsEditing(false);
     setEditingProjectId(null);
   };
 
   const handleSaveProject = async () => {
     try {
-      const budgetValue = newProjectBudget.replace(/[^0-9.]/g, '');
-      const durationValue = newProjectDuration.replace(/[^0-9]/g, '');
+      const contractValueNum = newProjectContractValue.replace(/[^0-9.]/g, '');
 
       const projectData = {
         name: newProjectName,
-        location: newProjectLocation || undefined,
         client: newProjectClient || undefined,
+        project_type: newProjectType || undefined,
+        city: newProjectCity || undefined,
+        state: newProjectState || undefined,
+        contract_value: contractValueNum === '' ? undefined : parseFloat(contractValueNum),
         status: newProjectStatus as any,
-        budget: budgetValue === '' ? undefined : parseFloat(budgetValue),
-        duration: durationValue === '' ? undefined : parseInt(durationValue, 10),
-        description: newProjectDescription || undefined
+        start_date: newProjectStartDate || undefined,
+        expected_completion_date: newProjectExpectedCompletion || undefined
       };
 
-      // Filter out budget/duration if they are NaN or <= 0 (matching backend z.number().positive())
-      if (projectData.budget !== undefined && (isNaN(projectData.budget) || projectData.budget <= 0)) {
-        delete projectData.budget;
-      }
-      if (projectData.duration !== undefined && (isNaN(projectData.duration) || projectData.duration <= 0)) {
-        delete projectData.duration;
+      // Filter out contract_value if it's NaN or <= 0
+      if (projectData.contract_value !== undefined && (isNaN(projectData.contract_value) || projectData.contract_value <= 0)) {
+        delete projectData.contract_value;
       }
 
       if (isEditing && editingProjectId) {
@@ -357,11 +359,14 @@ const MyProjects = () => {
     setIsEditing(true);
     setEditingProjectId(project.id);
     setNewProjectName(project.name || '');
-    setNewProjectLocation(project.location || '');
     setNewProjectClient(project.client || '');
-    setNewProjectBudget(project.budget?.toString() || '');
+    setNewProjectType(project.project_type || '');
+    setNewProjectCity(project.city || '');
+    setNewProjectState(project.state || '');
+    setNewProjectContractValue(project.contract_value?.toString() || '');
     setNewProjectStatus(project.status || 'Planning');
-    setNewProjectDescription(project.description || '');
+    setNewProjectStartDate(project.start_date || '');
+    setNewProjectExpectedCompletion(project.expected_completion_date || '');
     setShowNewProject(true);
   };
 
@@ -470,8 +475,8 @@ const MyProjects = () => {
   };
 
   const downloadCSVTemplate = () => {
-    const headers = ["Name", "Location", "Client", "Status", "Budget", "Duration", "Description"];
-    const row = ["Luxury Apartment Complex", "Houston, TX", "Hines Development", "Planning", "5000000", "18", "Full construction of a 50-unit complex"];
+    const headers = ["Project Name", "Client Name", "Project Type", "City", "State", "Contract Value", "Project Status", "Start Date", "Expected Completion Date"];
+    const row = ["Downtown Office Renovation", "ABC Corporation", "Commercial", "Houston", "Texas", "250000", "Planning", "2026-03-01", "2026-09-30"];
     const csvContent = [headers.join(","), row.join(",")].join("\n");
     const blob = new Blob([csvContent], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
@@ -688,7 +693,6 @@ const MyProjects = () => {
                     <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-500 uppercase">Client</th>
                     <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-500 uppercase">Status</th>
                     <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-500 uppercase">Budget</th>
-                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-500 uppercase">Timeline</th>
                     <th className="px-6 py-4 text-right text-xs font-medium text-gray-500 dark:text-gray-500 uppercase">Action</th>
                   </tr>
                 </thead>
@@ -701,10 +705,7 @@ const MyProjects = () => {
                       <td className="px-6 py-4 text-sm text-gray-900 dark:text-white font-mono font-medium">
                         {formatCurrency(project.budget)}
                       </td>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-2"><Progress value={project.progress} className="w-24 h-1.5 bg-gray-200 dark:bg-white/10" /><span className="text-xs text-gray-500 whitespace-nowrap">{project.progress}%</span></div>
-                        <div className="text-[10px] text-gray-400 dark:text-gray-600 mt-1">{project.completion}</div>
-                      </td>
+
                       <td className="px-6 py-4 text-right" onClick={(e) => e.stopPropagation()}>
                         <div className="flex justify-end gap-2 items-center">
                           {/* Active/Inactive Toggle */}
@@ -878,38 +879,45 @@ const MyProjects = () => {
 
         {/* New Project Dialog */}
         <Dialog open={showNewProject} onOpenChange={setShowNewProject}>
-          <DialogContent className="bg-white dark:bg-[#1c1e24] border-gray-200 dark:border-white/10 text-gray-900 dark:text-white sm:max-w-xl">
-            <DialogHeader>
-              <DialogTitle className="text-xl font-bold">{isEditing ? 'Edit Project' : 'Create New Project'}</DialogTitle>
-              <DialogDescription className="text-gray-500 dark:text-gray-400">{isEditing ? 'Update project details and settings.' : 'Fill in the details below to initialize a new construction project.'}</DialogDescription>
+          <DialogContent className="bg-white dark:bg-[#1c1e24] border-gray-200 dark:border-white/10 text-gray-900 dark:text-white sm:max-w-lg">
+            <DialogHeader className="pb-3">
+              <DialogTitle className="text-lg font-bold">{isEditing ? 'Edit Project' : 'Create New Project'}</DialogTitle>
+              <DialogDescription className="text-sm text-gray-500 dark:text-gray-400">{isEditing ? 'Update project details and settings.' : 'Fill in the details below to initialize a new construction project.'}</DialogDescription>
             </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2"><Label className="text-gray-700 dark:text-gray-300">Project Name</Label><Input placeholder="e.g. Office Renovation" className="bg-gray-50 dark:bg-black/20 border-gray-200 dark:border-white/10 text-gray-900 dark:text-white" value={newProjectName} onChange={(e) => setNewProjectName(e.target.value)} /></div>
-                <div className="space-y-2"><Label className="text-gray-700 dark:text-gray-300">Location</Label><Input placeholder="City, State" className="bg-gray-50 dark:bg-black/20 border-gray-200 dark:border-white/10 text-gray-900 dark:text-white" value={newProjectLocation} onChange={(e) => setNewProjectLocation(e.target.value)} /></div>
+            <div className="grid gap-3.5 py-3">
+              <div className="grid grid-cols-2 gap-3.5">
+                <div className="space-y-1.5"><Label className="text-sm text-gray-700 dark:text-gray-300">Project Name *</Label><Input placeholder="e.g. Office Renovation" className="bg-gray-50 dark:bg-black/20 border-gray-200 dark:border-white/10 text-gray-900 dark:text-white h-9" value={newProjectName} onChange={(e) => setNewProjectName(e.target.value)} /></div>
+                <div className="space-y-1.5"><Label className="text-sm text-gray-700 dark:text-gray-300">Client Name</Label><Input placeholder="Client Name" className="bg-gray-50 dark:bg-black/20 border-gray-200 dark:border-white/10 text-gray-900 dark:text-white h-9" value={newProjectClient} onChange={(e) => setNewProjectClient(e.target.value)} /></div>
               </div>
-              <div className="space-y-2"><Label className="text-gray-700 dark:text-gray-300">Client / Owner</Label><Input placeholder="Client Name" className="bg-gray-50 dark:bg-black/20 border-gray-200 dark:border-white/10 text-gray-900 dark:text-white" value={newProjectClient} onChange={(e) => setNewProjectClient(e.target.value)} /></div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2"><Label className="text-gray-700 dark:text-gray-300">Estimated Budget</Label><Input placeholder="$0.00" className="bg-gray-50 dark:bg-black/20 border-gray-200 dark:border-white/10 text-gray-900 dark:text-white" value={newProjectBudget} onChange={(e) => setNewProjectBudget(e.target.value)} /></div>
-                <div className="space-y-2">
-                  <Label className="text-gray-700 dark:text-gray-300">Timeline / Status</Label>
+              <div className="space-y-1.5"><Label className="text-sm text-gray-700 dark:text-gray-300">Project Type</Label><Input placeholder="e.g. Commercial, Residential, Industrial" className="bg-gray-50 dark:bg-black/20 border-gray-200 dark:border-white/10 text-gray-900 dark:text-white h-9" value={newProjectType} onChange={(e) => setNewProjectType(e.target.value)} /></div>
+              <div className="grid grid-cols-2 gap-3.5">
+                <div className="space-y-1.5"><Label className="text-sm text-gray-700 dark:text-gray-300">City</Label><Input placeholder="City" className="bg-gray-50 dark:bg-black/20 border-gray-200 dark:border-white/10 text-gray-900 dark:text-white h-9" value={newProjectCity} onChange={(e) => setNewProjectCity(e.target.value)} /></div>
+                <div className="space-y-1.5"><Label className="text-sm text-gray-700 dark:text-gray-300">State</Label><Input placeholder="State" className="bg-gray-50 dark:bg-black/20 border-gray-200 dark:border-white/10 text-gray-900 dark:text-white h-9" value={newProjectState} onChange={(e) => setNewProjectState(e.target.value)} /></div>
+              </div>
+              <div className="grid grid-cols-2 gap-3.5">
+                <div className="space-y-1.5"><Label className="text-sm text-gray-700 dark:text-gray-300">Contract Value</Label><Input placeholder="$0.00" className="bg-gray-50 dark:bg-black/20 border-gray-200 dark:border-white/10 text-gray-900 dark:text-white h-9" value={newProjectContractValue} onChange={(e) => setNewProjectContractValue(e.target.value)} /></div>
+                <div className="space-y-1.5">
+                  <Label className="text-sm text-gray-700 dark:text-gray-300">Project Status</Label>
                   <Select value={newProjectStatus} onValueChange={setNewProjectStatus}>
-                    <SelectTrigger className="bg-gray-50 dark:bg-black/20 border-gray-200 dark:border-white/10 text-gray-900 dark:text-white"><SelectValue placeholder="Select status" /></SelectTrigger>
+                    <SelectTrigger className="bg-gray-50 dark:bg-black/20 border-gray-200 dark:border-white/10 text-gray-900 dark:text-white h-9"><SelectValue placeholder="Select status" /></SelectTrigger>
                     <SelectContent className="bg-white dark:bg-[#1c1e24] border-gray-200 dark:border-white/10 text-gray-900 dark:text-white">
                       <SelectItem value="Planning">Planning</SelectItem>
-                      <SelectItem value="Active">Active / In Progress</SelectItem>
                       <SelectItem value="Bidding">Bidding</SelectItem>
-                      <SelectItem value="On Hold">On Hold</SelectItem>
+                      <SelectItem value="Active">Active</SelectItem>
                       <SelectItem value="Completed">Completed</SelectItem>
+                      <SelectItem value="On Hold">On Hold</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
               </div>
-              <div className="space-y-2"><Label className="text-gray-700 dark:text-gray-300">Description (Optional)</Label><Textarea placeholder="Brief details..." className="bg-gray-50 dark:bg-black/20 border-gray-200 dark:border-white/10 text-gray-900 dark:text-white min-h-[80px]" value={newProjectDescription} onChange={(e) => setNewProjectDescription(e.target.value)} /></div>
+              <div className="grid grid-cols-2 gap-3.5">
+                <div className="space-y-1.5"><Label className="text-sm text-gray-700 dark:text-gray-300">Start Date</Label><Input type="date" className="bg-gray-50 dark:bg-black/20 border-gray-200 dark:border-white/10 text-gray-900 dark:text-white h-9" value={newProjectStartDate} onChange={(e) => setNewProjectStartDate(e.target.value)} /></div>
+                <div className="space-y-1.5"><Label className="text-sm text-gray-700 dark:text-gray-300">Expected Completion</Label><Input type="date" className="bg-gray-50 dark:bg-black/20 border-gray-200 dark:border-white/10 text-gray-900 dark:text-white h-9" value={newProjectExpectedCompletion} onChange={(e) => setNewProjectExpectedCompletion(e.target.value)} /></div>
+              </div>
             </div>
-            <div className="flex justify-end gap-3">
-              <Button variant="ghost" onClick={() => setShowNewProject(false)}>Cancel</Button>
-              <Button onClick={handleSaveProject} className="bg-accent hover:bg-accent/90 text-accent-foreground">{isEditing ? 'Save Changes' : 'Create Project'}</Button>
+            <div className="flex justify-end gap-2.5 pt-3">
+              <Button variant="ghost" onClick={() => setShowNewProject(false)} className="h-9">Cancel</Button>
+              <Button onClick={handleSaveProject} className="bg-accent hover:bg-accent/90 text-accent-foreground h-9">{isEditing ? 'Save Changes' : 'Create Project'}</Button>
             </div>
           </DialogContent>
         </Dialog>
@@ -1151,7 +1159,7 @@ const MyProjects = () => {
                 <p className="text-[11px] text-black-800 dark:text-black-800 leading-relaxed">
                   Your file should contain the following columns:
                   <br />
-                  <code className="text">Name (required)</code>, <code className="text">Location</code>, <code className="text">Client</code>, <code className="text">Status</code>, <code className="text">Budget</code>, <code className="text">Duration</code>, <code className="text">Description</code>
+                  <code className="text">Name (required)</code>, <code className="text">Client</code>, <code className="text">Project Type</code>, <code className="text">City</code>, <code className="text">State</code>, <code className="text">Contract Value</code>, <code className="text">Status</code>, <code className="text">Start Date</code>, <code className="text">Expected Completion Date</code>
                 </p>
                 <div className="pt-2">
                   <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Status Values:</p>

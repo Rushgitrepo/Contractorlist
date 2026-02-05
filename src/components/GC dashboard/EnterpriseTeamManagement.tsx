@@ -161,49 +161,61 @@ const EnterpriseTeamManagement = () => {
 
   const handleAddMember = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Close modal immediately
+    setIsAddModalOpen(false);
+
+    // Capture current state values for the API call
+    const currentIsEditing = isEditing;
+    const currentMemberId = editingMemberId;
+    const currentName = name;
+
+    const memberData = {
+      name,
+      email,
+      phone,
+      role,
+      type: type,
+      employee_id: isEditing && employeeId ? employeeId : `EMP-${Math.floor(Math.random() * 10000)}`,
+      status: 'Active'
+    };
+
+    // Reset form state immediately
+    setIsEditing(false);
+    setEditingMemberId(null);
+    setName('');
+    setEmail('');
+    setPhone('');
+    setRole('');
+    setEmployeeId('');
+    setType('Direct Employee');
+
+    // Run API call in background
     try {
       const methods = inviteMethod === 'both' ? 'Email and SMS' : inviteMethod.toUpperCase();
 
-      const memberData = {
-        name,
-        email,
-        phone,
-        role,
-        type: type,
-        employee_id: isEditing && employeeId ? employeeId : `EMP-${Math.floor(Math.random() * 10000)}`,
-        status: 'Active'
-      };
-
-      if (isEditing && editingMemberId) {
-        await updateTeamMember(Number(editingMemberId), memberData);
+      if (currentIsEditing && currentMemberId) {
+        await updateTeamMember(Number(currentMemberId), memberData);
         toast({
           title: "Team Member Updated",
-          description: `${name}'s profile has been updated.`,
+          description: `${currentName}'s profile has been updated.`,
         });
       } else {
         await createTeamMember(memberData);
         toast({
           title: "Team Member Added",
-          description: `${name} has been added to your team. Invitation sent via ${methods}.`,
+          description: `${currentName} has been added to your team. Invitation sent via ${methods}.`,
         });
       }
-
-      setIsAddModalOpen(false);
-      setIsEditing(false);
-      setEditingMemberId(null);
       loadTeamMembers();
-      setName('');
-      setEmail('');
-      setPhone('');
-      setRole('');
-      setEmployeeId('');
-      setType('Direct Employee');
     } catch (error) {
+      console.error("Team member operation failed:", error);
       toast({
         title: "Error",
-        description: `Failed to ${isEditing ? 'update' : 'create'} team member`,
+        description: `Failed to ${currentIsEditing ? 'update' : 'create'} team member`,
         variant: "destructive"
       });
+      // Optionally re-open modal or handle error state here if needed
     }
   };
 
@@ -258,57 +270,51 @@ const EnterpriseTeamManagement = () => {
     <div className="space-y-8">
 
       {/* Discovery & Search Hub */}
-      <div className="relative overflow-hidden rounded-2xl bg-white dark:bg-[#1c1e24] p-6 border border-gray-200 dark:border-white/5 shadow-sm">
-        <div className="relative z-10 space-y-6">
-          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-1 leading-tight">Team Hub</h2>
-              <p className="text-sm text-gray-500 dark:text-gray-400 font-medium max-w-md">
-                Manage your staff or discover new verified partners for your upcoming projects.
-              </p>
-            </div>
-
-            <div className="flex bg-gray-100 dark:bg-white/5 p-1 rounded-xl border border-gray-200 dark:border-white/10">
+      <div className="relative overflow-hidden rounded-2xl bg-white dark:bg-[#1c1e24] p-4 border border-gray-200 dark:border-white/5 shadow-sm">
+        <div className="relative z-10 space-y-4">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="flex bg-gray-100 dark:bg-white/5 p-1 rounded-xl border border-gray-200 dark:border-white/10 shrink-0">
               <button
-                className="flex items-center gap-2 px-5 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-colors bg-white dark:bg-white/10 text-gray-900 dark:text-white shadow-sm"
+                className="flex items-center gap-2 px-4 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-colors bg-white dark:bg-white/10 text-gray-900 dark:text-white shadow-sm"
               >
-                <Users size={14} /> My Team
+                <Users size={12} /> My Team
               </button>
               <button
                 onClick={() => navigate('/gc-dashboard/directory')}
-                className="flex items-center gap-2 px-5 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-colors text-gray-400 hover:text-gray-900 dark:hover:text-white"
+                className="flex items-center gap-2 px-4 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-colors text-gray-400 hover:text-gray-900 dark:hover:text-white"
               >
-                <Globe size={14} /> Sub Contractor Directory
+                <Globe size={12} /> Directory
               </button>
+            </div>
+            <div className="flex flex-col md:flex-row gap-3">
+              <div className="relative flex-1 group">
+                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 group-focus-within:text-yellow-500 transition-colors" />
+                <Input
+                  placeholder="Search by name or employee ID..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10 h-10 bg-gray-50 dark:bg-black/30 border-gray-200 dark:border-white/10 rounded-xl text-sm font-medium focus:ring-yellow-500/20"
+                />
+              </div>
+              <Button
+                className="h-10 px-5 bg-yellow-400 hover:bg-yellow-500 text-black font-bold uppercase tracking-widest rounded-xl shadow-sm border-0 text-[10px]"
+                onClick={() => {
+                  setIsEditing(false);
+                  setName('');
+                  setEmail('');
+                  setPhone('');
+                  setRole('');
+                  setEmployeeId('');
+                  setType('Direct Employee');
+                  setIsAddModalOpen(true);
+                }}
+              >
+                <Plus className="mr-2" size={16} /> Add Member
+              </Button>
             </div>
           </div>
 
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="relative flex-1 group">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 group-focus-within:text-yellow-500 transition-colors" />
-              <Input
-                placeholder="Search by name or employee ID..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-12 h-12 bg-gray-50 dark:bg-black/30 border-gray-200 dark:border-white/10 rounded-xl text-base font-medium focus:ring-yellow-500/20"
-              />
-            </div>
-            <Button
-              className="h-12 px-6 bg-yellow-400 hover:bg-yellow-500 text-black font-bold uppercase tracking-widest rounded-xl shadow-sm border-0"
-              onClick={() => {
-                setIsEditing(false);
-                setName('');
-                setEmail('');
-                setPhone('');
-                setRole('');
-                setEmployeeId('');
-                setType('Direct Employee');
-                setIsAddModalOpen(true);
-              }}
-            >
-              <Plus className="mr-2" size={18} /> Add Member
-            </Button>
-          </div>
+
         </div>
       </div>
 
@@ -491,7 +497,7 @@ const EnterpriseTeamManagement = () => {
               />
             </div>
 
-            {/* <div className="space-y-3 pt-2">
+            <div className="space-y-3 pt-2">
               <Label className="text-gray-700 dark:text-gray-300">Invitation Method</Label>
               <div className="grid grid-cols-3 gap-2">
                 <button
@@ -531,7 +537,7 @@ const EnterpriseTeamManagement = () => {
                   <span className="text-[10px] font-bold uppercase">Both</span>
                 </button>
               </div>
-            </div> */}
+            </div>
 
             <DialogFooter className="pt-4">
               <Button type="button" variant="ghost" onClick={() => setIsAddModalOpen(false)} className="text-gray-500">Cancel</Button>

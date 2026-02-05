@@ -304,61 +304,19 @@ const ProjectDiscovery = () => {
               >
                 Search Market
               </Button>
-              <button
-                onClick={() => {
-                  setSearchQuery('');
-                  setFilters({
-                    location: "",
-                    radius: 100,
-                    keywords: "",
-                    stages: [],
-                    solicitationStatus: [],
-                    categories: [],
-                    sectors: [],
-                    constructionTypes: [],
-                    laborRequirements: [],
-                    trades: [],
-                    valueRanges: [],
-                    minBudget: "",
-                    maxBudget: "",
-                    minSize: "",
-                    maxSize: "",
-                    sources: [],
-                    nigpCode: "",
-                    bidDateFrom: "",
-                    bidDateTo: "",
-                    documentsOnly: false,
-                    savedOnly: false,
-                    state: "",
-                    city: "",
-                    county: "",
-                    publishDate: "",
-                    biddingWithin: "",
-                    materials: [],
-                    experienceLevel: "",
-                    bonded: false,
-                    insured: false,
-                    specAlerts: false
-                  });
-                }}
-                className="text-yellow-600 dark:text-yellow-500 text-[10px] font-black uppercase tracking-widest hover:underline flex items-center gap-1"
-              >
-                Clear Search
-              </button>
+              
             </div>
 
-            {/* View Toggles */}
-            <div className="ml-auto flex items-center self-center gap-2 bg-gray-100 dark:bg-black/20 p-1 rounded-lg border border-gray-200 dark:border-white/10">
-              <Button variant="ghost" size="sm" onClick={() => setViewMode('card')} className={cn("rounded-md h-8 w-8 p-0", viewMode === 'card' ? "bg-white dark:bg-white/10 text-gray-900 dark:text-white shadow-sm" : "text-gray-400")}><Layers size={16} /></Button>
-              <Button variant="ghost" size="sm" onClick={() => setViewMode('table')} className={cn("rounded-md h-8 w-8 p-0", viewMode === 'table' ? "bg-white dark:bg-white/10 text-gray-900 dark:text-white shadow-sm" : "text-gray-400")}><ListIcon size={16} /></Button>
-            </div>
+           
           </div>
+          
         </div>
       </div>
 
       <div className="flex-1 flex overflow-hidden relative z-10">
         {/* Industry Advanced Filters Sidebar */}
         <aside className="w-80 bg-gray-50 dark:bg-[#13151b] border-r border-gray-200 dark:border-white/10 hidden xl:flex flex-col overflow-y-auto custom-scrollbar">
+          
           <ProjectFilters onFiltersChange={setFilters} initialFilters={filters} />
         </aside>
 
@@ -366,13 +324,24 @@ const ProjectDiscovery = () => {
         <main className="flex-1 overflow-y-auto p-8 custom-scrollbar bg-white dark:bg-[#0f1115]">
           <div className="max-w-7xl mx-auto space-y-8">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
+              
+              <div className="flex items-center gap-">
                 <TrendingUp className="w-5 h-5 text-yellow-500" />
                 <h2 className="text-xl font-black">Consolidated Bid Feed</h2>
                 <div className="flex gap-2">
                   <Badge variant="outline" className="text-[9px] border-none text-gray-500 bg-gray-100 dark:bg-white/5 px-3 py-1 uppercase">{filteredProjects.length} Projects Available</Badge>
                 </div>
+              
+
               </div>
+            
+              
+               {/* View Toggles */}
+            <div className="ml-auto flex items-center self-center gap-2 bg-gray-100 dark:bg-black/20 p-1 rounded-lg border border-gray-200 dark:border-white/10">
+              <Button variant="ghost" size="sm" onClick={() => setViewMode('card')} className={cn("rounded-md h-8 w-8 p-0", viewMode === 'card' ? "bg-white dark:bg-white/10 text-gray-900 dark:text-white shadow-sm" : "text-gray-400")}><Layers size={16} /></Button>
+              <Button variant="ghost" size="sm" onClick={() => setViewMode('table')} className={cn("rounded-md h-8 w-8 p-0", viewMode === 'table' ? "bg-white dark:bg-white/10 text-gray-900 dark:text-white shadow-sm" : "text-gray-400")}><ListIcon size={16} /></Button>
+            </div>
+            
             </div>
 
             <div className={cn("grid gap-8", viewMode === 'card' ? "grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3" : "grid-cols-1")}>
