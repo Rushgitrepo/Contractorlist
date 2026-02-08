@@ -48,8 +48,8 @@ import {
 } from "lucide-react";
 import CompanyCard from "@/components/CompanyCard";
 import ProjectTypeSelector from "@/components/ProjectTypeSelector";
-import HeroSection from "@/components/HeroSection";
 import ContractorHeroSection from "@/components/ContractorHeroSection";
+
 import ReduxHeader from "@/components/ReduxHeader";
 import companyService, { CompanySearchFilters } from "@/api/companyService";
 import { normalizeCompanyData } from "@/utils/normalizeCompany";
@@ -90,7 +90,7 @@ const USLocations = [
 const Contractors = () => {
   const [params] = useSearchParams();
   const navigate = useNavigate();
-  const { user } = useAppSelector((state) => state.auth);
+
 
   const zip = (params.get("zip") || "").trim();
   const serviceRaw = (params.get("service") || "").trim();
@@ -380,7 +380,6 @@ const Contractors = () => {
   }, [
     zip,
     serviceRaw,
-    location,
     verifiedLicense,
     respondsQuickly,
     hiredOnPlatform,
@@ -393,8 +392,8 @@ const Contractors = () => {
     offersCustomWork,
     selectedLanguage,
     selectedRating,
-    search,
   ]);
+
 
   // Use API results instead of filtered data
   // const visibleContractors = results; (Legacy removed)

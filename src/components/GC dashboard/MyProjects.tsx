@@ -1,5 +1,6 @@
-import { getProjects, createProject as createProjectAPI, updateProject as updateProjectAPI, deleteProject as deleteProjectAPI, getTeamMembers, assignTeamMember, removeTeamMemberFromProject, getProjectTeamMembers, uploadDocument, bulkUploadProjects } from '@/api/gc-apis';
+import { createProject as createProjectAPI, updateProject as updateProjectAPI, deleteProject as deleteProjectAPI, assignTeamMember, removeTeamMemberFromProject, getProjectTeamMembers, uploadDocument, bulkUploadProjects } from '@/api/gc-apis';
 import { useState, useEffect } from 'react';
+
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -20,6 +21,8 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from "@/hooks/use-toast";
+import { useProjectsQuery, useTeamMembersQuery } from "@/hooks/useGcDashboardQueries";
+
 import EnterpriseTeamManagement from './EnterpriseTeamManagement';
 import ProjectDocuments from './ProjectDocuments';
 import {
@@ -64,8 +67,10 @@ const MyProjects = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const activeTab = searchParams.get('tab') || 'projects';
   const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [projects, setProjects] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+
   const [showProjectDetails, setShowProjectDetails] = useState(false);
   const [selectedProjectData, setSelectedProjectData] = useState<any>(null);
   const [currentProjectId, setCurrentProjectId] = useState<number | null>(null);
@@ -116,35 +121,38 @@ const MyProjects = () => {
     setAlertConfig({ isOpen: true, title, description, onConfirm, variant });
   };
 
-  // Load Projects and Team Members
+  // Load Projects and Team Members (debounced search via React Query)
   useEffect(() => {
-    const loadData = async () => {
-      try {
-        const [projectsData, teamData] = await Promise.all([
-          getProjects({ search: searchQuery }),
-          getTeamMembers()
-        ]);
-        setProjects(projectsData);
-        setExistingTeamMembers(teamData);
-        if (projectsData.length > 0 && !currentProjectId) {
-          setCurrentProjectId(projectsData[0].id);
-        }
-      } catch (error) {
-        console.error("Failed to load data", error);
-        toast({
-          title: "Error loading data",
-          description: "Some dashboard information could not be loaded.",
-          variant: "destructive"
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
     const timer = setTimeout(() => {
-      loadData();
-    }, 300); // 300ms debounce
+      setDebouncedSearch(searchQuery);
+    }, 300); // 300ms debounce to avoid spamming backend while typing
     return () => clearTimeout(timer);
   }, [searchQuery]);
+
+  const { data: projectsData, isLoading: projectsLoading, refetch: refetchProjects } = useProjectsQuery(debouncedSearch);
+  const { data: teamMembersData, isLoading: teamLoading } = useTeamMembersQuery();
+
+  useEffect(() => {
+    if (projectsData) {
+      setProjects(projectsData);
+      if (projectsData.length > 0 && !currentProjectId) {
+        setCurrentProjectId(projectsData[0].id);
+      }
+    }
+  }, [projectsData, currentProjectId]);
+
+  useEffect(() => {
+    if (teamMembersData) {
+      setExistingTeamMembers(teamMembersData);
+    }
+  }, [teamMembersData]);
+
+  useEffect(() => {
+    setLoading(projectsLoading || teamLoading);
+  }, [projectsLoading, teamLoading]);
+
+
+
 
 
 
@@ -167,8 +175,8 @@ const MyProjects = () => {
       setShowProjectDetails(false);
 
       // Optional: Refetch to be 100% sure
-      const updatedProjects = await getProjects({ search: searchQuery });
-      setProjects(updatedProjects);
+      await refetchProjects();
+
     } catch (error: any) {
       console.error('Delete project error:', error);
       console.error('Error response:', error.response?.data);
@@ -256,7 +264,21 @@ const MyProjects = () => {
 
   const handleSaveProject = async () => {
     try {
-      const contractValueNum = newProjectContractValue.replace(/[^0-9.]/g, '');
+      const trimmedContractValue = newProjectContractValue.trim();
+
+      let parsedContractValue: number | undefined;
+      if (trimmedContractValue !== '') {
+        const numericValue = Number(trimmedContractValue);
+        if (Number.isNaN(numericValue) || numericValue <= 0) {
+          toast({
+            title: "Invalid Contract Value",
+            description: "Please enter a positive number for the contract value.",
+            variant: "destructive",
+          });
+          return;
+        }
+        parsedContractValue = numericValue;
+      }
 
       const projectData = {
         name: newProjectName,
@@ -264,16 +286,12 @@ const MyProjects = () => {
         project_type: newProjectType || undefined,
         city: newProjectCity || undefined,
         state: newProjectState || undefined,
-        contract_value: contractValueNum === '' ? undefined : parseFloat(contractValueNum),
+        contract_value: parsedContractValue,
         status: newProjectStatus as any,
         start_date: newProjectStartDate || undefined,
-        expected_completion_date: newProjectExpectedCompletion || undefined
+        expected_completion_date: newProjectExpectedCompletion || undefined,
       };
 
-      // Filter out contract_value if it's NaN or <= 0
-      if (projectData.contract_value !== undefined && (isNaN(projectData.contract_value) || projectData.contract_value <= 0)) {
-        delete projectData.contract_value;
-      }
 
       if (isEditing && editingProjectId) {
         const updated = await updateProjectAPI(editingProjectId, projectData as any);
@@ -296,10 +314,8 @@ const MyProjects = () => {
 
       setShowNewProject(false);
       resetForm();
-      const [projectsData] = await Promise.all([
-        getProjects({ search: searchQuery }),
-      ]);
-      setProjects(projectsData);
+      await refetchProjects();
+
     } catch (error) {
       toast({
         title: "Error",
@@ -460,8 +476,8 @@ const MyProjects = () => {
       setSelectedBulkFile(null);
 
       // Refresh projects
-      const projectsData = await getProjects({ search: searchQuery });
-      setProjects(projectsData);
+      await refetchProjects();
+
     } catch (error: any) {
       console.error("Bulk upload error", error);
       toast({
@@ -895,8 +911,19 @@ const MyProjects = () => {
                 <div className="space-y-1.5"><Label className="text-sm text-gray-700 dark:text-gray-300">State</Label><Input placeholder="State" className="bg-gray-50 dark:bg-black/20 border-gray-200 dark:border-white/10 text-gray-900 dark:text-white h-9" value={newProjectState} onChange={(e) => setNewProjectState(e.target.value)} /></div>
               </div>
               <div className="grid grid-cols-2 gap-3.5">
-                <div className="space-y-1.5"><Label className="text-sm text-gray-700 dark:text-gray-300">Contract Value</Label><Input placeholder="$0.00" className="bg-gray-50 dark:bg-black/20 border-gray-200 dark:border-white/10 text-gray-900 dark:text-white h-9" value={newProjectContractValue} onChange={(e) => setNewProjectContractValue(e.target.value)} /></div>
                 <div className="space-y-1.5">
+                  <Label className="text-sm text-gray-700 dark:text-gray-300">Contract Value</Label>
+                  <Input
+                    type="number"
+                    inputMode="decimal"
+                    placeholder="0.00"
+                    className="bg-gray-50 dark:bg-black/20 border-gray-200 dark:border-white/10 text-gray-900 dark:text-white h-9"
+                    value={newProjectContractValue}
+                    onChange={(e) => setNewProjectContractValue(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-1.5">
+
                   <Label className="text-sm text-gray-700 dark:text-gray-300">Project Status</Label>
                   <Select value={newProjectStatus} onValueChange={setNewProjectStatus}>
                     <SelectTrigger className="bg-gray-50 dark:bg-black/20 border-gray-200 dark:border-white/10 text-gray-900 dark:text-white h-9"><SelectValue placeholder="Select status" /></SelectTrigger>

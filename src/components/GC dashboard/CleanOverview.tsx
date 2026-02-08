@@ -27,7 +27,9 @@ import {
   FileText
 } from 'lucide-react';
 import { getProjects, getTeamMembers, updateProject } from '@/api/gc-apis';
+import { useProjectsQuery, useTeamMembersQuery } from "@/hooks/useGcDashboardQueries";
 import { useToast } from "@/hooks/use-toast";
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -46,29 +48,25 @@ const CleanOverview = () => {
   const [teamCount, setTeamCount] = useState(0);
   const [loading, setLoading] = useState(true);
 
-  const fetchDashboardData = async () => {
-    try {
-      const [projectsData, teamData] = await Promise.all([
-        getProjects({}),
-        getTeamMembers()
-      ]);
-      // Sort projects by ID descending (assuming newer IDs are more recent) 
-      // or created_at if available. Using simple reverse for now if API returns chronological.
-      // Usually API returns latest or we sort. Let's assume current order and reverse or sort by ID.
-      const sortedProjects = [...projectsData].sort((a: any, b: any) => b.id - a.id);
-
-      setProjects(sortedProjects);
-      setTeamCount(teamData.length);
-    } catch (error) {
-      console.error("Failed to load dashboard data", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { data: projectsData, isLoading: projectsLoading, refetch: refetchProjects } = useProjectsQuery();
+  const { data: teamMembersData, isLoading: teamLoading } = useTeamMembersQuery();
 
   useEffect(() => {
-    fetchDashboardData();
-  }, []);
+    if (projectsData) {
+      setProjects(projectsData);
+    }
+  }, [projectsData]);
+
+  useEffect(() => {
+    if (teamMembersData) {
+      setTeamCount(teamMembersData.length);
+    }
+  }, [teamMembersData]);
+
+  useEffect(() => {
+    setLoading(projectsLoading || teamLoading);
+  }, [projectsLoading, teamLoading]);
+
 
   const handleStatusUpdate = async (projectId: number, newStatus: string) => {
     try {
@@ -83,8 +81,9 @@ const CleanOverview = () => {
       });
     } catch (error) {
       console.error("Failed to update status", error);
-      fetchDashboardData();
+      refetchProjects();
       toast({
+
         title: "Error",
         description: "Failed to update project status",
         variant: "destructive"

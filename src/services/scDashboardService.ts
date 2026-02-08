@@ -1,6 +1,11 @@
 /**
  * Subcontractor Dashboard Service
  * Handles data persistence for the Subcontractor Dashboard using localStorage.
+ *
+ * NOTE: This is a client-side, local-only persistence layer used for the
+ * Subcontractor Dashboard experience. It does not communicate with the
+ * backend API and is intended for demo/prototype behavior, not source of
+ * record production data.
  */
 
 export interface Bid {

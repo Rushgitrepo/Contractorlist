@@ -11,7 +11,8 @@ import { RootState } from '../index';
 // Notification selectors
 export const selectNotifications = (state: RootState) => state.ui.notifications;
 export const selectUnreadNotificationCount = (state: RootState) =>
-  state.ui.notifications?.filter(n => !n.read).length || 0;
+  state.ui.notifications ? state.ui.notifications.length : 0;
+
 
 // Modal selectors
 export const selectIsMobileMenuOpen = (state: RootState) => state.ui.isMobileMenuOpen;

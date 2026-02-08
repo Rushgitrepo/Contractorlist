@@ -1,5 +1,9 @@
+// MOVED TO BACKUP
+// Original location: src/hooks/useCompanies.ts
+// Reason: Hook is currently unused and referenced a non-existent services path.
+
 import { useState, useEffect, useCallback } from 'react';
-import companyService, { CompanySearchFilters, CompanySearchResult, Company } from '../services/companyService';
+import companyService, { CompanySearchFilters, CompanySearchResult, Company } from '@/api/companyService';
 
 interface UseCompaniesOptions {
   autoFetch?: boolean;
@@ -154,4 +158,3 @@ export const useCompanies = (options: UseCompaniesOptions = {}): UseCompaniesRet
 };
 
 export default useCompanies;
-

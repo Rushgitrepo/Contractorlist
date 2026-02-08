@@ -1,3 +1,6 @@
+// MOVED TO BACKUP
+// Original location: src/pages/ServiceDetail.backup.tsx
+// Reason: Not used by routing; kept only as reference.
 import { useParams, useNavigate, Link } from "react-router-dom";
 import ReduxHeader from "@/components/ReduxHeader";
 import Footer from "@/components/Footer";
