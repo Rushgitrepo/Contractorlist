@@ -71,17 +71,17 @@ const AIAssistant = () => {
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
           <div>
-            <h1 className="text-3xl font-black tracking-tight mb-2 flex items-center gap-3">
-              <div className="size-10 rounded-lg bg-primary flex items-center justify-center">
-                <Bot className="w-6 h-6 text-black" />
+            <h1 className="text-3xl font-bold tracking-tight mb-2 flex items-center gap-3 text-gray-900 dark:text-white">
+              <div className="size-10 rounded-lg bg-accent flex items-center justify-center">
+                <Bot className="w-6 h-6 text-accent-foreground" />
               </div>
               AI Assistant
             </h1>
-            <p className="text-text-secondary-light dark:text-text-secondary-dark">
+            <p className="text-gray-500 dark:text-gray-400 font-medium text-sm">
               Your intelligent partner for smarter bidding and project management
             </p>
           </div>
-          <Badge className="bg-primary/10 text-primary border border-primary/20 px-3 py-1">
+          <Badge className="bg-accent/10 text-accent border border-accent/20 px-3 py-1 font-medium text-[10px] uppercase tracking-wider">
             <Sparkles className="w-4 h-4 mr-2" />
             Beta Version
           </Badge>
@@ -91,10 +91,10 @@ const AIAssistant = () => {
           {/* Main Chat Interface */}
           <div className="lg:col-span-2">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="chat">AI Chat</TabsTrigger>
-                <TabsTrigger value="insights">Insights</TabsTrigger>
-                <TabsTrigger value="tools">Tools</TabsTrigger>
+              <TabsList className="grid w-full grid-cols-3 bg-gray-100 dark:bg-white/5 p-1 rounded-xl h-auto">
+                <TabsTrigger value="chat" className="rounded-lg font-semibold text-xs py-2 data-[state=active]:bg-accent data-[state=active]:text-accent-foreground">AI Chat</TabsTrigger>
+                <TabsTrigger value="insights" className="rounded-lg font-semibold text-xs py-2 data-[state=active]:bg-accent data-[state=active]:text-accent-foreground">Insights</TabsTrigger>
+                <TabsTrigger value="tools" className="rounded-lg font-semibold text-xs py-2 data-[state=active]:bg-accent data-[state=active]:text-accent-foreground">Tools</TabsTrigger>
               </TabsList>
 
               <TabsContent value="chat" className="space-y-4">
@@ -132,7 +132,7 @@ const AIAssistant = () => {
                         />
                         <Button
                           onClick={handleSendMessage}
-                          className="bg-primary hover:bg-yellow-400 text-black"
+                          className="bg-accent hover:bg-accent/90 text-accent-foreground font-semibold"
                         >
                           <Send className="w-4 h-4" />
                         </Button>
@@ -172,14 +172,14 @@ const AIAssistant = () => {
                     <Card key={index} className="bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark hover:border-primary/50 transition-colors cursor-pointer group">
                       <CardContent className="p-6">
                         <div className="flex items-start gap-4">
-                          <div className="size-12 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                            <action.icon className="w-6 h-6 text-primary" />
+                          <div className="size-12 rounded-lg bg-accent/10 flex items-center justify-center group-hover:bg-accent/20 transition-colors">
+                            <action.icon className="w-6 h-6 text-accent" />
                           </div>
                           <div>
-                            <h3 className="font-bold mb-1 group-hover:text-primary transition-colors">
+                            <h3 className="font-semibold mb-1 group-hover:text-accent transition-colors">
                               {action.label}
                             </h3>
-                            <p className="text-sm text-text-secondary-light dark:text-text-secondary-dark">
+                            <p className="text-xs text-gray-500 dark:text-gray-400">
                               {action.description}
                             </p>
                           </div>
@@ -194,14 +194,14 @@ const AIAssistant = () => {
                     <CardTitle>Upload Document for Analysis</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-8 text-center hover:border-primary transition-colors cursor-pointer">
-                      <FileText className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                      <p className="text-lg font-semibold mb-2">Drop files here or click to upload</p>
-                      <p className="text-sm text-text-secondary-light dark:text-text-secondary-dark">
+                    <div className="border-2 border-dashed border-gray-200 dark:border-white/10 rounded-xl p-8 text-center hover:border-accent transition-colors cursor-pointer">
+                      <FileText className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                      <p className="text-lg font-semibold mb-1">Drop files here or click to upload</p>
+                      <p className="text-xs text-gray-500">
                         Supported formats: PDF, DOC, DOCX, XLS, XLSX
                       </p>
                     </div>
-                    <Button className="w-full bg-primary hover:bg-yellow-400 text-black">
+                    <Button className="w-full bg-accent hover:bg-accent/90 text-accent-foreground font-semibold">
                       Select Files
                     </Button>
                   </CardContent>

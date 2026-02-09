@@ -16,29 +16,38 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
     useEffect(() => {
         if (isAuthenticated) {
-            // Connect to backend (making sure port matches server config)
-            const socketInstance = io('http://localhost:5000', {
+            // Connect using the same origin (proxied by Vite in dev)
+            const socketInstance = io('/', {
                 withCredentials: true,
-                transports: ['websocket', 'polling']
+                transports: ['websocket', 'polling'],
+                reconnectionAttempts: 5,
+                reconnectionDelay: 1000
             });
 
             socketInstance.on('connect', () => {
-                // console.log('Socket connected');
+                console.log('✅ Socket connected successfully');
                 setIsConnected(true);
             });
 
-            socketInstance.on('disconnect', () => {
-                // console.log('Socket disconnected');
+            socketInstance.on('disconnect', (reason) => {
+                console.log('❌ Socket disconnected:', reason);
+                setIsConnected(false);
+            });
+
+            socketInstance.on('connect_error', (error) => {
+                console.error('⚠️ Socket connection error:', error);
                 setIsConnected(false);
             });
 
             setSocket(socketInstance);
 
             return () => {
+                console.log('🔌 Cleaning up socket connection');
                 socketInstance.disconnect();
             };
         } else {
             if (socket) {
+                console.log('🔌 Logging out, disconnecting socket');
                 socket.disconnect();
                 setSocket(null);
                 setIsConnected(false);

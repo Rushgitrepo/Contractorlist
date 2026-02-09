@@ -63,7 +63,7 @@ const AccountSettings = () => {
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="mb-6">
-          <h1 className="text-3xl font-black tracking-tight mb-2">Account Settings</h1>
+          <h1 className="text-3xl font-bold tracking-tight mb-2">Account Settings</h1>
           <p className="text-text-secondary-light dark:text-text-secondary-dark">
             Manage your account preferences and company information
           </p>

@@ -369,17 +369,17 @@ const EnhancedMessages = () => {
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
           <div>
-            <h1 className="text-3xl font-black tracking-tight mb-2">Messages</h1>
-            <p className="text-text-secondary-light dark:text-text-secondary-dark">
+            <h1 className="text-3xl font-bold tracking-tight mb-2 text-gray-900 dark:text-white">Messages</h1>
+            <p className="text-gray-500 dark:text-gray-400 font-medium text-sm">
               Communicate with clients, contractors, and project teams
             </p>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline">
+            <Button variant="outline" className="font-semibold text-xs h-9">
               <Plus className="w-4 h-4 mr-2" />
               New Chat
             </Button>
-            <Button variant="outline">
+            <Button variant="outline" className="h-9 w-9 p-0">
               <Settings className="w-4 h-4" />
             </Button>
           </div>
@@ -390,9 +390,9 @@ const EnhancedMessages = () => {
           <div className="lg:col-span-1">
             <Card className="h-full bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark">
               <CardHeader className="pb-4">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-lg">Conversations</CardTitle>
-                  <Badge className="bg-primary/10 text-primary">
+                <div className="flex items-center justify-between mb-4">
+                  <CardTitle className="text-lg font-bold">Conversations</CardTitle>
+                  <Badge className="bg-accent/10 text-accent border-accent/20 font-medium text-[10px] uppercase tracking-wider">
                     {conversations.reduce((sum, conv) => sum + conv.unreadCount, 0)} unread
                   </Badge>
                 </div>
@@ -409,12 +409,12 @@ const EnhancedMessages = () => {
                 </div>
 
                 {/* Tabs */}
-                <Tabs value={activeTab} onValueChange={setActiveTab}>
-                  <TabsList className="grid w-full grid-cols-4">
-                    <TabsTrigger value="all">All</TabsTrigger>
-                    <TabsTrigger value="unread">Unread</TabsTrigger>
-                    <TabsTrigger value="pinned">Pinned</TabsTrigger>
-                    <TabsTrigger value="archived">Archived</TabsTrigger>
+                <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-4">
+                  <TabsList className="grid w-full grid-cols-4 bg-gray-100 dark:bg-white/5 p-1 rounded-xl h-auto">
+                    <TabsTrigger value="all" className="rounded-lg font-semibold text-xs py-2 data-[state=active]:bg-accent data-[state=active]:text-accent-foreground">All</TabsTrigger>
+                    <TabsTrigger value="unread" className="rounded-lg font-semibold text-xs py-2 data-[state=active]:bg-accent data-[state=active]:text-accent-foreground">Unread</TabsTrigger>
+                    <TabsTrigger value="pinned" className="rounded-lg font-semibold text-xs py-2 data-[state=active]:bg-accent data-[state=active]:text-accent-foreground">Pinned</TabsTrigger>
+                    <TabsTrigger value="archived" className="rounded-lg font-semibold text-xs py-2 data-[state=active]:bg-accent data-[state=active]:text-accent-foreground">Archived</TabsTrigger>
                   </TabsList>
                 </Tabs>
               </CardHeader>
@@ -425,7 +425,7 @@ const EnhancedMessages = () => {
                     {filteredConversations.map((conversation) => (
                       <div
                         key={conversation.id}
-                        className={`p-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors ${selectedConversation === conversation.id ? 'bg-primary/10 border-r-2 border-primary' : ''
+                        className={`p-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors ${selectedConversation === conversation.id ? 'bg-accent/10 border-r-2 border-accent' : ''
                           }`}
                         onClick={() => setSelectedConversation(conversation.id)}
                       >
@@ -449,9 +449,9 @@ const EnhancedMessages = () => {
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center justify-between">
                               <div className="flex items-center gap-2">
-                                <h3 className="font-semibold truncate">{conversation.name}</h3>
-                                {conversation.pinned && <Pin className="w-4 h-4 text-yellow-500" />}
-                                {conversation.muted && <AlertCircle className="w-4 h-4 text-gray-400" />}
+                                <h3 className="font-semibold truncate text-gray-900 dark:text-white">{conversation.name}</h3>
+                                {conversation.pinned && <Pin className="w-3.5 h-3.5 text-accent" />}
+                                {conversation.muted && <AlertCircle className="w-3.5 h-3.5 text-gray-400" />}
                               </div>
                               <div className="flex items-center gap-1">
                                 {conversation.lastMessage && (
@@ -468,7 +468,7 @@ const EnhancedMessages = () => {
                             </div>
 
                             <div className="flex items-center gap-2 mt-1">
-                              <Badge variant="outline" className="text-xs">
+                              <Badge variant="outline" className="text-[10px] font-semibold text-gray-500 px-1.5 py-0">
                                 {conversation.type === 'project' ? 'Project' :
                                   conversation.type === 'group' ? 'Group' : 'Direct'}
                               </Badge>
@@ -511,13 +511,13 @@ const EnhancedMessages = () => {
                         </AvatarFallback>
                       </Avatar>
                       <div>
-                        <h3 className="font-semibold">{currentConversation.name}</h3>
+                        <h3 className="font-bold text-gray-900 dark:text-white">{currentConversation.name}</h3>
                         <div className="flex items-center gap-2 text-sm text-gray-500">
                           <span>
                             {currentConversation.participants.filter(p => p.online && p.id !== 'me').length} online
                           </span>
                           {typingUsers.length > 0 && (
-                            <span className="text-yellow-500">
+                            <span className="text-accent font-medium">
                               {typingUsers.join(', ')} typing...
                             </span>
                           )}
@@ -567,12 +567,12 @@ const EnhancedMessages = () => {
 
                             <div
                               className={`p-3 rounded-lg ${message.senderId === 'me'
-                                  ? 'bg-primary text-black ml-auto'
-                                  : 'bg-gray-100 dark:bg-gray-800'
+                                ? 'bg-accent text-accent-foreground ml-auto'
+                                : 'bg-gray-100 dark:bg-gray-800'
                                 }`}
                             >
                               {message.senderId !== 'me' && (
-                                <p className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
+                                <p className="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">
                                   {message.senderName}
                                 </p>
                               )}
@@ -609,8 +609,8 @@ const EnhancedMessages = () => {
                                   <button
                                     key={reaction.emoji}
                                     className={`text-xs px-2 py-1 rounded-full border ${reaction.users.includes('me')
-                                        ? 'bg-primary/20 border-primary'
-                                        : 'bg-gray-100 dark:bg-gray-800 border-gray-300'
+                                      ? 'bg-accent/20 border-accent'
+                                      : 'bg-gray-100 dark:bg-gray-800 border-gray-300'
                                       }`}
                                     onClick={() => addReaction(message.id, reaction.emoji)}
                                   >
@@ -701,7 +701,7 @@ const EnhancedMessages = () => {
                       <Button
                         onClick={sendMessage}
                         disabled={!newMessage.trim()}
-                        className="bg-primary hover:bg-yellow-400 text-black"
+                        className="bg-accent hover:bg-accent/90 text-accent-foreground font-semibold"
                       >
                         <Send className="w-4 h-4" />
                       </Button>
@@ -713,7 +713,7 @@ const EnhancedMessages = () => {
               <Card className="h-full bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark flex items-center justify-center">
                 <div className="text-center">
                   <MessageSquare className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold mb-2">Select a conversation</h3>
+                  <h3 className="text-lg font-bold mb-2">Select a conversation</h3>
                   <p className="text-gray-500">Choose a conversation from the list to start messaging</p>
                 </div>
               </Card>

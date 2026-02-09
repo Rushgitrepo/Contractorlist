@@ -49,6 +49,8 @@ const SignupMultiStep = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
+  const [invitationInfo, setInvitationInfo] = useState<any>(null);
+
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -100,6 +102,28 @@ const SignupMultiStep = () => {
   useEffect(() => {
     console.log('🔍 Errors state updated:', errors);
   }, [errors]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get('token');
+    if (token) {
+      const fetchInvite = async () => {
+        try {
+          const { verifyInvitation } = await import("@/api/gc-apis");
+          const data = await verifyInvitation(token);
+          if (data) {
+            setInvitationInfo(data);
+            if (data.email) {
+              setFormData(prev => ({ ...prev, email: data.email }));
+            }
+          }
+        } catch (error) {
+          console.error("Failed to verify invitation token", error);
+        }
+      };
+      fetchInvite();
+    }
+  }, []);
 
   useEffect(() => {
     console.log('🔍 Touched state updated:', touched);
@@ -655,7 +679,13 @@ const SignupMultiStep = () => {
         description: "Your account has been successfully created. Please login to continue.",
       });
 
-      navigate("/login");
+      const params = new URLSearchParams(window.location.search);
+      const token = params.get('token');
+      if (token) {
+        navigate(`/login?token=${token}`);
+      } else {
+        navigate("/login");
+      }
     } catch (error: any) {
       console.error('Registration Error:', error);
 
@@ -799,6 +829,16 @@ const SignupMultiStep = () => {
           ))}
         </div>
 
+        {invitationInfo && (
+          <div className="mt-auto bg-white/10 p-4 rounded-xl border border-white/20 backdrop-blur-sm animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <h4 className="text-black font-bold text-sm mb-1 flex items-center gap-2">
+              <Mail className="w-4 h-4" /> Project Invitation
+            </h4>
+            <p className="text-black/70 text-xs">
+              Joining <strong>{invitationInfo.project_name}</strong> by <strong>{invitationInfo.gc_name}</strong>
+            </p>
+          </div>
+        )}
         <div className="mt-auto pt-6 border-t border-white/20">
           <button className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-white/10 hover:bg-white/20 rounded-lg text-white text-sm font-medium transition-all">
             <HelpCircle className="w-4 h-4" />

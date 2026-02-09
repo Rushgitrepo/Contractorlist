@@ -198,17 +198,17 @@ const EnhancedAICopilot = () => {
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
           <div>
-            <h1 className="text-3xl font-black tracking-tight mb-2 flex items-center gap-3">
-              <div className="size-10 rounded-lg bg-yellow-400 flex items-center justify-center">
-                <Bot className="w-6 h-6 text-white" />
+            <h1 className="text-3xl font-bold tracking-tight mb-2 flex items-center gap-3">
+              <div className="size-10 rounded-lg bg-accent flex items-center justify-center">
+                <Bot className="w-6 h-6 text-accent-foreground" />
               </div>
               AI Copilot
-              <Badge className="bg-yellow-400 text-black">
+              <Badge className="bg-accent/10 text-accent border-accent/20 font-medium">
                 <Sparkles className="w-3 h-3 mr-1" />
                 Enhanced
               </Badge>
             </h1>
-            <p className="text-text-secondary-light dark:text-text-secondary-dark">
+            <p className="text-gray-500 dark:text-gray-400 font-medium text-sm">
               Advanced AI assistant with predictive analytics and intelligent recommendations
             </p>
           </div>
@@ -226,61 +226,26 @@ const EnhancedAICopilot = () => {
 
         {/* AI Performance Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-          <Card className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900/20 dark:to-gray-800/20 border-gray-200 dark:border-gray-800">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-500">AI Accuracy</p>
-                  <p className="text-2xl font-bold dark:text-gray-200">0.0%</p>
+          {[
+            { label: 'AI Accuracy', value: '0.0%', icon: Target },
+            { label: 'Insights Generated', value: '0', icon: Brain },
+            { label: 'Revenue Impact', value: '$0', icon: DollarSign },
+            { label: 'Time Saved', value: '0h', icon: Clock }
+          ].map((stat, i) => (
+            <Card key={i} className="bg-white dark:bg-[#1c1e24] border-gray-200 dark:border-white/5">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider">{stat.label}</p>
+                    <p className="text-2xl font-bold text-gray-900 dark:text-white">{stat.value}</p>
+                  </div>
+                  <div className="size-10 bg-gray-50 dark:bg-black/20 rounded-lg flex items-center justify-center border border-gray-100 dark:border-white/5">
+                    <stat.icon className="w-5 h-5 text-gray-400" />
+                  </div>
                 </div>
-                <div className="w-12 h-12 bg-gray-200 dark:bg-gray-800 rounded-lg flex items-center justify-center">
-                  <Target className="w-6 h-6 text-gray-400" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900/20 dark:to-gray-800/20 border-gray-200 dark:border-gray-800">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-500">Insights Generated</p>
-                  <p className="text-2xl font-bold dark:text-gray-200">0</p>
-                </div>
-                <div className="w-12 h-12 bg-gray-200 dark:bg-gray-800 rounded-lg flex items-center justify-center">
-                  <Brain className="w-6 h-6 text-gray-400" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900/20 dark:to-gray-800/20 border-gray-200 dark:border-gray-800">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-500">Revenue Impact</p>
-                  <p className="text-2xl font-bold dark:text-gray-200">$0</p>
-                </div>
-                <div className="w-12 h-12 bg-gray-200 dark:bg-gray-800 rounded-lg flex items-center justify-center">
-                  <DollarSign className="w-6 h-6 text-gray-400" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900/20 dark:to-gray-800/20 border-gray-200 dark:border-gray-800">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-500">Time Saved</p>
-                  <p className="text-2xl font-bold dark:text-gray-200">0h</p>
-                </div>
-                <div className="w-12 h-12 bg-gray-200 dark:bg-gray-800 rounded-lg flex items-center justify-center">
-                  <Clock className="w-6 h-6 text-gray-400" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          ))}
         </div>
 
         {/* Main Content */}
@@ -288,11 +253,11 @@ const EnhancedAICopilot = () => {
           {/* Left Column - Insights & Analytics */}
           <div className="lg:col-span-2">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="grid w-full grid-cols-4">
-                <TabsTrigger value="insights">AI Insights</TabsTrigger>
-                <TabsTrigger value="chat">AI Chat</TabsTrigger>
-                <TabsTrigger value="analytics">Analytics</TabsTrigger>
-                <TabsTrigger value="predictions">Predictions</TabsTrigger>
+              <TabsList className="grid w-full grid-cols-4 bg-gray-100 dark:bg-white/5 p-1 rounded-xl h-auto">
+                <TabsTrigger value="insights" className="rounded-lg font-semibold text-xs py-2 data-[state=active]:bg-accent data-[state=active]:text-accent-foreground">AI Insights</TabsTrigger>
+                <TabsTrigger value="chat" className="rounded-lg font-semibold text-xs py-2 data-[state=active]:bg-accent data-[state=active]:text-accent-foreground">AI Chat</TabsTrigger>
+                <TabsTrigger value="analytics" className="rounded-lg font-semibold text-xs py-2 data-[state=active]:bg-accent data-[state=active]:text-accent-foreground">Analytics</TabsTrigger>
+                <TabsTrigger value="predictions" className="rounded-lg font-semibold text-xs py-2 data-[state=active]:bg-accent data-[state=active]:text-accent-foreground">Predictions</TabsTrigger>
               </TabsList>
 
               <TabsContent value="insights" className="space-y-4">
@@ -325,7 +290,7 @@ const EnhancedAICopilot = () => {
                           <div className="flex-1">
                             <div className="flex items-start justify-between mb-2">
                               <div>
-                                <h4 className="font-bold text-lg mb-1">{insight.title}</h4>
+                                <h4 className="font-semibold text-lg mb-1">{insight.title}</h4>
                                 <div className="flex items-center gap-2 mb-2">
                                   <Badge className={`text-xs ${insight.priority === 'critical' ? 'bg-red-100 text-red-800' :
                                     insight.priority === 'high' ? 'bg-orange-100 text-orange-800' :
@@ -343,8 +308,8 @@ const EnhancedAICopilot = () => {
                                 </div>
                               </div>
                               <div className="text-right">
-                                <p className="text-sm font-semibold text-yellow-600">{insight.impact}</p>
-                                <p className="text-xs text-gray-500">{formatTimestamp(insight.timestamp)}</p>
+                                <p className="text-sm font-bold text-accent">{insight.impact}</p>
+                                <p className="text-xs text-gray-400 font-medium">{formatTimestamp(insight.timestamp)}</p>
                               </div>
                             </div>
 
@@ -379,7 +344,7 @@ const EnhancedAICopilot = () => {
                                     e.stopPropagation();
                                     executeAction(action);
                                   }}
-                                  className={action.type === 'primary' ? 'bg-primary hover:bg-yellow-400 text-black' : ''}
+                                  className={action.type === 'primary' ? 'bg-accent hover:bg-accent/90 text-accent-foreground font-semibold' : 'font-semibold'}
                                 >
                                   {action.label}
                                   <ArrowRight className="w-3 h-3 ml-1" />
@@ -420,10 +385,10 @@ const EnhancedAICopilot = () => {
               <TabsContent value="chat" className="space-y-4">
                 <Card className="h-[600px] flex flex-col">
                   <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Bot className="w-5 h-5" />
+                    <CardTitle className="text-lg font-bold flex items-center gap-2">
+                      <Bot className="w-5 h-5 text-accent" />
                       AI Assistant Chat
-                      <Badge className="bg-yellow-100 text-yellow-800">Online</Badge>
+                      <Badge className="bg-green-500/10 text-green-600 border-none font-medium text-[10px]">Online</Badge>
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="flex-1 flex flex-col p-0">
@@ -436,7 +401,7 @@ const EnhancedAICopilot = () => {
                           >
                             <div
                               className={`max-w-[80%] rounded-lg p-3 ${conv.sender === 'user'
-                                ? 'bg-primary text-black'
+                                ? 'bg-accent text-accent-foreground'
                                 : 'bg-gray-100 dark:bg-gray-800'
                                 }`}
                             >
@@ -478,7 +443,7 @@ const EnhancedAICopilot = () => {
                         >
                           {isListening ? <VolumeX className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
                         </Button>
-                        <Button onClick={sendMessage} className="bg-primary hover:bg-yellow-400 text-black">
+                        <Button onClick={sendMessage} className="bg-accent hover:bg-accent/90 text-accent-foreground font-semibold">
                           <Send className="w-4 h-4" />
                         </Button>
                       </div>
@@ -497,19 +462,19 @@ const EnhancedAICopilot = () => {
                       <div className="space-y-4">
                         <div className="flex justify-between items-center">
                           <span>Win Rate</span>
-                          <span className="font-bold text-yellow-600">68% ↑</span>
+                          <span className="font-semibold text-accent">68% ↑</span>
                         </div>
                         <Progress value={68} className="h-2" />
 
                         <div className="flex justify-between items-center">
                           <span>Bid Accuracy</span>
-                          <span className="font-bold text-yellow-600">84% ↑</span>
+                          <span className="font-semibold text-accent">84% ↑</span>
                         </div>
                         <Progress value={84} className="h-2" />
 
                         <div className="flex justify-between items-center">
                           <span>Response Time</span>
-                          <span className="font-bold text-yellow-600">2.3h ↓</span>
+                          <span className="font-semibold text-accent">2.3h ↓</span>
                         </div>
                         <Progress value={77} className="h-2" />
                       </div>
@@ -523,16 +488,16 @@ const EnhancedAICopilot = () => {
                     <CardContent>
                       <div className="space-y-4">
                         <div className="text-center">
-                          <p className="text-3xl font-bold text-yellow-600">+$1.2M</p>
+                          <p className="text-3xl font-semibold text-accent">+$1.2M</p>
                           <p className="text-sm text-gray-600">Revenue Impact</p>
                         </div>
                         <div className="grid grid-cols-2 gap-4 text-center">
                           <div>
-                            <p className="text-xl font-bold">47</p>
+                            <p className="text-xl font-semibold">47</p>
                             <p className="text-xs text-gray-600">Recommendations</p>
                           </div>
                           <div>
-                            <p className="text-xl font-bold">89%</p>
+                            <p className="text-xl font-semibold">89%</p>
                             <p className="text-xs text-gray-600">Success Rate</p>
                           </div>
                         </div>
@@ -580,15 +545,15 @@ const EnhancedAICopilot = () => {
                       <div className="space-y-4">
                         <div className="flex justify-between items-center">
                           <span>Expected Monthly Revenue</span>
-                          <span className="font-bold text-yellow-600">$185K</span>
+                          <span className="font-semibold text-accent">$185K</span>
                         </div>
                         <div className="flex justify-between items-center">
                           <span>Projected Win Rate</span>
-                          <span className="font-bold text-yellow-600">72%</span>
+                          <span className="font-semibold text-accent">72%</span>
                         </div>
                         <div className="flex justify-between items-center">
                           <span>Optimal Bid Count</span>
-                          <span className="font-bold text-yellow-600">12-15</span>
+                          <span className="font-semibold text-accent">12-15</span>
                         </div>
                       </div>
                     </CardContent>
@@ -604,13 +569,13 @@ const EnhancedAICopilot = () => {
             <Card className="bg-gradient-to-br from-yellow-50 to-yellow-100 dark:from-yellow-900/20 dark:to-yellow-800/20">
               <CardContent className="p-6">
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="size-3 rounded-full bg-yellow-400 animate-pulse"></div>
+                  <div className="size-3 rounded-full bg-accent"></div>
                   <span className="font-semibold">AI Copilot Active</span>
                 </div>
                 <div className="space-y-3 text-sm">
                   <div className="flex justify-between">
                     <span>Processing Speed</span>
-                    <span className="text-yellow-600">Real-time</span>
+                    <span className="text-accent">Real-time</span>
                   </div>
                   <div className="flex justify-between">
                     <span>Data Sources</span>
@@ -630,19 +595,19 @@ const EnhancedAICopilot = () => {
                 <CardTitle className="text-lg">Quick AI Actions</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                <Button className="w-full justify-start bg-primary hover:bg-yellow-400 text-black">
+                <Button className="w-full justify-start bg-accent hover:bg-accent/90 text-accent-foreground font-semibold text-xs">
                   <Zap className="w-4 h-4 mr-2" />
                   Optimize Current Bids
                 </Button>
-                <Button variant="outline" className="w-full justify-start">
+                <Button variant="outline" className="w-full justify-start font-semibold text-xs">
                   <Target className="w-4 h-4 mr-2" />
                   Find Similar Opportunities
                 </Button>
-                <Button variant="outline" className="w-full justify-start">
+                <Button variant="outline" className="w-full justify-start font-semibold text-xs">
                   <BarChart3 className="w-4 h-4 mr-2" />
                   Generate Market Report
                 </Button>
-                <Button variant="outline" className="w-full justify-start">
+                <Button variant="outline" className="w-full justify-start font-semibold text-xs">
                   <Brain className="w-4 h-4 mr-2" />
                   Analyze Competitors
                 </Button>

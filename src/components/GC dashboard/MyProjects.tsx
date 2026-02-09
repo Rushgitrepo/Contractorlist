@@ -1,8 +1,10 @@
 import { createProject as createProjectAPI, updateProject as updateProjectAPI, deleteProject as deleteProjectAPI, assignTeamMember, removeTeamMemberFromProject, getProjectTeamMembers, uploadDocument, bulkUploadProjects } from '@/api/gc-apis';
 import { useState, useEffect } from 'react';
 
-
+import { useAppSelector } from '@/store/hooks';
+import { chatService } from '@/api/chatService';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -62,9 +64,12 @@ const MyProjects = () => {
 
   const { toast } = useToast();
   const navigate = useNavigate();
+  const currentUser = useAppSelector(state => state.auth.user);
+
   const [selectedProject, setSelectedProject] = useState<number | null>(null);
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [showNewProject, setShowNewProject] = useState(false);
+
   const [viewMode, setViewMode] = useState<'table' | 'card'>('card');
   const [invitedMembers, setInvitedMembers] = useState<string[]>([]);
   const [existingTeamMembers, setExistingTeamMembers] = useState<any[]>([]);
@@ -74,9 +79,11 @@ const MyProjects = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [projects, setProjects] = useState<any[]>([]);
+  const [projectChats, setProjectChats] = useState<Record<number, string>>({});
   const [loading, setLoading] = useState(true);
 
   const [showProjectDetails, setShowProjectDetails] = useState(false);
+
   const [selectedProjectData, setSelectedProjectData] = useState<any>(null);
   const [currentProjectId, setCurrentProjectId] = useState<number | null>(null);
   const [showTeamModal, setShowTeamModal] = useState(false);
@@ -337,6 +344,18 @@ const MyProjects = () => {
         const created = await createProjectAPI(projectData);
         setProjects([created, ...projects]);
         setSelectedProject(created.id);
+
+        // ensure project conversation (seed with current user if available)
+        if (currentUser?.id) {
+          chatService.ensureProjectConversation(String(created.id), [currentUser.id])
+            .then(res => {
+              if (res?.success && res?.data?.id) {
+                setProjectChats(prev => ({ ...prev, [created.id]: res.data.id }));
+              }
+            })
+            .catch(() => {});
+        }
+
         toast({
           title: "Project Created",
           description: "Your new project has been successfully initialized.",
@@ -349,6 +368,7 @@ const MyProjects = () => {
       resetForm();
       await refetchProjects();
 
+
     } catch (error) {
       toast({
         title: "Error",
@@ -359,6 +379,22 @@ const MyProjects = () => {
   };
 
 
+  const ensureProjectChat = async (projectId: number, participantIds: number[] = []) => {
+    try {
+      let conversationId = projectChats[projectId];
+      if (!conversationId) {
+        const res = await chatService.ensureProjectConversation(String(projectId), participantIds);
+        if (res?.success && res?.data?.id) {
+          conversationId = res.data.id;
+          setProjectChats(prev => ({ ...prev, [projectId]: conversationId! }));
+        }
+      }
+      return conversationId;
+    } catch (e) {
+      return undefined;
+    }
+  };
+
   const handleInviteMembers = async () => {
     if (!selectedProject || invitedMembers.length === 0) {
       setShowInviteModal(false);
@@ -366,7 +402,6 @@ const MyProjects = () => {
     }
 
     try {
-      // Filter out members who are already in the project team (if loaded) to prevent duplicate assignment calls
       let membersToAssign = invitedMembers;
       if (showTeamModal && projectTeamMembers.length > 0) {
         membersToAssign = invitedMembers.filter(id => !projectTeamMembers.some(m => m.id.toString() === id));
@@ -378,14 +413,23 @@ const MyProjects = () => {
         );
         await Promise.all(promises);
         toast({ title: "Team Invitation Sent", description: `${membersToAssign.length} new members have been assigned.` });
-      } else if (membersToAssign.length === 0 && invitedMembers.length > 0) {
-        // Just closed without new additions
-        // toast({ title: "Updated", description: "Team list updated." });
+      }
+
+      // Try to add participants to chat if we have user_id data
+      const participantUserIds = membersToAssign
+        .map(id => {
+          const found = projectTeamMembers.find(m => m.id?.toString() === id) || existingTeamMembers.find(m => m.id?.toString() === id);
+          return typeof found?.user_id === 'number' ? found.user_id : undefined;
+        })
+        .filter((v): v is number => typeof v === 'number' && Number.isFinite(v));
+
+      const conversationId = await ensureProjectChat(selectedProject, currentUser?.id ? [currentUser.id, ...participantUserIds] : participantUserIds);
+      if (conversationId && participantUserIds.length > 0) {
+        chatService.addParticipants(conversationId, participantUserIds).catch(() => {});
       }
 
       setShowInviteModal(false);
 
-      // If we are in "View Team" mode, refresh the list
       if (showTeamModal) {
         const updatedMembers = await getProjectTeamMembers(selectedProject);
         setProjectTeamMembers(updatedMembers);
@@ -403,6 +447,7 @@ const MyProjects = () => {
       });
     }
   };
+
 
   const handleEditClick = (e: React.MouseEvent, project: any) => {
     e.stopPropagation();
@@ -427,6 +472,23 @@ const MyProjects = () => {
         : [...prev, memberId]
     );
   };
+
+  // keep projectChats in sync from conversation list (called externally)
+  const ingestConversations = (conversations: any[]) => {
+    const map: Record<number, string> = {};
+    conversations.forEach(c => {
+      const pid = c.related_gc_project_id ?? c.related_project_id;
+      if (pid !== undefined && pid !== null) {
+        const numId = Number(pid);
+        if (!Number.isNaN(numId)) {
+          map[numId] = c.id;
+        }
+      }
+    });
+    setProjectChats(prev => ({ ...map, ...prev }));
+  };
+
+
 
   const handleGlobalUpload = async () => {
     if (!globalUploadProject || !selectedGlobalFile) {

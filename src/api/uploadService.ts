@@ -7,7 +7,7 @@ export interface UploadResponse {
 }
 
 export const uploadService = {
-    uploadImage: async (file: File): Promise<UploadResponse> => {
+    uploadFile: async (file: File): Promise<UploadResponse> => {
         const formData = new FormData();
         formData.append('image', file);
 

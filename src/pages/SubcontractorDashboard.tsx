@@ -11,7 +11,7 @@ const MyProjects = lazy(() => import('@/components/subcontractor/MyProjects'));
 const BidManagement = lazy(() => import('@/components/subcontractor/BidManagement'));
 const FindProjects = lazy(() => import('@/components/subcontractor/FindProjects'));
 const ProjectDiscovery = lazy(() => import('@/components/subcontractor/ProjectDiscovery'));
-const Messages = lazy(() => import('@/components/subcontractor/Messages'));
+const Communications = lazy(() => import('@/components/common/Communications'));
 const AccountSettings = lazy(() => import('@/components/subcontractor/AccountSettings'));
 const CustomerSupport = lazy(() => import('@/components/subcontractor/CustomerSupport'));
 const AIAssistant = lazy(() => import('@/components/subcontractor/AIAssistant'));
@@ -26,21 +26,18 @@ const ServicesOverview = lazy(() => import('@/components/GC dashboard/Services/S
 
 // Loading fallback component
 const PageSkeleton = () => (
-  <div className="flex-1 w-full bg-slate-50/50 dark:bg-slate-950/50 p-6 lg:p-8">
-    <div className="max-w-[1600px] mx-auto space-y-8">
-      <div className="space-y-2">
-        <Skeleton className="h-10 w-64" />
-        <Skeleton className="h-5 w-96" />
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {[1, 2, 3, 4].map((i) => (
-          <Skeleton key={i} className="h-32" />
-        ))}
-      </div>
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <Skeleton className="lg:col-span-2 h-96" />
-        <Skeleton className="h-96" />
-      </div>
+  <div className="flex-1 w-full p-6 lg:p-8 space-y-8 max-w-7xl mx-auto">
+    <div className="space-y-4">
+      <Skeleton className="h-4 w-32 bg-gray-200 dark:bg-white/5" />
+      <Skeleton className="h-10 w-80 bg-gray-200 dark:bg-white/5" />
+    </div>
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      {[1, 2, 3, 4].map((i) => (
+        <Skeleton key={i} className="h-32 rounded-2xl bg-gray-200 dark:bg-white/5" />
+      ))}
+    </div>
+    <div className="space-y-6">
+      <Skeleton className="h-[400px] w-full rounded-2xl bg-gray-200 dark:bg-white/5" />
     </div>
   </div>
 );
@@ -120,13 +117,13 @@ const SubcontractorDashboard = () => {
   }, [sidebarOpen]);
 
   return (
-    <div className="flex h-screen w-full overflow-hidden bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-900 dark:via-gray-950 dark:to-gray-900">
+    <div className="flex h-screen w-full overflow-hidden bg-gray-50 dark:bg-gray-900">
       <SubcontractorSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
-      <main className="flex-1 flex flex-col h-full relative overflow-hidden bg-slate-50/50 dark:bg-slate-950/50 transition-all duration-300">
+      <main className="flex-1 flex flex-col h-full relative overflow-hidden bg-gray-50 dark:bg-gray-900 transition-all duration-300">
         <SubcontractorHeader onMenuClick={() => setSidebarOpen(true)} />
 
-        <div className="flex-1 overflow-y-auto scroll-smooth">
+        <div className="flex-1 overflow-y-auto scroll-smooth custom-scrollbar">
           <ErrorBoundary>
             <Suspense fallback={<PageSkeleton />}>
               <Routes>
@@ -136,7 +133,7 @@ const SubcontractorDashboard = () => {
                 <Route path="/bid-management" element={<BidManagement />} />
                 <Route path="/find-projects" element={<FindProjects />} />
                 <Route path="/project-discovery" element={<ProjectDiscovery />} />
-                <Route path="/messages" element={<Messages />} />
+                <Route path="/messages" element={<Communications />} />
                 <Route path="/products" element={<ProductsOverview />} />
                 <Route path="/services" element={<ServicesOverview />} />
                 <Route path="/suppliers" element={<Suppliers />} />

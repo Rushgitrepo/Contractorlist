@@ -9,7 +9,7 @@ const SupplierOverview = lazy(() => import('@/components/supplier/SupplierOvervi
 const ProductCatalog = lazy(() => import('@/components/supplier/ProductCatalog'));
 const OrdersRFQs = lazy(() => import('@/components/supplier/OrdersRFQs'));
 const ProjectLeads = lazy(() => import('@/components/supplier/ProjectLeads'));
-const SupplierMessages = lazy(() => import('@/components/supplier/SupplierMessages'));
+const Communications = lazy(() => import('@/components/common/Communications'));
 const SupplierAnalytics = lazy(() => import('@/components/supplier/SupplierAnalytics'));
 const SupplierSettings = lazy(() => import('@/components/supplier/SupplierSettings'));
 const SupplierHelp = lazy(() => import('@/components/supplier/SupplierHelp'));
@@ -112,10 +112,10 @@ const SupplierDashboard = () => {
   return (
     <div className="flex h-screen w-full overflow-hidden bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-900 dark:via-gray-950 dark:to-gray-900">
       <SupplierSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-      
+
       <main className="flex-1 flex flex-col h-full relative overflow-hidden bg-slate-50/50 dark:bg-slate-950/50 transition-all duration-300">
         <SupplierHeader onMenuClick={() => setSidebarOpen(true)} />
-        
+
         <div className="flex-1 overflow-y-auto scroll-smooth">
           <ErrorBoundary>
             <Suspense fallback={<PageSkeleton />}>
@@ -125,7 +125,7 @@ const SupplierDashboard = () => {
                 <Route path="/catalog" element={<ProductCatalog />} />
                 <Route path="/orders" element={<OrdersRFQs />} />
                 <Route path="/leads" element={<ProjectLeads />} />
-                <Route path="/messages" element={<SupplierMessages />} />
+                <Route path="/messages" element={<Communications />} />
                 <Route path="/analytics" element={<SupplierAnalytics />} />
                 <Route path="/settings" element={<SupplierSettings />} />
                 <Route path="/help" element={<SupplierHelp />} />

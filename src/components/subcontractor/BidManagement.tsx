@@ -116,8 +116,8 @@ const BidManagement = () => {
     setFormState({ projectName: '', gc: '', location: '', bidAmount: '', status: 'DRAFT' });
 
     toast({
-      title: editingBid ? "Protocol Updated" : "Protocol Initiated",
-      description: `${newBid.projectName} has been saved to your assets.`
+      title: editingBid ? "Bid Updated" : "Bid Created",
+      description: `${newBid.projectName} has been saved successfully.`
     });
   };
 
@@ -125,8 +125,8 @@ const BidManagement = () => {
     const updatedBids = scDashboardService.deleteBid(id);
     setBids(updatedBids);
     toast({
-      title: "Protocol Deleted",
-      description: "Electronic record has been purged from terminal.",
+      title: "Bid Deleted",
+      description: "Project record has been removed from your list.",
       variant: "destructive"
     });
   };
@@ -134,29 +134,31 @@ const BidManagement = () => {
   const getStatusStyle = (status: string) => {
     switch (status) {
       case 'DRAFT': return "bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-gray-400";
-      case 'SUBMITTED': return "bg-yellow-400/10 text-yellow-600 dark:text-yellow-400";
-      case 'IN-REVIEW': return "bg-yellow-400/10 text-yellow-600 dark:text-yellow-500";
-      case 'WON': return "bg-yellow-400/10 text-yellow-600 dark:text-yellow-500";
-      case 'LOST': return "bg-yellow-400/10 text-yellow-600 dark:text-yellow-500";
+      case 'SUBMITTED': return "bg-accent/10 text-accent dark:text-accent-foreground";
+      case 'IN-REVIEW': return "bg-accent/10 text-accent";
+      case 'WON': return "bg-green-500/10 text-green-600 dark:text-green-400";
+      case 'LOST': return "bg-red-500/10 text-red-600 dark:text-red-400";
       default: return "bg-gray-100 text-gray-800";
     }
   };
 
   return (
-    <div className="min-h-full bg-gray-50 dark:bg-[#0f1115] p-4 sm:p-6 transition-colors duration-300">
-      <div className="max-w-7xl mx-auto space-y-6">
+    <div className="min-h-full bg-gray-50 dark:bg-[#0f1115] p-6 md:p-8 transition-colors duration-300">
+      <div className="max-w-7xl mx-auto space-y-8">
 
         {/* Header Section */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
-          <div className="space-y-1">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+          <div>
             <div className="flex items-center gap-2 mb-2">
-              <div className="p-1.5 bg-yellow-400 rounded-lg">
-                <FileSearch className="w-4 h-4 text-black" />
-              </div>
-              <h1 className="text-xl font-bold uppercase tracking-tight text-gray-900 dark:text-white">Protocol Assets</h1>
+              <Badge className="bg-accent/10 text-accent border-accent/20 font-medium uppercase text-[10px] tracking-wider px-2.5 py-0.5">
+                Bid Management
+              </Badge>
             </div>
-            <p className="text-gray-500 dark:text-gray-400 font-bold text-xs uppercase tracking-wide max-w-xl">
-              Monitor, refine, and deploy mission-critical proposals.
+            <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-gray-900 dark:text-white leading-none">
+              Project Pipeline
+            </h1>
+            <p className="text-gray-500 dark:text-gray-400 font-medium text-sm mt-3 max-w-lg leading-relaxed">
+              Track your active bids, draft new proposals, and manage your project history.
             </p>
           </div>
           <Button
@@ -165,31 +167,31 @@ const BidManagement = () => {
               setFormState({ projectName: '', gc: '', location: '', bidAmount: '', status: 'DRAFT' });
               setIsModalOpen(true);
             }}
-            className="h-10 px-6 bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-bold rounded-xl shadow-lg shadow-yellow-500/20 transition-all uppercase tracking-widest text-[10px]"
+            className="h-11 px-6 bg-accent text-accent-foreground font-semibold text-xs rounded-xl shadow-none"
           >
-            <Plus className="w-4 h-4 mr-2" /> NEW PROTOCOL
+            <Plus className="w-4 h-4 mr-2" /> Create New Bid
           </Button>
         </div>
 
-        {/* Tactical Metrics */}
+        {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {[
-            { label: 'ACTIVE PROTOCOLS', value: bids.filter(b => b.type === 'active').length.toString().padStart(2, '0'), sub: 'LIVE TRANSMISSIONS', icon: Target, color: 'text-yellow-500' },
-            { label: 'WIN PROBABILITY', value: '0%', sub: 'NO DATA YET', icon: Award, color: 'text-gray-500' },
-            { label: 'EVALUATION PENDING', value: bids.filter(b => b.status === 'IN-REVIEW').length.toString().padStart(2, '0'), sub: 'AWAITING RESPONSE', icon: Eye, color: 'text-yellow-400' },
-            { label: 'COMMITTED VALUE', value: `$${(bids.reduce((acc, b) => acc + b.budgetValue, 0) / 1000000).toFixed(1)}M`, sub: 'TOTAL ACTIVE SCALE', icon: DollarSign, color: 'text-yellow-500' },
+            { label: 'ACTIVE BIDS', value: bids.filter(b => b.type === 'active').length.toString().padStart(2, '0'), sub: 'LIVE PROPOSALS', icon: Target, color: 'text-accent' },
+            { label: 'WIN RATE', value: '0.0%', sub: 'MARKET AVERAGE', icon: Award, color: 'text-gray-500' },
+            { label: 'PENDING REVIEW', value: bids.filter(b => b.status === 'IN-REVIEW').length.toString().padStart(2, '0'), sub: 'AWAITING RESPONSE', icon: Eye, color: 'text-accent' },
+            { label: 'PROJECTED VALUE', value: `$${(bids.reduce((acc, b) => acc + b.budgetValue, 0) / 1000000).toFixed(1)}M`, sub: 'TOTAL PIPELINE', icon: DollarSign, color: 'text-accent' },
           ].map((stat, i) => (
-            <Card key={i} className="bg-white dark:bg-[#1c1e24] border-gray-100 dark:border-white/5 shadow-sm rounded-xl overflow-hidden group hover:border-yellow-400/50 transition-all">
-              <CardContent className="p-4">
-                <div className="flex justify-between items-start mb-3">
-                  <div className="p-2 bg-gray-50 dark:bg-white/5 rounded-lg group-hover:bg-yellow-400 group-hover:text-black transition-all">
+            <Card key={i} className="bg-white dark:bg-[#1c1e24] border-gray-200 dark:border-white/5 shadow-sm rounded-2xl overflow-hidden group hover:border-accent/30 transition-all duration-300">
+              <CardContent className="p-5">
+                <div className="flex justify-between items-start mb-4">
+                  <div className="p-2.5 bg-gray-50 dark:bg-black/20 rounded-xl group-hover:bg-accent group-hover:text-accent-foreground transition-all duration-300 border border-gray-100 dark:border-white/5">
                     <stat.icon className="w-4 h-4 transition-colors" />
                   </div>
-                  <span className="text-[8px] font-bold uppercase tracking-[0.2em] text-gray-400">{stat.label}</span>
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">{stat.label}</span>
                 </div>
                 <div className="space-y-1">
-                  <h3 className="text-xl font-bold text-gray-900 dark:text-white tabular-nums font-mono">{stat.value}</h3>
-                  <p className={cn("text-[9px] font-bold uppercase tracking-widest", stat.color)}>{stat.sub}</p>
+                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white tabular-nums">{stat.value}</h3>
+                  <p className={cn("text-[10px] font-semibold uppercase tracking-wider", stat.color)}>{stat.sub}</p>
                 </div>
               </CardContent>
             </Card>
@@ -197,173 +199,175 @@ const BidManagement = () => {
         </div>
 
         {/* Main Interface */}
-        <div className="space-y-6">
+        <div className="space-y-6 pt-4">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 mb-8">
-              <TabsList className="bg-white dark:bg-white/5 p-1 rounded-xl border border-gray-100 dark:border-white/5 h-auto">
-                <TabsTrigger value="active" className="px-5 py-2.5 rounded-xl font-bold uppercase text-[9px] tracking-widest data-[state=active]:bg-yellow-400 data-[state=active]:text-black transition-all">
-                  Active Protocols
+              <TabsList className="bg-gray-100 dark:bg-white/5 p-1 rounded-xl border border-gray-200 dark:border-white/5 h-auto">
+                <TabsTrigger value="active" className="px-6 py-2.5 rounded-lg font-semibold text-xs data-[state=active]:bg-accent data-[state=active]:text-accent-foreground transition-all">
+                  Active Bids
                 </TabsTrigger>
-                <TabsTrigger value="completed" className="px-5 py-2.5 rounded-xl font-bold uppercase text-[9px] tracking-widest data-[state=active]:bg-yellow-400 data-[state=active]:text-black transition-all">
-                  Archived Logs
+                <TabsTrigger value="completed" className="px-6 py-2.5 rounded-lg font-semibold text-xs data-[state=active]:bg-accent data-[state=active]:text-accent-foreground transition-all">
+                  Project History
                 </TabsTrigger>
               </TabsList>
 
               <div className="flex items-center gap-3 w-full lg:w-auto">
                 <div className="flex-1 lg:flex-none relative group">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-yellow-500 w-3.5 h-3.5 transition-colors" />
+                  <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-accent w-4 h-4 transition-colors" />
                   <Input
-                    placeholder="Filter IDs..."
-                    className="h-10 pl-9 lg:w-44 bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 rounded-xl font-bold uppercase text-[9px] tracking-widest focus:border-yellow-400"
+                    placeholder="Search bids..."
+                    className="h-11 pl-10 lg:w-56 bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 rounded-xl font-bold text-sm focus:border-accent"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                   />
                 </div>
                 <Select value={sortBy} onValueChange={setSortBy}>
-                  <SelectTrigger className="h-10 lg:w-44 bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 rounded-xl font-bold uppercase text-[9px] tracking-widest">
+                  <SelectTrigger className="h-11 lg:w-48 bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 rounded-xl font-semibold text-xs">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="deadline">SORT: DEADLINE</SelectItem>
-                    <SelectItem value="amount">SORT: REVENUE</SelectItem>
+                    <SelectItem value="deadline">Sort: Deadline</SelectItem>
+                    <SelectItem value="amount">Sort: Value</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             </div>
 
-            <TabsContent value="active" className="space-y-4">
+            <TabsContent value="active" className="space-y-4 focus-visible:outline-none">
               {filteredBids.length > 0 ? (
                 filteredBids.map((bid) => (
-                  <Card key={bid.id} className="group bg-white dark:bg-[#1c1e24] border-gray-200 dark:border-white/5 hover:border-yellow-400/50 transition-all rounded-xl overflow-hidden shadow-sm hover:shadow-md">
-                    <CardContent className="p-4">
+                  <Card key={bid.id} className="group bg-white dark:bg-[#1c1e24] border-gray-200 dark:border-white/5 transition-all rounded-xl overflow-hidden shadow-sm">
+                    <CardContent className="p-6">
                       <div className="flex flex-col lg:flex-row justify-between gap-6">
-                        <div className="flex-1 space-y-4">
-                          <div className="flex flex-wrap items-center gap-2.5">
-                            <span className="text-[9px] font-bold text-yellow-600 dark:text-yellow-500 uppercase tracking-widest">{bid.id}</span>
-                            <h3 className="text-base font-bold text-gray-900 dark:text-white uppercase tracking-tight">{bid.projectName}</h3>
-                            <Badge className={cn("border-none font-bold text-[8px] uppercase tracking-[0.2em] px-2.5 py-0.5", getStatusStyle(bid.status))}>
+                        <div className="flex-1 space-y-5">
+                          <div className="flex flex-wrap items-center gap-3">
+                            <span className="text-[10px] font-bold text-accent">{bid.id}</span>
+                            <h3 className="text-xl font-bold text-gray-900 dark:text-white tracking-tight group-hover:text-accent transition-colors">{bid.projectName}</h3>
+                            <Badge className={cn("border-none font-semibold text-[9px] px-3 py-1 rounded-md", getStatusStyle(bid.status))}>
                               {bid.status}
                             </Badge>
                             {bid.daysLeft > 0 && bid.daysLeft <= 5 && (
-                              <Badge className="bg-yellow-500/10 text-yellow-600 border-none font-bold text-[8px] uppercase tracking-[0.2em] px-2.5 py-0.5">
-                                URGENT: {bid.daysLeft} CYCLES REMAINING
+                              <Badge className="bg-red-500/10 text-red-600 border-none font-semibold text-[9px] px-3 py-1 rounded-md">
+                                URGENT: {bid.daysLeft} DAYS
                               </Badge>
                             )}
                           </div>
 
-                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                            <div className="space-y-0.5">
-                              <span className="text-[8px] font-bold text-gray-400 uppercase tracking-widest block">GC Terminal</span>
-                              <div className="flex items-center gap-1.5">
-                                <Building className="w-3.5 h-3.5 text-yellow-500" />
-                                <span className="text-xs font-bold text-gray-900 dark:text-white uppercase line-clamp-1">{bid.gc}</span>
-                              </div>
-                            </div>
-                            <div className="space-y-0.5">
-                              <span className="text-[8px] font-bold text-gray-400 uppercase tracking-widest block">Zone</span>
-                              <div className="flex items-center gap-1.5">
-                                <MapPin className="w-3.5 h-3.5 text-yellow-500" />
-                                <span className="text-xs font-bold text-gray-900 dark:text-white uppercase line-clamp-1">{bid.location}</span>
-                              </div>
-                            </div>
-                            <div className="space-y-0.5">
-                              <span className="text-[8px] font-bold text-gray-400 uppercase tracking-widest block">Value</span>
-                              <div className="flex items-center gap-1.5 text-yellow-600 font-black">
-                                <DollarSign className="w-3.5 h-3.5" />
-                                <span className="text-xs font-bold tabular-nums uppercase font-mono">{bid.bidAmount}</span>
-                              </div>
-                            </div>
-                            <div className="space-y-0.5">
-                              <span className="text-[8px] font-bold text-gray-400 uppercase tracking-widest block">Probability</span>
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                            <div className="space-y-1.5">
+                              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block">GC Partner</span>
                               <div className="flex items-center gap-2">
-                                <div className="flex-1 h-1 bg-gray-100 dark:bg-white/10 rounded-full overflow-hidden">
-                                  <div className="h-full bg-yellow-400" style={{ width: `${bid.probability}%` }} />
+                                <Building className="w-4 h-4 text-accent" />
+                                <span className="text-sm font-semibold text-gray-900 dark:text-white uppercase line-clamp-1">{bid.gc}</span>
+                              </div>
+                            </div>
+                            <div className="space-y-1.5">
+                              <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider block">Location</span>
+                              <div className="flex items-center gap-2">
+                                <MapPin className="w-4 h-4 text-accent" />
+                                <span className="text-sm font-medium text-gray-900 dark:text-white line-clamp-1">{bid.location}</span>
+                              </div>
+                            </div>
+                            <div className="space-y-1.5">
+                              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block">Bid Value</span>
+                              <div className="flex items-center gap-2 text-accent">
+                                <DollarSign className="w-4 h-4" />
+                                <span className="text-sm font-bold tabular-nums font-mono">{bid.bidAmount}</span>
+                              </div>
+                            </div>
+                            <div className="space-y-1.5">
+                              <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider block">Confidence</span>
+                              <div className="flex items-center gap-3">
+                                <div className="flex-1 h-1.5 bg-gray-100 dark:bg-white/10 rounded-full overflow-hidden">
+                                  <div className="h-full bg-accent transition-all duration-1000" style={{ width: `${bid.probability}%` }} />
                                 </div>
-                                <span className="text-[10px] font-bold text-gray-900 dark:text-white tabular-nums">{bid.probability}%</span>
+                                <span className="text-xs font-bold text-gray-900 dark:text-white tabular-nums">{bid.probability}%</span>
                               </div>
                             </div>
                           </div>
                         </div>
 
-                        <div className="flex flex-col justify-between border-t lg:border-t-0 lg:border-l border-gray-100 dark:border-white/5 pt-5 lg:pt-0 lg:pl-6 min-w-[180px]">
-                          <div className="flex items-center justify-between mb-3">
+                        <div className="flex flex-col justify-between border-t lg:border-t-0 lg:border-l border-gray-100 dark:border-white/5 pt-6 lg:pt-0 lg:pl-10 min-w-[200px]">
+                          <div className="flex items-center justify-between mb-4">
                             <div className="flex flex-col">
-                              <span className="text-[8px] font-bold text-gray-400 uppercase tracking-widest">Modified</span>
-                              <span className="text-[9px] font-bold text-gray-900 dark:text-white">{bid.lastModified}</span>
+                              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-0.5">Last Updated</span>
+                              <span className="text-[11px] font-bold text-gray-900 dark:text-white">{bid.lastModified}</span>
                             </div>
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="h-7 w-7 text-red-500 hover:bg-red-500/10"
+                              className="h-8 w-8 text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
                               onClick={() => handleDelete(bid.id)}
                             >
-                              <Trash2 className="w-3.5 h-3.5" />
+                              <Trash2 className="w-4 h-4" />
                             </Button>
                           </div>
 
-                          <div className="flex flex-col gap-2">
-                            <Button
-                              onClick={() => {
-                                setEditingBid(bid);
-                                setFormState({
-                                  projectName: bid.projectName,
-                                  gc: bid.gc,
-                                  location: bid.location,
-                                  bidAmount: bid.budgetValue.toString(),
-                                  status: bid.status
-                                });
-                                setIsModalOpen(true);
-                              }}
-                              className="h-9 w-full bg-black dark:bg-yellow-400 text-white dark:text-black font-bold uppercase text-[9px] tracking-widest rounded-xl hover:scale-[1.02] transition-all"
-                            >
-                              Refine Data
-                            </Button>
-                          </div>
+                          <Button
+                            onClick={() => {
+                              setEditingBid(bid);
+                              setFormState({
+                                projectName: bid.projectName,
+                                gc: bid.gc,
+                                location: bid.location,
+                                bidAmount: bid.budgetValue.toString(),
+                                status: bid.status
+                              });
+                              setIsModalOpen(true);
+                            }}
+                            className="h-10 w-full bg-gray-900 dark:bg-accent text-white dark:text-accent-foreground font-semibold text-xs rounded-xl transition-all"
+                          >
+                            Edit Bid Details
+                          </Button>
                         </div>
                       </div>
                     </CardContent>
                   </Card>
                 ))
               ) : (
-                <Card className="p-20 text-center bg-white dark:bg-[#1c1e24] border-gray-200 dark:border-white/5 rounded-xl">
-                  <Inbox className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-                  <h3 className="text-xl font-bold text-gray-900 dark:text-white uppercase tracking-tight">No Protocols Logged</h3>
-                  <p className="text-gray-500 dark:text-gray-400 font-medium">Your active transmission logs will appear here.</p>
-                </Card>
+                <div className="py-32 flex flex-col items-center justify-center text-center bg-white dark:bg-[#1c1e24] rounded-2xl border border-dashed border-gray-200 dark:border-white/10 shadow-sm">
+                  <div className="w-16 h-16 bg-gray-50 dark:bg-black/20 rounded-2xl flex items-center justify-center mb-6">
+                    <Inbox className="w-8 h-8 text-gray-300" />
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-white uppercase tracking-tight mb-2">No Active Bids</h3>
+                  <p className="text-gray-500 dark:text-gray-400 font-semibold text-sm max-w-xs mx-auto">
+                    Your current bidding activity will be listed here. Start by finding a project or creating a manual bid.
+                  </p>
+                </div>
               )}
             </TabsContent>
 
-            <TabsContent value="completed" className="space-y-4">
+            <TabsContent value="completed" className="space-y-4 focus-visible:outline-none">
               {filteredBids.map((bid) => (
-                <Card key={bid.id} className="group bg-white dark:bg-[#1c1e24] border-gray-200 dark:border-white/5 hover:border-yellow-400/50 transition-all rounded-xl overflow-hidden shadow-sm hover:shadow-md grayscale hover:grayscale-0">
-                  <CardContent className="p-4">
+                <Card key={bid.id} className="group bg-white dark:bg-[#1c1e24] border-gray-200 dark:border-white/5 transition-all rounded-xl overflow-hidden shadow-sm hover:shadow-md grayscale hover:grayscale-0">
+                  <CardContent className="p-5">
                     <div className="flex flex-col lg:flex-row justify-between gap-8 opacity-70 hover:opacity-100 transition-opacity">
                       <div className="flex-1 space-y-4">
                         <div className="flex flex-wrap items-center gap-3">
                           <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{bid.id}</span>
-                          <h3 className="text-base font-bold text-gray-900 dark:text-white uppercase tracking-tight">{bid.projectName}</h3>
-                          <Badge className={cn("border-none font-bold text-[9px] uppercase tracking-[0.2em] px-3 py-1", getStatusStyle(bid.status))}>
+                          <h3 className="text-lg font-bold text-gray-900 dark:text-white uppercase tracking-tight">{bid.projectName}</h3>
+                          <Badge className={cn("border-none font-bold text-[10px] uppercase tracking-wider px-3 py-1 rounded-md", getStatusStyle(bid.status))}>
                             {bid.status}
                           </Badge>
                         </div>
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                          <div className="space-y-1">
-                            <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest block">GC TERMINAL</span>
-                            <span className="text-sm font-bold text-gray-900 dark:text-white uppercase">{bid.gc}</span>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+                          <div className="space-y-1.5">
+                            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block">GC Partner</span>
+                            <span className="text-sm font-semibold text-gray-900 dark:text-white uppercase">{bid.gc}</span>
                           </div>
-                          <div className="space-y-1">
-                            <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest block">FINAL VALUE</span>
+                          <div className="space-y-1.5">
+                            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block">Final Value</span>
                             <span className="text-sm font-bold text-gray-900 dark:text-white font-mono">{bid.bidAmount}</span>
                           </div>
-                          <div className="space-y-1">
-                            <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest block">CLOUSER</span>
-                            <span className="text-sm font-bold text-gray-900 dark:text-white">{bid.lastModified}</span>
+                          <div className="space-y-1.5">
+                            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block">Completed On</span>
+                            <span className="text-sm font-semibold text-gray-900 dark:text-white">{bid.lastModified}</span>
                           </div>
                         </div>
                       </div>
-                      <div className="flex flex-col justify-center min-w-[200px] lg:pl-8 lg:border-l border-gray-100 dark:border-white/5">
-                        <Button variant="outline" className="h-11 w-full border-gray-200 dark:border-white/10 font-bold uppercase text-[10px] tracking-widest rounded-xl">
-                          VIEW ARCHIVE
+                      <div className="flex flex-col justify-center min-w-[200px] lg:pl-10 lg:border-l border-gray-100 dark:border-white/5">
+                        <Button variant="outline" className="h-11 w-full border-gray-200 dark:border-white/10 font-bold uppercase text-[10px] tracking-widest rounded-xl hover:bg-accent hover:text-accent-foreground transition-all">
+                          Review Bid
                         </Button>
                       </div>
                     </div>
@@ -371,46 +375,45 @@ const BidManagement = () => {
                 </Card>
               ))}
               {filteredBids.length === 0 && (
-                <Card className="p-20 text-center bg-white dark:bg-[#1c1e24] border-gray-200 dark:border-white/5 rounded-xl">
-                  <Inbox className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-                  <h3 className="text-xl font-bold text-gray-900 dark:text-white uppercase tracking-tight">No Archives Found</h3>
-                </Card>
+                <div className="py-24 text-center">
+                  <h3 className="text-xl font-bold text-gray-400 uppercase tracking-tight">No historical records found.</h3>
+                </div>
               )}
             </TabsContent>
           </Tabs>
         </div>
       </div>
 
-      {/* New/Edit Protocol Modal */}
+      {/* New/Edit Bid Modal */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="sm:max-w-[425px] bg-white dark:bg-[#1c1e24] border-gray-100 dark:border-white/5 rounded-3xl">
+        <DialogContent className="sm:max-w-[425px] bg-white dark:bg-[#1c1e24] border-none rounded-xl p-8 shadow-2xl">
           <DialogHeader>
-            <DialogTitle className="text-xl font-bold uppercase tracking-tight">
-              {editingBid ? 'Refine Protocol' : 'Initiate New Protocol'}
+            <DialogTitle className="text-2xl font-bold uppercase tracking-tight">
+              {editingBid ? 'Edit Bid Details' : 'Create New Bid'}
             </DialogTitle>
-            <DialogDescription className="text-[10px] font-bold uppercase tracking-widest text-gray-500">
-              Terminal Asset Synchronization
+            <DialogDescription className="text-xs font-semibold uppercase tracking-widest text-gray-500 mt-1">
+              Update project information and status.
             </DialogDescription>
           </DialogHeader>
-          <div className="grid gap-4 py-4">
+          <div className="grid gap-5 py-6 font-sans">
             <div className="space-y-2">
               <Label htmlFor="projectName" className="text-[10px] font-bold uppercase tracking-widest text-gray-400 ml-1">Project Name</Label>
               <Input
                 id="projectName"
-                placeholder="Target Site Name"
+                placeholder="e.g. Austin Tech Center"
                 value={formState.projectName}
                 onChange={(e) => setFormState({ ...formState, projectName: e.target.value })}
-                className="bg-gray-50 dark:bg-white/5 border-transparent focus:border-yellow-400 rounded-xl"
+                className="h-12 bg-gray-50 dark:bg-white/5 border-transparent focus:border-accent rounded-xl font-semibold text-sm"
               />
             </div>
             <div className="space-y-2">
               <Label htmlFor="gc" className="text-[10px] font-bold uppercase tracking-widest text-gray-400 ml-1">General Contractor</Label>
               <Input
                 id="gc"
-                placeholder="GC Terminal Name"
+                placeholder="e.g. Turner Construction"
                 value={formState.gc}
                 onChange={(e) => setFormState({ ...formState, gc: e.target.value })}
-                className="bg-gray-50 dark:bg-white/5 border-transparent focus:border-yellow-400 rounded-xl"
+                className="h-12 bg-gray-50 dark:bg-white/5 border-transparent focus:border-accent rounded-xl font-semibold text-sm"
               />
             </div>
             <div className="grid grid-cols-2 gap-4">
@@ -422,16 +425,16 @@ const BidManagement = () => {
                   placeholder="250000"
                   value={formState.bidAmount}
                   onChange={(e) => setFormState({ ...formState, bidAmount: e.target.value })}
-                  className="bg-gray-50 dark:bg-white/5 border-transparent focus:border-yellow-400 rounded-xl font-mono"
+                  className="h-12 bg-gray-50 dark:bg-white/5 border-transparent focus:border-accent rounded-xl font-bold font-mono"
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="status" className="text-[10px] font-bold uppercase tracking-widest text-gray-400 ml-1">Initial Status</Label>
+                <Label htmlFor="status" className="text-[10px] font-bold uppercase tracking-widest text-gray-400 ml-1">Project Status</Label>
                 <Select
                   value={formState.status}
                   onValueChange={(val: any) => setFormState({ ...formState, status: val })}
                 >
-                  <SelectTrigger className="bg-gray-50 dark:bg-white/5 border-transparent focus:border-yellow-400 rounded-xl uppercase text-[10px] font-bold tracking-widest h-10">
+                  <SelectTrigger className="h-12 bg-gray-50 dark:bg-white/5 border-transparent focus:border-accent rounded-xl uppercase text-[10px] font-bold tracking-widest">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -447,10 +450,10 @@ const BidManagement = () => {
           </div>
           <DialogFooter>
             <Button
-              className="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-bold uppercase text-xs tracking-widest h-12 rounded-xl"
+              className="w-full h-14 bg-accent text-accent-foreground font-bold uppercase text-xs tracking-widest rounded-xl transition-all shadow-lg shadow-accent/10"
               onClick={handleCreateOrUpdate}
             >
-              {editingBid ? 'SYNC CHANGES' : 'DEPLOY PROTOCOL'}
+              {editingBid ? 'Save Changes' : 'Create Bid Record'}
             </Button>
           </DialogFooter>
         </DialogContent>

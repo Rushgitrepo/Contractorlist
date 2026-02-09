@@ -309,9 +309,9 @@ const AdvancedProjectManagement = () => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'completed': return 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300';
-      case 'active': case 'in-progress': return 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300';
-      case 'on-hold': return 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300';
+      case 'completed': return 'bg-accent/10 text-accent-foreground border-none';
+      case 'active': case 'in-progress': return 'bg-accent/10 text-accent-foreground border-none';
+      case 'on-hold': return 'bg-accent/5 text-accent-foreground/70 border-none';
       case 'cancelled': return 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300';
       case 'todo': return 'bg-gray-100 dark:bg-gray-900/30 text-gray-800 dark:text-gray-300';
       case 'review': return 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300';
@@ -461,8 +461,8 @@ const AdvancedProjectManagement = () => {
                       <div className="flex-1 relative h-8 bg-gray-100 dark:bg-gray-800 rounded">
                         <div
                           className={`absolute top-0 h-full rounded flex items-center px-2 text-xs text-black ${task.status === 'completed' ? 'bg-yellow-400' :
-                              task.status === 'in-progress' ? 'bg-yellow-300' :
-                                task.status === 'review' ? 'bg-yellow-200' : 'bg-gray-400'
+                            task.status === 'in-progress' ? 'bg-yellow-300' :
+                              task.status === 'review' ? 'bg-yellow-200' : 'bg-gray-400'
                             }`}
                           style={{
                             left: `${taskLeft}%`,
@@ -496,7 +496,7 @@ const AdvancedProjectManagement = () => {
             {events.map((event, index) => (
               <div key={event.id} className="relative flex items-start gap-4">
                 <div className={`relative z-10 w-8 h-8 rounded-full flex items-center justify-center ${event.status === 'completed' ? 'bg-yellow-400' :
-                    event.status === 'upcoming' ? 'bg-yellow-300' : 'bg-red-500'
+                  event.status === 'upcoming' ? 'bg-yellow-300' : 'bg-red-500'
                   }`}>
                   {event.type === 'milestone' && <Target className="w-4 h-4 text-white" />}
                   {event.type === 'task' && <CheckCircle className="w-4 h-4 text-white" />}
@@ -539,7 +539,7 @@ const AdvancedProjectManagement = () => {
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
           <div>
-            <h1 className="text-3xl font-black tracking-tight mb-2">Project Management</h1>
+            <h1 className="text-3xl font-bold tracking-tight mb-2">Project Management</h1>
             <p className="text-text-secondary-light dark:text-text-secondary-dark">
               Advanced project tracking with Gantt charts, timelines, and team collaboration
             </p>
@@ -549,7 +549,7 @@ const AdvancedProjectManagement = () => {
               <Download className="w-4 h-4 mr-2" />
               Export
             </Button>
-            <Button className="bg-primary hover:bg-yellow-400 text-black">
+            <Button className="bg-accent hover:bg-accent/90 text-accent-foreground font-bold">
               <Plus className="w-4 h-4 mr-2" />
               New Project
             </Button>
@@ -562,8 +562,8 @@ const AdvancedProjectManagement = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Progress</p>
-                  <p className="text-2xl font-bold">{currentProject.progress}%</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">Progress</p>
+                  <p className="text-2xl font-semibold">{currentProject.progress}%</p>
                 </div>
                 <div className="w-12 h-12 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg flex items-center justify-center">
                   <BarChart3 className="w-6 h-6 text-yellow-600" />
@@ -577,8 +577,8 @@ const AdvancedProjectManagement = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Budget</p>
-                  <p className="text-2xl font-bold">{formatCurrency(currentProject.budget)}</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">Budget</p>
+                  <p className="text-2xl font-semibold">{formatCurrency(currentProject.budget)}</p>
                 </div>
                 <div className="w-12 h-12 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg flex items-center justify-center">
                   <DollarSign className="w-6 h-6 text-yellow-600" />
@@ -595,8 +595,8 @@ const AdvancedProjectManagement = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Team</p>
-                  <p className="text-2xl font-bold">{currentProject.team.length}</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">Team</p>
+                  <p className="text-2xl font-semibold">{currentProject.team.length}</p>
                 </div>
                 <div className="w-12 h-12 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg flex items-center justify-center">
                   <Users className="w-6 h-6 text-yellow-600" />
@@ -612,8 +612,8 @@ const AdvancedProjectManagement = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Tasks</p>
-                  <p className="text-2xl font-bold">{currentProject.tasks.length}</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">Tasks</p>
+                  <p className="text-2xl font-semibold">{currentProject.tasks.length}</p>
                 </div>
                 <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900/30 rounded-lg flex items-center justify-center">
                   <CheckCircle className="w-6 h-6 text-orange-600" />
@@ -631,7 +631,7 @@ const AdvancedProjectManagement = () => {
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle className="text-xl">{currentProject.name}</CardTitle>
+                <CardTitle className="text-xl font-bold">{currentProject.name}</CardTitle>
                 <p className="text-gray-600 dark:text-gray-400 mt-1">Client: {currentProject.client}</p>
               </div>
               <div className="flex items-center gap-2">
@@ -706,7 +706,7 @@ const AdvancedProjectManagement = () => {
                     {/* Project Info */}
                     <Card>
                       <CardHeader>
-                        <CardTitle className="text-lg">Project Info</CardTitle>
+                        <CardTitle className="text-lg font-bold">Project Info</CardTitle>
                       </CardHeader>
                       <CardContent className="space-y-4">
                         <div className="flex justify-between">
@@ -737,7 +737,7 @@ const AdvancedProjectManagement = () => {
                     {/* Recent Activity */}
                     <Card>
                       <CardHeader>
-                        <CardTitle className="text-lg">Recent Activity</CardTitle>
+                        <CardTitle className="text-lg font-bold">Recent Activity</CardTitle>
                       </CardHeader>
                       <CardContent>
                         <div className="space-y-3">
@@ -787,7 +787,7 @@ const AdvancedProjectManagement = () => {
                             <p className="text-sm text-gray-600 dark:text-gray-400">{member.role}</p>
                           </div>
                           <div className={`w-3 h-3 rounded-full ${member.availability === 'available' ? 'bg-yellow-400' :
-                              member.availability === 'busy' ? 'bg-yellow-500' : 'bg-gray-500'
+                            member.availability === 'busy' ? 'bg-yellow-500' : 'bg-gray-500'
                             }`}></div>
                         </div>
                         <div className="mt-4">

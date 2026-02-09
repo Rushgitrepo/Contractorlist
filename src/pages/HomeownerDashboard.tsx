@@ -9,7 +9,7 @@ const HomeownerOverview = lazy(() => import('@/components/homeowner/HomeownerOve
 const MyProjects = lazy(() => import('@/components/homeowner/MyProjects'));
 const BidManagement = lazy(() => import('@/components/homeowner/BidManagement'));
 const ContractorDirectory = lazy(() => import('@/components/homeowner/ContractorDirectory'));
-const Messages = lazy(() => import('@/components/homeowner/Messages'));
+const Communications = lazy(() => import('@/components/common/Communications'));
 const AccountSettings = lazy(() => import('@/components/homeowner/AccountSettings'));
 const HelpSupport = lazy(() => import('@/components/homeowner/HelpSupport'));
 
@@ -124,7 +124,7 @@ const HomeownerDashboard = () => {
                 <Route path="/projects" element={<MyProjects />} />
                 <Route path="/bids" element={<BidManagement />} />
                 <Route path="/contractors" element={<ContractorDirectory />} />
-                <Route path="/messages" element={<Messages />} />
+                <Route path="/messages" element={<Communications />} />
                 <Route path="/settings" element={<AccountSettings />} />
                 <Route path="/help" element={<HelpSupport />} />
               </Routes>

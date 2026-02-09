@@ -320,45 +320,45 @@ const FindProjects = () => {
   };
 
   return (
-    <div className="flex h-full w-full flex-col bg-white dark:bg-[#0f1115] text-gray-900 dark:text-white transition-colors duration-500 overflow-hidden font-sans">
+    <div className="flex h-full w-full flex-col bg-white dark:bg-[#0f1115] text-gray-900 dark:text-white transition-colors duration-500 overflow-hidden">
 
       {/* Dynamic Header Section */}
       <div className="relative bg-gray-50/80 dark:bg-[#1c1e24]/80 border-b border-gray-200 dark:border-white/5 px-8 py-8 z-20 backdrop-blur-xl">
         <div className="max-w-[1600px] mx-auto">
           <div className="flex flex-wrap items-center justify-between gap-6">
             <div className="flex items-center gap-5">
-              <div className="w-14 h-14 bg-accent rounded-2xl flex items-center justify-center shadow-xl shadow-accent/20 rotate-3">
-                <Target className="text-accent-foreground" size={28} />
+              <div className="w-14 h-14 bg-accent rounded-2xl flex items-center justify-center shadow-lg shadow-accent/5">
+                <Search className="text-accent-foreground" size={28} />
               </div>
               <div>
-                <h1 className="text-3xl font-black tracking-tighter uppercase mb-1">Mission <span className="text-yellow-600">Discovery</span></h1>
-                <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] flex items-center gap-2">
-                  <Globe size={12} className="text-yellow-600" /> Bidding Terminal & Opportunity Feed
+                <h1 className="text-3xl font-bold tracking-tight mb-1">Browse Projects</h1>
+                <p className="text-xs font-medium text-gray-400 flex items-center gap-2">
+                  <Globe size={12} className="text-accent" /> Project Marketplace & Opportunity Feed
                 </p>
               </div>
             </div>
 
-            <div className="flex items-center gap-3 bg-white dark:bg-black/20 p-2 rounded-[2rem] shadow-sm border border-gray-200 dark:border-white/10">
+            <div className="flex items-center gap-3 bg-white dark:bg-black/20 p-2 rounded-2xl shadow-sm border border-gray-200 dark:border-white/10">
               <div className="relative group">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-yellow-600 transition-colors w-4 h-4" />
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-accent transition-colors w-4 h-4" />
                 <Input
                   placeholder="Keywords (HVAC, Austin, expansion...)"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-72 h-12 bg-transparent border-none focus-visible:ring-0 text-sm font-bold pl-11"
+                  className="w-72 h-12 bg-transparent border-none focus-visible:ring-0 text-sm font-medium pl-11"
                 />
               </div>
               <div className="w-px h-8 bg-gray-200 dark:bg-white/10"></div>
               <div className="relative group">
-                <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-yellow-600 transition-colors w-4 h-4" />
+                <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-accent transition-colors w-4 h-4" />
                 <Input
                   placeholder="Region"
                   value={filters?.location || ""}
                   onChange={(e) => setFilters(prev => ({ ...prev!, location: e.target.value }))}
-                  className="w-48 h-12 bg-transparent border-none focus-visible:ring-0 text-sm font-bold pl-11"
+                  className="w-48 h-12 bg-transparent border-none focus-visible:ring-0 text-sm font-medium pl-11"
                 />
               </div>
-              <Button className="bg-black dark:bg-accent text-white dark:text-accent-foreground rounded-[1.5rem] px-8 h-12 font-black uppercase text-[10px] tracking-widest hover:scale-105 transition-all shadow-lg active:scale-95">
+              <Button className="bg-accent text-accent-foreground rounded-xl px-8 h-12 font-semibold text-xs transition-all shadow-sm">
                 Save Criteria
               </Button>
             </div>
@@ -376,13 +376,13 @@ const FindProjects = () => {
         <main className="flex-1 overflow-y-auto px-8 py-10 bg-gray-50/10">
           <div className="max-w-[1200px] mx-auto">
             <div className="flex items-center justify-between mb-8">
-              <h2 className="text-xl font-black uppercase tracking-tight flex items-center gap-2">
-                <TrendingUp className="text-yellow-600" size={20} />
-                Live Opportunity Feed <span className="text-gray-400 ml-4 font-mono text-sm opacity-50">/ {filteredProjects.length} Verified Records</span>
+              <h2 className="text-xl font-bold tracking-tight flex items-center gap-2">
+                <TrendingUp className="text-accent" size={20} />
+                Live Opportunities <span className="text-gray-400 ml-4 font-mono text-sm opacity-50">/ {filteredProjects.length} Projects Available</span>
               </h2>
               <div className="flex items-center gap-2 bg-gray-100 dark:bg-white/5 p-1 rounded-xl">
-                <Button variant="ghost" size="sm" onClick={() => setViewMode('card')} className={cn("h-8 px-4 font-black text-[9px] uppercase tracking-widest", viewMode === 'card' ? "bg-white dark:bg-white/10 text-yellow-600 shadow-md" : "text-gray-400")}><Layers size={14} className="mr-2" />Card</Button>
-                <Button variant="ghost" size="sm" onClick={() => setViewMode('table')} className={cn("h-8 px-4 font-black text-[9px] uppercase tracking-widest", viewMode === 'table' ? "bg-white dark:bg-white/10 text-yellow-600 shadow-md" : "text-gray-400")}><RotateCcw size={14} className="mr-2" />Table</Button>
+                <Button variant="ghost" size="sm" onClick={() => setViewMode('card')} className={cn("h-8 px-4 font-semibold text-xs", viewMode === 'card' ? "bg-accent text-accent-foreground shadow-sm" : "text-gray-400")}><Layers size={14} className="mr-2" />Card</Button>
+                <Button variant="ghost" size="sm" onClick={() => setViewMode('table')} className={cn("h-8 px-4 font-semibold text-xs", viewMode === 'table' ? "bg-accent text-accent-foreground shadow-sm" : "text-gray-400")}><RotateCcw size={14} className="mr-2" />Table</Button>
               </div>
             </div>
 
@@ -390,41 +390,41 @@ const FindProjects = () => {
               {filteredProjects.map((p) => (
                 <Card
                   key={p.id}
-                  className="group relative overflow-hidden bg-white dark:bg-[#1c1e24] border-gray-200 dark:border-white/5 hover:border-accent/40 transition-all duration-500 rounded-[2.5rem] shadow-sm hover:shadow-2xl hover:scale-[1.01]"
+                  className="group relative overflow-hidden bg-white dark:bg-[#1c1e24] border-gray-200 dark:border-white/5 hover:border-accent/40 transition-all duration-300 rounded-3xl shadow-sm"
                 >
                   <CardContent className="p-10">
                     <div className="flex flex-col lg:flex-row justify-between gap-8 h-full">
                       <div className="flex items-start gap-8 flex-1">
                         <div className="relative shrink-0">
-                          <div className="w-16 h-16 rounded-2xl bg-gray-50 dark:bg-white/5 flex items-center justify-center transition-all group-hover:bg-accent overflow-hidden shadow-lg border border-gray-100 dark:border-white/10 group-hover:rotate-3">
-                            <Briefcase className="text-gray-400 group-hover:text-accent-foreground transition-colors" size={28} />
+                          <div className="w-16 h-16 rounded-2xl bg-gray-50 dark:bg-white/5 flex items-center justify-center transition-all group-hover:bg-accent/10 overflow-hidden shadow-sm border border-gray-100 dark:border-white/10">
+                            <Briefcase className="text-gray-400 group-hover:text-accent transition-colors" size={28} />
                           </div>
                           {p.isProfileMatch && (
-                            <div className="absolute -top-3 -left-3 bg-black dark:bg-accent text-white dark:text-accent-foreground text-[8px] font-black uppercase tracking-widest px-2.5 py-1.5 rounded-full shadow-xl flex items-center gap-1.5 z-10 border-2 border-white dark:border-[#1c1e24]">
-                              <Bot size={10} className="animate-pulse" /> Signal Match
+                            <div className="absolute -top-3 -left-3 bg-accent text-accent-foreground text-[8px] font-bold px-2.5 py-1.5 rounded-full shadow-lg flex items-center gap-1.5 z-10 border-2 border-white dark:border-[#1c1e24]">
+                              <Bot size={10} /> Top Match
                             </div>
                           )}
                         </div>
 
                         <div className="flex-1">
                           <div className="flex flex-wrap gap-2 mb-4">
-                            <Badge className="bg-yellow-100 dark:bg-yellow-500/10 text-yellow-600 border-none font-black text-[9px] uppercase tracking-widest px-3 py-1">{p.category}</Badge>
-                            <Badge className="bg-yellow-100 dark:bg-yellow-500/10 text-yellow-600 border-none font-black text-[9px] uppercase tracking-widest px-3 py-1 flex items-center gap-1"><ShieldCheck size={10} /> {p.status}</Badge>
-                            <Badge variant="outline" className="text-[9px] border-gray-200 dark:border-white/10 uppercase font-black text-gray-400">{p.posted}</Badge>
+                            <Badge className="bg-accent/10 text-accent dark:bg-accent/20 border-none font-semibold text-[9px] px-3 py-1">{p.category}</Badge>
+                            <Badge className="bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-gray-400 border-none font-semibold text-[9px] px-3 py-1 flex items-center gap-1"><ShieldCheck size={10} /> {p.status}</Badge>
+                            <Badge variant="outline" className="text-[9px] border-gray-200 dark:border-white/10 font-semibold text-gray-400">{p.posted}</Badge>
                           </div>
 
-                          <h3 className="text-2xl font-black tracking-tight leading-tight group-hover:text-yellow-600 transition-colors mb-3 uppercase">{p.title}</h3>
+                          <h3 className="text-2xl font-bold tracking-tight leading-tight group-hover:text-accent transition-colors mb-3">{p.title}</h3>
 
-                          <div className="flex flex-wrap items-center gap-6 text-[10px] font-black text-gray-500 uppercase tracking-widest mb-6 border-b border-gray-100 dark:border-white/5 pb-4">
-                            <div className="flex items-center gap-2"><MapPin size={14} className="text-yellow-600" /> {p.location}</div>
-                            <div className="flex items-center gap-2"><Building size={14} className="text-yellow-600" /> GC: {p.gc}</div>
+                          <div className="flex flex-wrap items-center gap-6 text-[10px] font-medium text-gray-500 tracking-wide mb-6 border-b border-gray-100 dark:border-white/5 pb-4">
+                            <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300"><MapPin size={14} className="text-accent" /> {p.location}</div>
+                            <div className="flex items-center gap-2"><Building size={14} className="text-accent" /> GC: {p.gc}</div>
                             <div className="flex items-center gap-2"><Star size={14} className="text-yellow-400 fill-current" /> {p.gcRating}</div>
-                            <div className="flex items-center gap-2"><Tag size={14} className="text-yellow-600" /> NIGP {p.nigpCode}</div>
+                            <div className="flex items-center gap-2 text-gray-400"><Tag size={14} /> NIGP {p.nigpCode}</div>
                           </div>
 
                           <div className="flex flex-wrap gap-2">
                             {p.trades.map(t => (
-                              <div key={t} className="px-3 py-1.5 bg-gray-50 dark:bg-white/5 rounded-xl text-[9px] font-black uppercase tracking-widest text-gray-400 border border-gray-100 dark:border-white/5 group-hover:border-accent/20 group-hover:text-yellow-600/80 transition-all">{t}</div>
+                              <div key={t} className="px-3 py-1.5 bg-gray-50 dark:bg-white/5 rounded-xl text-[9px] font-medium text-gray-500 border border-gray-100 dark:border-white/5 group-hover:border-accent/20 transition-all">{t}</div>
                             ))}
                           </div>
                         </div>
@@ -432,32 +432,31 @@ const FindProjects = () => {
 
                       <div className="flex flex-col items-end justify-between min-w-[240px] gap-6 pl-8 border-l border-gray-100 dark:border-white/5">
                         <div className="text-right">
-                          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-2">Estimate Capacity</p>
-                          <p className="text-3xl font-black font-mono tracking-tighter text-gray-900 dark:text-white group-hover:text-yellow-600 transition-colors uppercase">{p.budget}</p>
+                          <p className="text-[10px] font-semibold uppercase tracking-widest text-gray-400 mb-2">Estimate Value</p>
+                          <p className="text-3xl font-bold font-mono tracking-tighter text-gray-900 dark:text-white group-hover:text-accent transition-colors">{p.budget}</p>
                         </div>
 
                         <div className="flex flex-col gap-3 w-full">
                           <Button
                             onClick={() => handleInitiateBid(p)}
-                            className="h-12 bg-black dark:bg-accent text-white dark:text-accent-foreground font-black uppercase text-[11px] tracking-widest rounded-2xl shadow-xl hover:scale-[1.03] active:scale-95 transition-all w-full flex gap-3"
+                            className="h-12 bg-accent text-accent-foreground font-semibold text-xs rounded-xl transition-all w-full flex gap-3 shadow-none"
                           >
-                            Initiate Protocol <Zap size={18} />
+                            Start Bid <Zap size={18} />
                           </Button>
                           <div className="flex gap-2">
                             <Button
                               variant="ghost"
-                              onClick={(e) => { e.stopPropagation(); toggleSave(p.id); }}
+                              onClick={(e: any) => { e.stopPropagation(); toggleSave(p.id); }}
                               className={cn(
-                                "h-12 flex-1 flex items-center justify-center gap-2 font-black text-[9px] uppercase tracking-widest rounded-2xl transition-all border border-gray-100 dark:border-white/5",
-                                savedProjectIds.includes(p.id) ? "bg-accent text-accent-foreground border-none" : "bg-white dark:bg-white/5 text-gray-400 hover:text-yellow-600"
+                                "h-12 flex-1 flex items-center justify-center gap-2 font-bold text-[9px] uppercase tracking-widest rounded-xl transition-all border border-gray-100 dark:border-white/5",
+                                savedProjectIds.includes(p.id) ? "bg-accent text-accent-foreground border-none" : "bg-white dark:bg-white/5 text-gray-400 hover:text-accent"
                               )}
                             >
                               {savedProjectIds.includes(p.id) ? <BookmarkCheck size={16} /> : <Bookmark size={16} />}
-                              {savedProjectIds.includes(p.id) ? 'Locked' : 'Save'}
+                              {savedProjectIds.includes(p.id) ? 'Saved' : 'Save'}
                             </Button>
-                            <Button variant="ghost" className="h-12 w-12 rounded-2xl bg-white dark:bg-white/5 border border-gray-100 dark:border-white/5 text-gray-400 hover:text-yellow-600 overflow-hidden relative group/icon">
-                              <div className="absolute inset-0 bg-accent translate-y-full group-hover/icon:translate-y-0 transition-transform"></div>
-                              <MoreHorizontal size={18} className="relative z-10 group-hover/icon:text-accent-foreground" />
+                            <Button variant="ghost" className="h-12 w-12 rounded-xl bg-white dark:bg-white/5 border border-gray-100 dark:border-white/5 text-gray-400 hover:text-accent">
+                              <MoreHorizontal size={18} />
                             </Button>
                           </div>
                         </div>
@@ -467,18 +466,18 @@ const FindProjects = () => {
 
                   {/* Status Interaction Bar */}
                   <div className="bg-gray-50/50 dark:bg-black/20 px-10 py-4 flex items-center justify-between border-t border-gray-100 dark:border-white/5">
-                    <div className="flex gap-8 text-[9px] font-black uppercase tracking-widest text-gray-400">
-                      <span className="flex items-center gap-2"><Calendar size={14} className="text-yellow-600" /> Bid Due: {p.deadline}</span>
-                      <span className="flex items-center gap-2"><Smartphone size={14} className="text-yellow-600" /> {p.views} Terminal Views</span>
-                      <span className="flex items-center gap-2"><Tag size={14} /> Via {p.source}</span>
+                    <div className="flex gap-8 text-[9px] font-semibold text-gray-400">
+                      <span className="flex items-center gap-2"><Calendar size={14} className="text-accent" /> Bid Due: {p.deadline}</span>
+                      <span className="flex items-center gap-2"><Smartphone size={14} className="text-accent" /> {p.views} Views</span>
+                      <span className="flex items-center gap-2"><Tag size={14} /> Source: {p.source}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <div className="flex -space-x-2 mr-3">
                         {[1, 2, 3].map(i => (
-                          <div key={i} className="w-5 h-5 rounded-full border-2 border-white dark:border-[#1c1e24] bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-[8px] font-black text-white">{i}</div>
+                          <div key={i} className="w-5 h-5 rounded-full border-2 border-white dark:border-[#1c1e24] bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-[8px] font-bold text-white">{i}</div>
                         ))}
                       </div>
-                      <span className="text-[9px] font-black uppercase tracking-widest text-yellow-600">{p.bids} Competing Bidders</span>
+                      <span className="text-[9px] font-bold uppercase tracking-widest text-accent">{p.bids} Competing Bidders</span>
                     </div>
                   </div>
                 </Card>
@@ -487,12 +486,12 @@ const FindProjects = () => {
 
             {filteredProjects.length === 0 && (
               <div className="py-32 flex flex-col items-center justify-center text-center">
-                <Target size={60} className="text-gray-200 dark:text-white/5 mb-8 animate-pulse" />
-                <h3 className="text-2xl font-black uppercase tracking-tighter mb-4">No Opportunity Detected</h3>
-                <p className="text-gray-500 max-w-sm font-bold text-sm tracking-wide leading-relaxed uppercase opacity-60">Adjust your industry signals or search query to re-establish the connection to active marketplace bids.</p>
+                <Target size={60} className="text-gray-200 dark:text-white/5 mb-8" />
+                <h3 className="text-2xl font-black uppercase tracking-tighter mb-4">No Projects Found</h3>
+                <p className="text-gray-500 max-w-sm font-bold text-sm tracking-wide leading-relaxed uppercase opacity-60">Adjust your search filters to find active marketplace bids.</p>
                 <Button variant="link" size="sm" onClick={() => {
                   setSearchQuery('');
-                }} className="text-[9px] uppercase font-bold text-yellow-600">Reset Search</Button>
+                }} className="text-[9px] uppercase font-bold text-accent">Reset Filters</Button>
               </div>
             )}
           </div>
@@ -501,29 +500,29 @@ const FindProjects = () => {
 
       {/* Success Modal */}
       <Dialog open={isSuccessModalOpen} onOpenChange={setIsSuccessModalOpen}>
-        <DialogContent className="sm:max-w-[400px] bg-white dark:bg-[#1c1e24] border-none rounded-[3rem] p-10 text-center shadow-3xl">
-          <div className="w-24 h-24 bg-accent/10 rounded-full flex items-center justify-center mx-auto mb-8 border-4 border-accent/20">
-            <CheckCircle2 className="w-12 h-12 text-accent animate-bounce" />
+        <DialogContent className="sm:max-w-[400px] bg-white dark:bg-[#1c1e24] border-none rounded-3xl p-10 text-center shadow-2xl">
+          <div className="w-20 h-20 bg-accent/10 rounded-full flex items-center justify-center mx-auto mb-8 border-2 border-accent/20">
+            <CheckCircle2 className="w-10 h-10 text-accent" />
           </div>
           <DialogHeader>
-            <DialogTitle className="text-2xl font-black tracking-tight text-center uppercase">Protocol Locked</DialogTitle>
-            <DialogDescription className="text-center font-bold text-gray-500 dark:text-gray-400 mt-2">
-              Mission for <span className="text-yellow-600 font-black">{lastInitiatedProject}</span> has been synchronized with your bid terminal.
+            <DialogTitle className="text-2xl font-bold tracking-tight text-center uppercase">Bid Draft Created</DialogTitle>
+            <DialogDescription className="text-center font-semibold text-gray-500 dark:text-gray-400 mt-2">
+              The bid for <span className="text-accent font-bold">{lastInitiatedProject}</span> has been added to your management portal.
             </DialogDescription>
           </DialogHeader>
-          <div className="flex flex-col gap-4 mt-10">
+          <div className="flex flex-col gap-4 mt-8">
             <Button
-              className="h-14 bg-black dark:bg-accent text-white dark:text-accent-foreground font-black uppercase text-[11px] tracking-[0.2em] rounded-2xl shadow-2xl hover:scale-105 active:scale-95 transition-all"
+              className="h-12 bg-accent text-accent-foreground font-bold uppercase text-[11px] tracking-wider rounded-xl shadow-lg shadow-accent/10 transition-all"
               onClick={() => navigate('/subcontractor-dashboard/bid-management')}
             >
               Go to Bid Management
             </Button>
             <Button
               variant="ghost"
-              className="h-14 font-black uppercase text-[11px] tracking-widest text-gray-400"
+              className="h-12 font-bold uppercase text-[11px] tracking-widest text-gray-400"
               onClick={() => setIsSuccessModalOpen(false)}
             >
-              Keep Searching
+              Keep Browsing
             </Button>
           </div>
         </DialogContent>

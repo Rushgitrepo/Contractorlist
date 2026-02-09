@@ -16,6 +16,7 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import RouteThemeManager from "@/components/RouteThemeManager";
 import AIChatbot from "@/components/AIChatbot";
 import NotificationSystem from "@/components/NotificationSystem";
+import InvitationHandler from "@/components/common/InvitationHandler";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
@@ -193,6 +194,9 @@ const AppRoutes = () => {
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
         <Route path="*" element={<NotFound />} />
       </Routes>
+
+      {/* Project Invitation Handler */}
+      <InvitationHandler />
 
       {/* AI Chatbot - Available on all pages */}
       <AIChatbot />

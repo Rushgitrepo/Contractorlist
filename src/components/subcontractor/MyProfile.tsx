@@ -59,7 +59,7 @@ const MyProfile = () => {
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
           <div>
-            <h1 className="text-3xl font-black tracking-tight mb-2">My Profile</h1>
+            <h1 className="text-3xl font-bold tracking-tight mb-2">My Profile</h1>
             <p className="text-text-secondary-light dark:text-text-secondary-dark">
               Manage your company profile and showcase your expertise
             </p>

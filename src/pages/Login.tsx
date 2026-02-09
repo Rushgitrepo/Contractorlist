@@ -39,6 +39,16 @@ const Login = () => {
     resolver: zodResolver(loginSchema),
   });
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get('token');
+    const email = params.get('email');
+
+    if (email) {
+      setValue("email", email);
+    }
+  }, [setValue]);
+
   const onSubmit = async (data: LoginFormData) => {
     setError("");
     setIsLoading(true);
@@ -83,6 +93,12 @@ const Login = () => {
         }
 
 
+
+        const params = new URLSearchParams(window.location.search);
+        const token = params.get('token');
+        if (token) {
+          redirectPath += (redirectPath.includes('?') ? '&' : '?') + `token=${token}`;
+        }
 
         navigate(redirectPath);
       } else {

@@ -20,6 +20,11 @@ export default defineConfig(({ mode }) => {
           target: env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000',
           changeOrigin: true,
           secure: false
+        },
+        '/socket.io': {
+          target: env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000',
+          ws: true,
+          changeOrigin: true
         }
       }
     },

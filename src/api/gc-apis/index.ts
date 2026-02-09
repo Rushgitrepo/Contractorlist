@@ -196,3 +196,18 @@ export const sendTeamMemberReminder = async (teamMemberId: number) => {
 export const getProjectTeamMembers = async (projectId: number) => {
     return await gcAPI.getProjectTeamMembers(projectId);
 };
+export const getMyPendingInvitations = async () => {
+    return await gcAPI.getMyPendingInvitations();
+};
+
+export const verifyInvitation = async (token: string) => {
+    return await gcAPI.verifyInvitation(token);
+};
+
+export const acceptInvitationAction = async (token: string) => {
+    return await gcAPI.acceptInvitationAction(token);
+};
+
+export const declineInvitationAction = async (token: string) => {
+    return await gcAPI.declineInvitationAction(token);
+};

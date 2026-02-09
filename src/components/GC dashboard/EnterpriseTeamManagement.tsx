@@ -23,7 +23,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { getTeamMembers, inviteTeamMember, createTeamMember, deleteTeamMember, updateTeamMember, getProjectDiscovery, sendTeamMemberReminder } from '@/api/gc-apis';
+import { getTeamMembers, inviteTeamMember, createTeamMember, deleteTeamMember, updateTeamMember, sendTeamMemberReminder, getProjects } from '@/api/gc-apis';
 import { teamMemberFormSchema } from '@/validation/teamSchemas';
 
 import {
@@ -89,6 +89,8 @@ const EnterpriseTeamManagement = () => {
   const [employeeId, setEmployeeId] = useState('');
   const [type, setType] = useState<'Direct Employee' | 'Contractor'>('Direct Employee');
   const [teamMemberFormErrors, setTeamMemberFormErrors] = useState<Record<string, string>>({});
+  const [projects, setProjects] = useState<{ id: number; name: string }[]>([]);
+  const [selectedProjectId, setSelectedProjectId] = useState<string>('none');
 
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -116,7 +118,17 @@ const EnterpriseTeamManagement = () => {
 
   useEffect(() => {
     loadTeamMembers();
+    loadProjects();
   }, []);
+
+  const loadProjects = async () => {
+    try {
+      const data = await getProjects();
+      setProjects(data.map((p: any) => ({ id: p.id, name: p.name })));
+    } catch (error) {
+      console.error("Failed to load projects", error);
+    }
+  };
 
   const loadTeamMembers = async () => {
     try {
@@ -205,16 +217,17 @@ const EnterpriseTeamManagement = () => {
       fieldErrors.phone = 'Phone number is required when sending invitation via SMS.';
     }
 
-    if (Object.keys(fieldErrors).length > 0) {
+    if (Object.keys(fieldErrors).length > 0 || !parsed.success) {
       setTeamMemberFormErrors(fieldErrors);
       toast({
         title: 'Please fix the highlighted fields',
-        description: Object.values(fieldErrors).join(' · '),
+        description: Object.values(fieldErrors).join(' · ') || "Invalid form data",
         variant: 'destructive',
       });
       return;
     }
 
+    // Now we are sure parsed.success is true, so parsed.data is safe to access
     const memberData = {
       name: parsed.data.name,
       email: parsed.data.email,
@@ -238,6 +251,18 @@ const EnterpriseTeamManagement = () => {
           title: 'Team Member Updated',
           description: `${currentName}'s profile has been updated.`,
         });
+      } else if (selectedProjectId !== 'none') {
+        // Use the project-specific invitation API
+        await inviteTeamMember(Number(selectedProjectId), {
+          name: memberData.name,
+          email: memberData.email || '',
+          phone: memberData.phone,
+          role: memberData.role
+        });
+        toast({
+          title: 'Project Invitation Sent',
+          description: `${currentName} has been invited to the project and your team.`,
+        });
       } else {
         await createTeamMember(memberData);
         toast({
@@ -255,6 +280,7 @@ const EnterpriseTeamManagement = () => {
       setRole('');
       setEmployeeId('');
       setType('Direct Employee');
+      setSelectedProjectId('none');
 
       loadTeamMembers();
     } catch (error) {
@@ -355,6 +381,7 @@ const EnterpriseTeamManagement = () => {
                   setRole('');
                   setEmployeeId('');
                   setType('Direct Employee');
+                  setSelectedProjectId('none');
                   setIsAddModalOpen(true);
                 }}
               >
@@ -552,6 +579,22 @@ const EnterpriseTeamManagement = () => {
               {teamMemberFormErrors.role && (
                 <p className="text-xs text-red-500 mt-1">{teamMemberFormErrors.role}</p>
               )}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="project" className="text-gray-700 dark:text-gray-300">Assign to Project (Optional)</Label>
+              <Select value={selectedProjectId} onValueChange={setSelectedProjectId}>
+                <SelectTrigger className="bg-gray-100 dark:bg-black/20 border-gray-200 dark:border-white/10">
+                  <SelectValue placeholder="Select a project" />
+                </SelectTrigger>
+                <SelectContent className="bg-white dark:bg-[#1c1e24] border-gray-200 dark:border-white/10">
+                  <SelectItem value="none">No Project Assignment</SelectItem>
+                  {projects.map((p) => (
+                    <SelectItem key={p.id} value={p.id.toString()}>{p.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-[10px] text-gray-400 mt-1">If assigned, they'll be auto-added to the project group chat.</p>
             </div>
 
 

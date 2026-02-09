@@ -220,23 +220,22 @@ const CleanProjectManagement = () => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'completed': return 'bg-yellow-400 text-black';
-      case 'active': case 'in-progress': return 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300';
-      case 'on-hold': return 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300';
-      case 'cancelled': return 'bg-yellow-50 dark:bg-yellow-900/10 text-yellow-600';
+      case 'completed': return 'bg-accent text-accent-foreground font-bold';
+      case 'active': case 'in-progress': return 'bg-accent/10 text-accent-foreground border-none';
+      case 'on-hold': return 'bg-accent/5 text-accent-foreground/70 border-none';
+      case 'cancelled': return 'bg-red-100 dark:bg-red-900/10 text-red-600';
       case 'todo': return 'bg-gray-100 dark:bg-gray-900/30 text-gray-800 dark:text-gray-300';
-      case 'review': return 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300';
+      case 'review': return 'bg-accent/10 text-accent-foreground border-none';
       default: return 'bg-gray-100 dark:bg-gray-900/30 text-gray-800 dark:text-gray-300';
     }
   };
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case 'critical': return 'text-yellow-600 bg-yellow-400 font-black';
-      case 'high': return 'text-yellow-600 bg-yellow-100 dark:bg-yellow-900/30';
-      case 'medium': return 'text-yellow-600 bg-yellow-100 dark:bg-yellow-900/30';
-      case 'low': return 'text-yellow-600 bg-yellow-50 dark:bg-yellow-900/10';
-      default: return 'text-gray-600 bg-gray-100 dark:bg-gray-900/30';
+      case 'critical': return 'text-accent-foreground bg-accent font-bold';
+      case 'high': return 'text-accent bg-accent/10';
+      case 'medium': return 'text-accent bg-accent/10';
+      case 'low': return 'text-accent bg-accent/5';
       default: return 'text-gray-600 bg-gray-100 dark:bg-gray-900/30';
     }
   };
@@ -273,9 +272,9 @@ const CleanProjectManagement = () => {
             <div className="flex items-center justify-between">
               <h3 className="font-semibold capitalize flex items-center gap-2">
                 {status === 'todo' && <Circle className="w-4 h-4 text-gray-500" />}
-                {status === 'in-progress' && <Play className="w-4 h-4 text-yellow-500" />}
-                {status === 'review' && <Eye className="w-4 h-4 text-yellow-500" />}
-                {status === 'completed' && <CheckCircle className="w-4 h-4 text-yellow-400" />}
+                {status === 'in-progress' && <Play className="w-4 h-4 text-accent" />}
+                {status === 'review' && <Eye className="w-4 h-4 text-accent" />}
+                {status === 'completed' && <CheckCircle className="w-4 h-4 text-accent" />}
                 {status.replace('-', ' ')}
               </h3>
               <Badge variant="outline">{tasks.length}</Badge>
@@ -353,7 +352,7 @@ const CleanProjectManagement = () => {
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
           <div>
-            <h1 className="text-3xl font-black tracking-tight mb-2">Project Management</h1>
+            <h1 className="text-3xl font-bold tracking-tight mb-2">Project Management</h1>
             <p className="text-gray-600 dark:text-gray-400">
               Advanced project tracking with team collaboration
             </p>
@@ -363,7 +362,7 @@ const CleanProjectManagement = () => {
               <FileText className="w-4 h-4 mr-2" />
               Export
             </Button>
-            <Button className="bg-primary hover:bg-yellow-400 text-black">
+            <Button className="bg-accent hover:bg-accent/90 text-accent-foreground font-bold">
               <Plus className="w-4 h-4 mr-2" />
               New Project
             </Button>
@@ -376,11 +375,11 @@ const CleanProjectManagement = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Progress</p>
-                  <p className="text-2xl font-bold">{currentProject.progress}%</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">Progress</p>
+                  <p className="text-2xl font-semibold">{currentProject.progress}%</p>
                 </div>
-                <div className="w-12 h-12 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg flex items-center justify-center">
-                  <BarChart3 className="w-6 h-6 text-yellow-600" />
+                <div className="w-12 h-12 bg-accent/10 rounded-lg flex items-center justify-center">
+                  <BarChart3 className="w-6 h-6 text-accent" />
                 </div>
               </div>
               <Progress value={currentProject.progress} className="mt-4" />
@@ -391,11 +390,11 @@ const CleanProjectManagement = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Budget</p>
-                  <p className="text-2xl font-bold">{formatCurrency(currentProject.budget)}</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">Budget</p>
+                  <p className="text-2xl font-semibold">{formatCurrency(currentProject.budget)}</p>
                 </div>
-                <div className="w-12 h-12 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg flex items-center justify-center">
-                  <DollarSign className="w-6 h-6 text-yellow-600" />
+                <div className="w-12 h-12 bg-accent/10 rounded-lg flex items-center justify-center">
+                  <DollarSign className="w-6 h-6 text-accent" />
                 </div>
               </div>
               <div className="mt-2 text-sm">
@@ -409,11 +408,11 @@ const CleanProjectManagement = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Team</p>
-                  <p className="text-2xl font-bold">{currentProject.team.length}</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">Team</p>
+                  <p className="text-2xl font-semibold">{currentProject.team.length}</p>
                 </div>
-                <div className="w-12 h-12 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg flex items-center justify-center">
-                  <Users className="w-6 h-6 text-yellow-600" />
+                <div className="w-12 h-12 bg-accent/10 rounded-lg flex items-center justify-center">
+                  <Users className="w-6 h-6 text-accent" />
                 </div>
               </div>
               <div className="mt-2 text-sm text-gray-600 dark:text-gray-400">
@@ -426,11 +425,11 @@ const CleanProjectManagement = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Tasks</p>
-                  <p className="text-2xl font-bold">{currentProject.tasks.length}</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">Tasks</p>
+                  <p className="text-2xl font-semibold">{currentProject.tasks.length}</p>
                 </div>
-                <div className="w-12 h-12 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg flex items-center justify-center">
-                  <CheckCircle className="w-6 h-6 text-yellow-600" />
+                <div className="w-12 h-12 bg-accent/10 rounded-lg flex items-center justify-center">
+                  <CheckCircle className="w-6 h-6 text-accent" />
                 </div>
               </div>
               <div className="mt-2 text-sm text-gray-600 dark:text-gray-400">
@@ -445,7 +444,7 @@ const CleanProjectManagement = () => {
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle className="text-xl">{currentProject.name}</CardTitle>
+                <CardTitle className="text-xl font-bold">{currentProject.name}</CardTitle>
                 <p className="text-gray-600 dark:text-gray-400 mt-1">Client: {currentProject.client}</p>
               </div>
               <div className="flex items-center gap-2">
@@ -478,7 +477,7 @@ const CleanProjectManagement = () => {
                     {/* Project Info */}
                     <Card>
                       <CardHeader>
-                        <CardTitle className="text-lg">Project Info</CardTitle>
+                        <CardTitle className="text-lg font-bold">Project Info</CardTitle>
                       </CardHeader>
                       <CardContent className="space-y-4">
                         <div className="flex justify-between">
@@ -492,9 +491,9 @@ const CleanProjectManagement = () => {
                         <div className="flex justify-between">
                           <span className="text-gray-600 dark:text-gray-400">Risk Level</span>
                           <Badge className={
-                            currentProject.riskLevel === 'high' ? 'bg-yellow-500 text-black' :
-                              currentProject.riskLevel === 'medium' ? 'bg-yellow-100 text-yellow-800' :
-                                'bg-yellow-400 text-black'
+                            currentProject.riskLevel === 'high' ? 'bg-red-100 text-red-800' :
+                              currentProject.riskLevel === 'medium' ? 'bg-accent/10 text-accent' :
+                                'bg-accent text-accent-foreground'
                           }>
                             {currentProject.riskLevel}
                           </Badge>
@@ -509,26 +508,26 @@ const CleanProjectManagement = () => {
                     {/* Recent Activity */}
                     <Card>
                       <CardHeader>
-                        <CardTitle className="text-lg">Recent Activity</CardTitle>
+                        <CardTitle className="text-lg font-bold">Recent Activity</CardTitle>
                       </CardHeader>
                       <CardContent>
                         <div className="space-y-3">
                           <div className="flex items-start gap-3">
-                            <div className="w-2 h-2 bg-green-500 rounded-full mt-2"></div>
+                            <div className="w-2 h-2 bg-accent rounded-full mt-2"></div>
                             <div>
                               <p className="text-sm font-medium">Phase 1 Installation 80% complete</p>
                               <p className="text-xs text-gray-500">2 hours ago</p>
                             </div>
                           </div>
                           <div className="flex items-start gap-3">
-                            <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
+                            <div className="w-2 h-2 bg-accent/60 rounded-full mt-2"></div>
                             <div>
                               <p className="text-sm font-medium">Equipment inspection completed</p>
                               <p className="text-xs text-gray-500">5 hours ago</p>
                             </div>
                           </div>
                           <div className="flex items-start gap-3">
-                            <div className="w-2 h-2 bg-yellow-500 rounded-full mt-2"></div>
+                            <div className="w-2 h-2 bg-accent/40 rounded-full mt-2"></div>
                             <div>
                               <p className="text-sm font-medium">Client meeting scheduled</p>
                               <p className="text-xs text-gray-500">1 day ago</p>
@@ -558,8 +557,8 @@ const CleanProjectManagement = () => {
                             <h3 className="font-semibold">{member.name}</h3>
                             <p className="text-sm text-gray-600 dark:text-gray-400">{member.role}</p>
                           </div>
-                          <div className={`w-3 h-3 rounded-full ${member.availability === 'available' ? 'bg-yellow-400' :
-                              member.availability === 'busy' ? 'bg-yellow-600' : 'bg-gray-500'
+                          <div className={`w-3 h-3 rounded-full ${member.availability === 'available' ? 'bg-accent' :
+                            member.availability === 'busy' ? 'bg-accent/60' : 'bg-gray-500'
                             }`}></div>
                         </div>
                         <div className="mt-4">
@@ -582,7 +581,7 @@ const CleanProjectManagement = () => {
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
                           <div className="flex items-center gap-3 mb-2">
-                            <Target className="w-5 h-5 text-yellow-600" />
+                            <Target className="w-5 h-5 text-accent" />
                             <h3 className="font-semibold">{milestone.name}</h3>
                             <Badge className={getStatusColor(milestone.status)}>
                               {milestone.status}

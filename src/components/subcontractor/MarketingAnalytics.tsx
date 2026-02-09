@@ -32,17 +32,17 @@ const MarketingAnalytics = () => {
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
           <div>
-            <h1 className="text-3xl font-black tracking-tight mb-2">Marketing Analytics</h1>
-            <p className="text-text-secondary-light dark:text-text-secondary-dark">
+            <h1 className="text-3xl font-bold tracking-tight mb-2 text-gray-900 dark:text-white">Marketing Analytics</h1>
+            <p className="text-gray-500 dark:text-gray-400 font-medium text-sm">
               Track your profile performance and optimize your visibility
             </p>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline">
+            <Button variant="outline" className="font-semibold text-xs h-9">
               <Download className="w-4 h-4 mr-2" />
               Export Report
             </Button>
-            <Button className="bg-primary hover:bg-yellow-400 text-black font-semibold">
+            <Button className="bg-accent hover:bg-accent/90 text-accent-foreground font-semibold text-xs h-9">
               <Share className="w-4 h-4 mr-2" />
               Share Profile
             </Button>
@@ -69,10 +69,10 @@ const MarketingAnalytics = () => {
           <Card className="bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark">
             <CardContent className="p-5">
               <div className="flex justify-between items-start mb-2">
-                <p className="text-sm font-medium text-text-secondary-light dark:text-text-secondary-dark">Profile Views</p>
-                <Eye className="w-5 h-5 text-yellow-600" />
+                <p className="text-sm font-semibold text-text-secondary-light dark:text-text-secondary-dark">Profile Views</p>
+                <Eye className="w-5 h-5 text-accent" />
               </div>
-              <p className="text-2xl font-bold">1,240</p>
+              <p className="text-2xl font-semibold">1,240</p>
               <div className="flex items-center gap-1 mt-1">
                 <ArrowDown className="w-4 h-4 text-red-500" />
                 <p className="text-xs font-medium text-red-500">-5% vs last period</p>
@@ -82,10 +82,10 @@ const MarketingAnalytics = () => {
           <Card className="bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark">
             <CardContent className="p-5">
               <div className="flex justify-between items-start mb-2">
-                <p className="text-sm font-medium text-text-secondary-light dark:text-text-secondary-dark">Contact Clicks</p>
-                <Users className="w-5 h-5 text-yellow-600" />
+                <p className="text-sm font-semibold text-text-secondary-light dark:text-text-secondary-dark">Contact Clicks</p>
+                <Users className="w-5 h-5 text-accent" />
               </div>
-              <p className="text-2xl font-bold">89</p>
+              <p className="text-2xl font-semibold">89</p>
               <div className="flex items-center gap-1 mt-1">
                 <ArrowUp className="w-4 h-4 text-yellow-500" />
                 <p className="text-xs font-medium text-yellow-500">+12% vs last period</p>
@@ -96,10 +96,10 @@ const MarketingAnalytics = () => {
           <Card className="bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark">
             <CardContent className="p-5">
               <div className="flex justify-between items-start mb-2">
-                <p className="text-sm font-medium text-text-secondary-light dark:text-text-secondary-dark">Bid Invitations</p>
-                <Target className="w-5 h-5 text-yellow-600" />
+                <p className="text-sm font-semibold text-text-secondary-light dark:text-text-secondary-dark">Bid Invitations</p>
+                <Target className="w-5 h-5 text-accent" />
               </div>
-              <p className="text-2xl font-bold">23</p>
+              <p className="text-2xl font-semibold">23</p>
               <div className="flex items-center gap-1 mt-1">
                 <ArrowUp className="w-4 h-4 text-yellow-500" />
                 <p className="text-xs font-medium text-yellow-500">+8% vs last period</p>
@@ -110,10 +110,10 @@ const MarketingAnalytics = () => {
           <Card className="bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark">
             <CardContent className="p-5">
               <div className="flex justify-between items-start mb-2">
-                <p className="text-sm font-medium text-text-secondary-light dark:text-text-secondary-dark">Profile Rating</p>
-                <Star className="w-5 h-5 text-yellow-600" />
+                <p className="text-sm font-semibold text-text-secondary-light dark:text-text-secondary-dark">Profile Rating</p>
+                <Star className="w-5 h-5 text-accent" />
               </div>
-              <p className="text-2xl font-bold">4.9</p>
+              <p className="text-2xl font-semibold">4.9</p>
               <div className="flex items-center gap-1 mt-1">
                 <ArrowUp className="w-4 h-4 text-yellow-500" />
                 <p className="text-xs font-medium text-yellow-500">+0.1 vs last period</p>
@@ -124,11 +124,11 @@ const MarketingAnalytics = () => {
 
         {/* Analytics Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="traffic">Traffic</TabsTrigger>
-            <TabsTrigger value="engagement">Engagement</TabsTrigger>
-            <TabsTrigger value="performance">Performance</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-4 bg-gray-100 dark:bg-white/5 p-1 rounded-xl h-auto">
+            <TabsTrigger value="overview" className="rounded-lg font-semibold text-xs py-2 data-[state=active]:bg-accent data-[state=active]:text-accent-foreground">Overview</TabsTrigger>
+            <TabsTrigger value="traffic" className="rounded-lg font-semibold text-xs py-2 data-[state=active]:bg-accent data-[state=active]:text-accent-foreground">Traffic</TabsTrigger>
+            <TabsTrigger value="engagement" className="rounded-lg font-semibold text-xs py-2 data-[state=active]:bg-accent data-[state=active]:text-accent-foreground">Engagement</TabsTrigger>
+            <TabsTrigger value="performance" className="rounded-lg font-semibold text-xs py-2 data-[state=active]:bg-accent data-[state=active]:text-accent-foreground">Performance</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6">
@@ -146,7 +146,7 @@ const MarketingAnalytics = () => {
                     {[40, 65, 45, 80, 55, 70, 60, 85, 75, 90, 65, 80, 70, 95].map((height, index) => (
                       <div
                         key={index}
-                        className="bg-primary/20 hover:bg-primary transition-colors rounded-t flex-1"
+                        className="bg-accent/20 hover:bg-accent transition-colors rounded-t flex-1"
                         style={{ height: `${height}%` }}
                         title={`Day ${index + 1}: ${Math.round(height * 20)} views`}
                       />
@@ -174,7 +174,7 @@ const MarketingAnalytics = () => {
                       <p className="text-xs text-text-secondary-light dark:text-text-secondary-dark">Medical Center Photos</p>
                     </div>
                     <div className="text-right">
-                      <p className="font-bold text-yellow-600">342 views</p>
+                      <p className="font-semibold text-accent">342 views</p>
                       <p className="text-xs text-text-secondary-light dark:text-text-secondary-dark">+15%</p>
                     </div>
                   </div>
@@ -184,7 +184,7 @@ const MarketingAnalytics = () => {
                       <p className="text-xs text-text-secondary-light dark:text-text-secondary-dark">About Us Section</p>
                     </div>
                     <div className="text-right">
-                      <p className="font-bold text-yellow-600">298 views</p>
+                      <p className="font-semibold text-accent">298 views</p>
                       <p className="text-xs text-text-secondary-light dark:text-text-secondary-dark">+8%</p>
                     </div>
                   </div>
@@ -194,7 +194,7 @@ const MarketingAnalytics = () => {
                       <p className="text-xs text-text-secondary-light dark:text-text-secondary-dark">Licenses & Awards</p>
                     </div>
                     <div className="text-right">
-                      <p className="font-bold text-yellow-600">187 views</p>
+                      <p className="font-semibold text-accent">187 views</p>
                       <p className="text-xs text-text-secondary-light dark:text-text-secondary-dark">+22%</p>
                     </div>
                   </div>
@@ -219,7 +219,7 @@ const MarketingAnalytics = () => {
                         <span className="text-sm">Austin, TX</span>
                         <div className="flex items-center gap-2">
                           <div className="w-20 h-2 bg-gray-200 dark:bg-gray-700 rounded-full">
-                            <div className="w-4/5 h-full bg-primary rounded-full"></div>
+                            <div className="w-4/5 h-full bg-accent rounded-full"></div>
                           </div>
                           <span className="text-sm font-semibold">456</span>
                         </div>
@@ -228,7 +228,7 @@ const MarketingAnalytics = () => {
                         <span className="text-sm">San Antonio, TX</span>
                         <div className="flex items-center gap-2">
                           <div className="w-20 h-2 bg-gray-200 dark:bg-gray-700 rounded-full">
-                            <div className="w-3/5 h-full bg-primary rounded-full"></div>
+                            <div className="w-3/5 h-full bg-accent rounded-full"></div>
                           </div>
                           <span className="text-sm font-semibold">298</span>
                         </div>
@@ -237,7 +237,7 @@ const MarketingAnalytics = () => {
                         <span className="text-sm">Houston, TX</span>
                         <div className="flex items-center gap-2">
                           <div className="w-20 h-2 bg-gray-200 dark:bg-gray-700 rounded-full">
-                            <div className="w-2/5 h-full bg-primary rounded-full"></div>
+                            <div className="w-2/5 h-full bg-accent rounded-full"></div>
                           </div>
                           <span className="text-sm font-semibold">187</span>
                         </div>
@@ -341,36 +341,42 @@ const MarketingAnalytics = () => {
                 <CardTitle>Performance Insights</CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
-                <div className="p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
+                <div className="p-4 bg-gray-50 dark:bg-white/5 rounded-xl border border-gray-100 dark:border-white/5">
                   <div className="flex items-start gap-3">
-                    <TrendingUp className="w-5 h-5 text-yellow-600 mt-0.5" />
+                    <div className="size-8 rounded-lg bg-green-500/10 flex items-center justify-center">
+                      <TrendingUp className="w-4 h-4 text-green-600" />
+                    </div>
                     <div>
-                      <h4 className="font-semibold text-yellow-800 dark:text-yellow-300">Strong Performance</h4>
-                      <p className="text-sm text-yellow-700 dark:text-yellow-400 mt-1">
+                      <h4 className="font-semibold text-gray-900 dark:text-white">Strong Performance</h4>
+                      <p className="text-xs text-gray-500 mt-1">
                         Your profile views are 23% higher than similar contractors in your area.
                       </p>
                     </div>
                   </div>
                 </div>
 
-                <div className="p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
+                <div className="p-4 bg-gray-50 dark:bg-white/5 rounded-xl border border-gray-100 dark:border-white/5">
                   <div className="flex items-start gap-3">
-                    <Clock className="w-5 h-5 text-yellow-600 mt-0.5" />
+                    <div className="size-8 rounded-lg bg-accent/10 flex items-center justify-center">
+                      <Clock className="w-4 h-4 text-accent" />
+                    </div>
                     <div>
-                      <h4 className="font-semibold text-yellow-800 dark:text-yellow-300">Opportunity</h4>
-                      <p className="text-sm text-yellow-700 dark:text-yellow-400 mt-1">
+                      <h4 className="font-semibold text-gray-900 dark:text-white">Opportunity</h4>
+                      <p className="text-xs text-gray-500 mt-1">
                         Consider adding more project photos to increase engagement by an estimated 15%.
                       </p>
                     </div>
                   </div>
                 </div>
 
-                <div className="p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
+                <div className="p-4 bg-gray-50 dark:bg-white/5 rounded-xl border border-gray-100 dark:border-white/5">
                   <div className="flex items-start gap-3">
-                    <Target className="w-5 h-5 text-yellow-600 mt-0.5" />
+                    <div className="size-8 rounded-lg bg-accent/10 flex items-center justify-center">
+                      <Target className="w-4 h-4 text-accent" />
+                    </div>
                     <div>
-                      <h4 className="font-semibold text-yellow-800 dark:text-yellow-300">Recommendation</h4>
-                      <p className="text-sm text-yellow-700 dark:text-yellow-400 mt-1">
+                      <h4 className="font-semibold text-gray-900 dark:text-white">Recommendation</h4>
+                      <p className="text-xs text-gray-500 mt-1">
                         Update your service areas to include Round Rock and Cedar Park for 30% more visibility.
                       </p>
                     </div>
