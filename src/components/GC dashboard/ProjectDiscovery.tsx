@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
-import { z } from "zod";
 
 import { Card, CardContent } from '@/components/ui/card';
+
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -55,29 +55,10 @@ import {
   X
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-
-const bidItemSchema = z.object({
-  name: z.string().min(1, "Item name is required"),
-  description: z.string().optional(),
-  price: z.number().nonnegative("Price cannot be negative"),
-});
-
-const bidFormSchema = z.object({
-  items: z
-    .array(bidItemSchema)
-    .min(1, "At least one line item is required")
-    .refine((items) => items.some((item) => item.price > 0), {
-      message: "At least one line item must have a price greater than 0",
-    }),
-  notes: z.string().optional(),
-  estimatedStartDate: z.string().optional(),
-  estimatedEndDate: z.string().optional(),
-  companyHighlights: z.string().optional(),
-  relevantExperience: z.string().optional(),
-  credentials: z.string().optional(),
-});
+import { bidItemSchema, bidFormSchema } from '@/validation/gcBidSchemas';
 
 import { cn } from '@/lib/utils';
+
 import ProjectFilters, { ProjectFilterState, CSI_DIVISIONS } from '@/components/projects/ProjectFilters';
 
 const ProjectDiscovery = () => {

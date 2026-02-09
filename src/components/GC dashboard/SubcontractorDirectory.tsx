@@ -26,12 +26,17 @@ import {
     CheckCircle2,
     Grid3x3,
     List as ListIcon,
-    AlertCircle
+    AlertCircle,
+    Briefcase,
+    Award,
+    FileText,
+    CheckCircle
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAppSelector } from '@/store/hooks';
 import { companyService } from '@/api/companyService';
 import { normalizeCompanyData } from '@/utils/normalizeCompany';
+import FilterAccordion from './FilterAccordion';
 
 const SubcontractorDirectory = () => {
     const { toast } = useToast();
@@ -281,10 +286,9 @@ const SubcontractorDirectory = () => {
                         </button>
                     </div>
 
-                    <div className="space-y-10">
+                    <div className="space-y-4">
                         {/* Trade / Professional Category */}
-                        <div>
-                            <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-4 block underline decoration-yellow-500/30 underline-offset-4">Trade</Label>
+                        <FilterAccordion title="Trade" icon={<Briefcase className="w-4 h-4 text-muted-foreground" />}>
                             <Select value={selectedTrade} onValueChange={setSelectedTrade}>
                                 <SelectTrigger className="w-full h-10 border-gray-200 dark:border-white/10 bg-white dark:bg-black/20 text-xs font-bold rounded-xl">
                                     <SelectValue placeholder="Select Trade" />
@@ -300,11 +304,10 @@ const SubcontractorDirectory = () => {
                                     <SelectItem value="Painting">Painting</SelectItem>
                                 </SelectContent>
                             </Select>
-                        </div>
+                        </FilterAccordion>
 
                         {/* Location Details */}
-                        <div>
-                            <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-4 block underline decoration-yellow-500/30 underline-offset-4">Location (State, City, Radius)</Label>
+                        <FilterAccordion title="Location" icon={<MapPin className="w-4 h-4 text-muted-foreground" />}>
                             <div className="space-y-3">
                                 <Select value={selectedState} onValueChange={setSelectedState}>
                                     <SelectTrigger className="w-full h-10 border-gray-200 dark:border-white/10 bg-white dark:bg-black/20 text-xs font-bold rounded-xl">
@@ -334,22 +337,20 @@ const SubcontractorDirectory = () => {
                                     <span className="text-[10px] font-bold text-gray-400">Miles</span>
                                 </div>
                             </div>
-                        </div>
+                        </FilterAccordion>
 
                         {/* Service Area */}
-                        <div>
-                            <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-4 block underline decoration-yellow-500/30 underline-offset-4">Service Area</Label>
+                        <FilterAccordion title="Service Area" icon={<MapPin className="w-4 h-4 text-muted-foreground" />}>
                             <Input
                                 placeholder="E.g. Austin Metro"
                                 value={serviceArea}
                                 onChange={(e) => setServiceArea(e.target.value)}
                                 className="h-10 border-gray-200 dark:border-white/10 bg-white dark:bg-black/20 text-xs font-bold rounded-xl"
                             />
-                        </div>
+                        </FilterAccordion>
 
                         {/* Availability */}
-                        <div>
-                            <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-4 block underline decoration-yellow-500/30 underline-offset-4">Availability</Label>
+                        <FilterAccordion title="Availability" icon={<CheckCircle2 className="w-4 h-4 text-muted-foreground" />}>
                             <div className="space-y-3">
                                 {['Available Now', 'Accepting Bids', 'Busy'].map(status => (
                                     <div key={status} className="flex items-center group cursor-pointer" onClick={() => {
@@ -365,11 +366,10 @@ const SubcontractorDirectory = () => {
                                     </div>
                                 ))}
                             </div>
-                        </div>
+                        </FilterAccordion>
 
                         {/* Project Type Experience */}
-                        <div>
-                            <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-4 block underline decoration-yellow-500/30 underline-offset-4">Project Type Experience</Label>
+                        <FilterAccordion title="Experience" icon={<Building2 className="w-4 h-4 text-muted-foreground" />}>
                             <Select value={projectExperience} onValueChange={setProjectExperience}>
                                 <SelectTrigger className="w-full h-10 border-gray-200 dark:border-white/10 bg-white dark:bg-black/20 text-xs font-bold rounded-xl">
                                     <SelectValue placeholder="Select Experience" />
@@ -381,11 +381,10 @@ const SubcontractorDirectory = () => {
                                     <SelectItem value="Infrastructure">Infrastructure</SelectItem>
                                 </SelectContent>
                             </Select>
-                        </div>
+                        </FilterAccordion>
 
                         {/* Licensing & Insurance */}
-                        <div>
-                            <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-4 block underline decoration-yellow-500/30 underline-offset-4">Licensing & Insurance</Label>
+                        <FilterAccordion title="Licensing" icon={<ShieldCheck className="w-4 h-4 text-muted-foreground" />}>
                             <div className="space-y-4">
                                 <div className="flex items-center group cursor-pointer" onClick={() => setHasLicense(!hasLicense)}>
                                     <div className={cn(
@@ -406,11 +405,10 @@ const SubcontractorDirectory = () => {
                                     <span className={cn("text-xs font-bold transition-all", hasInsurance ? "text-gray-900 dark:text-white" : "text-gray-500 dark:text-gray-400 group-hover:pl-1")}>Insured & Bonded</span>
                                 </div>
                             </div>
-                        </div>
+                        </FilterAccordion>
 
                         {/* Certifications */}
-                        <div>
-                            <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-4 block underline decoration-yellow-500/30 underline-offset-4">Certifications</Label>
+                        <FilterAccordion title="Certifications" icon={<Award className="w-4 h-4 text-muted-foreground" />}>
                             <div className="space-y-3">
                                 {['OSHA 30', 'LEED AP', 'NABCEP', 'EPA Lead-Safe'].map(cert => (
                                     <div key={cert} className="flex items-center group cursor-pointer" onClick={() => {
@@ -426,11 +424,10 @@ const SubcontractorDirectory = () => {
                                     </div>
                                 ))}
                             </div>
-                        </div>
+                        </FilterAccordion>
 
                         {/* Rating */}
-                        <div>
-                            <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-4 block underline decoration-yellow-500/30 underline-offset-4">Minimum Rating</Label>
+                        <FilterAccordion title="Rating" icon={<Star className="w-4 h-4 text-muted-foreground" />}>
                             <div className="flex items-center gap-1.5 mt-2">
                                 {[4.5, 4.0, 3.0, 0].map((rating) => (
                                     <button
@@ -447,10 +444,9 @@ const SubcontractorDirectory = () => {
                                     </button>
                                 ))}
                             </div>
-                        </div>
+                        </FilterAccordion>
 
-                        <div>
-                            <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-4 block underline decoration-yellow-500/30 underline-offset-4">CSI Divisions</Label>
+                        <FilterAccordion title="CSI Divisions" defaultOpen={false} icon={<ListIcon className="w-4 h-4 text-muted-foreground" />}>
                             <div className="grid grid-cols-1 gap-2">
                                 {(showAllCategories ? categories : categories.slice(0, 10)).map(cat => (
                                     <div key={cat} className="flex items-center group cursor-pointer" onClick={() => {
@@ -474,10 +470,9 @@ const SubcontractorDirectory = () => {
                                     {showAllCategories ? 'Show Less' : `+${categories.length - 10} More Divisions`}
                                 </Button>
                             </div>
-                        </div>
+                        </FilterAccordion>
 
-                        <div>
-                            <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-4 block underline decoration-yellow-500/30 underline-offset-4">Verification Level</Label>
+                        <FilterAccordion title="Verification" icon={<ShieldCheck className="w-4 h-4 text-muted-foreground" />}>
                             <div className="space-y-3">
                                 {['Platinum', 'Gold', 'Silver', 'Verified'].map(tier => (
                                     <div key={tier} className="flex items-center group cursor-pointer" onClick={() => {
@@ -493,10 +488,9 @@ const SubcontractorDirectory = () => {
                                     </div>
                                 ))}
                             </div>
-                        </div>
+                        </FilterAccordion>
 
-                        <div>
-                            <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-4 block underline decoration-yellow-500/30 underline-offset-4">Live Status</Label>
+                        <FilterAccordion title="Live Status" icon={<AlertCircle className="w-4 h-4 text-muted-foreground" />}>
                             <div className="space-y-3">
                                 {['Available Now', 'Accepting Bids', 'Busy'].map(status => (
                                     <div key={status} className="flex items-center group cursor-pointer" onClick={() => {
@@ -512,7 +506,7 @@ const SubcontractorDirectory = () => {
                                     </div>
                                 ))}
                             </div>
-                        </div>
+                        </FilterAccordion>
                     </div>
                 </aside>
 

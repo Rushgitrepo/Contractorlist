@@ -323,15 +323,6 @@ const CleanOverview = () => {
                   </p>
                   <p className="text-lg font-bold text-gray-900 dark:text-white">{selectedProject.completion || 'TBD'}</p>
                 </div>
-                <div className="space-y-2 col-span-2">
-                  <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider flex items-center gap-1.5 font-medium">
-                    <Clock className="w-3.5 h-3.5" /> Current Progress
-                  </p>
-                  <div className="flex items-center gap-3">
-                    <Progress value={selectedProject.progress} className="flex-1 h-2.5" />
-                    <span className="text-sm font-bold text-gray-900 dark:text-white">{selectedProject.progress}%</span>
-                  </div>
-                </div>
               </div>
 
               <div className="space-y-4 mb-5">

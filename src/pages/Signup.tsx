@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
+import { signupSchema, SignupFormData } from "@/validation/authSchemas";
+
 import {
   Eye,
   EyeOff,
@@ -33,45 +34,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
 import authService from "@/api/authService";
 
-const signupSchema = z
-  .object({
-    name: z.string().min(2, "Please Enter your name"),
-    email: z.string().email("Please enter a valid email address"),
-    password: z
-      .string()
-      .min(8, "Password must be at least 8 characters")
-      .regex(
-        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
-        "Password must contain at least one uppercase letter, one lowercase letter, and one number"
-      ),
-    confirmPassword: z.string(),
-    phone: z.string().optional(),
-    company: z.string().optional(),
-    // role: z.enum(["contractor", "client"], {
-    //   required_error: "Please select your account type",
-    // }),
 
-    role: z.preprocess(
-      (val) => (val === "" || val === null ? undefined : val),
-      z.enum(["contractor", "client", "vendor"], {
-        required_error: "Please select your account type",
-      })
-    ),
-    // Contractor specific fields
-    licenseNumber: z.string().optional(),
-    businessAddress: z.string().optional(),
-    yearsExperience: z.string().optional(),
-    specialties: z.string().optional(),
-    // Client specific fields
-    projectType: z.string().optional(),
-    budget: z.string().optional(),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords don't match",
-    path: ["confirmPassword"],
-  });
-
-type SignupFormData = z.infer<typeof signupSchema>;
 
 const Signup = () => {
   const location = useLocation();

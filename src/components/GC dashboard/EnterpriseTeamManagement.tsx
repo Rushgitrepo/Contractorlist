@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { z } from "zod";
 
 import { useNavigate } from 'react-router-dom';
+
 import { cn } from '@/lib/utils';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -24,16 +24,10 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { getTeamMembers, inviteTeamMember, createTeamMember, deleteTeamMember, updateTeamMember, getProjectDiscovery, sendTeamMemberReminder } from '@/api/gc-apis';
-
-const teamMemberFormSchema = z.object({
-  name: z.string().min(1, "Full name is required"),
-  email: z.string().email("Enter a valid email address").optional(),
-  phone: z.string().optional(),
-  role: z.string().min(1, "Role is required"),
-  type: z.enum(["Direct Employee", "Contractor"]),
-});
+import { teamMemberFormSchema } from '@/validation/teamSchemas';
 
 import {
+
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,

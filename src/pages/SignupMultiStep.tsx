@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Check,
@@ -33,6 +33,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import authService from "@/api/authService";
+import { z } from "zod";
+
+// Helper component for displaying field errors
+const ErrorMessage = ({ touched, error }: { touched?: boolean; error?: string }) => {
+  if (!touched || !error) return null;
+  return <p className="text-red-500 text-xs mt-1">{error}</p>;
+};
 
 const SignupMultiStep = () => {
   const navigate = useNavigate();
@@ -54,17 +61,18 @@ const SignupMultiStep = () => {
     address: "",
     phone: "",
     otp: "",
+    agreeToTerms: false,
     receiveUpdates: false,
     trades: [] as string[],
     goals: [] as string[],
 
     // Additional fields
     role: "",
-    yearsInBusiness: 0,
+    yearsInBusiness: "" as any,
     projectSizeRange: "",
     serviceArea: "",
     businessType: "",
-    deliveryRadius: 0,
+    deliveryRadius: "" as any,
     minOrderValue: "",
     offerCreditTerms: false,
     projectType: "",
@@ -83,6 +91,19 @@ const SignupMultiStep = () => {
   const [smsSent, setSmsSent] = useState(false);
   const [smsVerified, setSmsVerified] = useState(false);
   const [isVerifyingSms, setIsVerifyingSms] = useState(false);
+
+  // Field-level validation errors
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
+
+  // Debug: Log errors and touched state changes
+  useEffect(() => {
+    console.log('🔍 Errors state updated:', errors);
+  }, [errors]);
+
+  useEffect(() => {
+    console.log('🔍 Touched state updated:', touched);
+  }, [touched]);
 
   const handleSendEmailOtp = async () => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -167,6 +188,198 @@ const SignupMultiStep = () => {
     }
   };
 
+  // Real-time field validation using Zod
+  const validateField = (fieldName: string, value: any) => {
+    console.log('🔍 validateField called:', fieldName, 'value:', value, 'currentStep:', currentStep);
+    const newErrors = { ...errors };
+
+    if (currentStep === 1) {
+      // Step 1: Use zod for validation (imported at top of file)
+
+      // Define field schemas inline for Step 1
+      const fieldSchemas: Record<string, any> = {
+        firstName: z.string()
+          .min(1, 'First name is required')
+          .min(2, 'First name must be at least 2 characters')
+          .max(50, 'First name must be less than 50 characters')
+          .regex(/^[a-zA-Z\s'-]+$/, 'First name can only contain letters, spaces, hyphens, and apostrophes'),
+
+        lastName: z.string()
+          .min(1, 'Last name is required')
+          .min(2, 'Last name must be at least 2 characters')
+          .max(50, 'Last name must be less than 50 characters')
+          .regex(/^[a-zA-Z\s'-]+$/, 'Last name can only contain letters, spaces, hyphens, and apostrophes'),
+
+        email: z.string()
+          .min(1, 'Email is required')
+          .email('Please enter a valid email address'),
+
+        password: z.string()
+          .min(8, 'Password must be at least 8 characters long')
+          .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
+          .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
+          .regex(/[0-9]/, 'Password must contain at least one number'),
+
+        confirmPassword: z.string()
+          .min(1, 'Please confirm your password'),
+
+        agreeToTerms: z.boolean().refine((val) => val === true, {
+          message: "You must agree to the Terms of Service and Privacy Policy",
+        }),
+      };
+
+      try {
+        const fieldSchema = fieldSchemas[fieldName];
+        if (fieldSchema) {
+          fieldSchema.parse(value);
+          delete newErrors[fieldName];
+        }
+      } catch (error: any) {
+        if (error.errors && error.errors[0]) {
+          newErrors[fieldName] = error.errors[0].message;
+        }
+      }
+
+      // Special handling for confirmPassword - also check if passwords match
+      if (fieldName === 'password' && touched.confirmPassword && formData.confirmPassword) {
+        if (value !== formData.confirmPassword) {
+          newErrors.confirmPassword = 'Passwords do not match';
+        } else {
+          delete newErrors.confirmPassword;
+        }
+      }
+
+      if (fieldName === 'confirmPassword') {
+        if (value !== formData.password) {
+          newErrors.confirmPassword = 'Passwords do not match';
+        } else {
+          delete newErrors.confirmPassword;
+        }
+      }
+    } else if (currentStep === 2) {
+      // Step 2: Define field schemas based on workType (z imported at top of file)
+
+      // Common field schemas
+      const commonFieldSchemas: Record<string, any> = {
+        address: z.string()
+          .min(1, 'Address is required')
+          .min(5, 'Please enter a complete address'),
+
+        phone: z.string()
+          .min(1, 'Phone number is required')
+          .regex(/^\+1\d{10}$/, 'Phone must be in US format: +1 followed by 10 digits (e.g., +15551234567)'),
+
+        role: z.string()
+          .min(1, 'Role is required'),
+
+        companyName: z.string()
+          .min(1, 'Company name is required')
+          .min(2, 'Company name must be at least 2 characters'),
+
+        companySize: z.string()
+          .min(1, 'Company size is required'),
+
+        yearsInBusiness: z.preprocess(
+          (val) => {
+            // Convert empty string to undefined, keep numbers as is
+            if (val === '' || val === null || val === undefined) return undefined;
+            const num = Number(val);
+            return isNaN(num) ? undefined : num;
+          },
+          z.number({
+            required_error: 'Years in business is required',
+            invalid_type_error: 'Years in business must be a number'
+          }).min(0, 'Years in business cannot be negative')
+        ),
+      };
+
+      // Work type specific schemas
+      const workTypeSpecificSchemas: Record<string, Record<string, any>> = {
+        'subcontractor': {
+          serviceArea: z.string()
+            .min(1, 'Service area is required')
+            .min(2, 'Please enter a valid service area'),
+        },
+        'general-contractor': {
+          projectSizeRange: z.string()
+            .min(1, 'Project size range is required'),
+        },
+        'supplier': {
+          businessType: z.string()
+            .min(1, 'Business type is required'),
+          deliveryRadius: z.number()
+            .min(1, 'Delivery radius must be at least 1 mile')
+            .or(z.string().min(1, 'Delivery radius is required')),
+          minOrderValue: z.string()
+            .min(1, 'Minimum order value is required'),
+        },
+        'client': {
+          projectType: z.string()
+            .min(1, 'Project type is required'),
+          budget: z.string()
+            .min(1, 'Budget range is required'),
+          timeline: z.string()
+            .min(1, 'Timeline is required'),
+          financingStatus: z.string()
+            .min(1, 'Financing status is required'),
+        },
+      };
+
+      // Handle workType field
+      if (fieldName === 'workType') {
+        if (!value) {
+          newErrors.workType = 'Please select a work type';
+        } else {
+          delete newErrors.workType;
+        }
+        setErrors(newErrors);
+        return;
+      }
+
+      // Get the appropriate schema for the field
+      let fieldSchema;
+      if (commonFieldSchemas[fieldName]) {
+        fieldSchema = commonFieldSchemas[fieldName];
+      } else if (formData.workType && workTypeSpecificSchemas[formData.workType]?.[fieldName]) {
+        fieldSchema = workTypeSpecificSchemas[formData.workType][fieldName];
+      }
+
+      if (fieldSchema) {
+        try {
+          fieldSchema.parse(value);
+          delete newErrors[fieldName];
+        } catch (error: any) {
+          if (error.errors && error.errors[0]) {
+            newErrors[fieldName] = error.errors[0].message;
+          }
+        }
+      }
+    }
+
+    console.log('🔍 Setting errors:', newErrors);
+    setErrors(newErrors);
+  };
+
+  // Mark field as touched and validate
+  const handleBlur = (fieldName: string) => {
+    console.log('🔍 handleBlur called for:', fieldName);
+    setTouched({ ...touched, [fieldName]: true });
+    const fieldValue = formData[fieldName as keyof typeof formData];
+    console.log('🔍 Field value:', fieldValue);
+    validateField(fieldName, fieldValue);
+  };
+
+  // Handle input change with validation
+  const handleInputChange = (fieldName: string, value: any) => {
+    setFormData({ ...formData, [fieldName]: value });
+
+    // Only validate if field has been touched
+    if (touched[fieldName]) {
+      validateField(fieldName, value);
+    }
+  };
+
+
   const steps = [
     { number: 1, title: "Register", icon: User, completed: currentStep > 1 },
     { number: 2, title: "Company Info", icon: Building2, completed: currentStep > 2 },
@@ -220,6 +433,14 @@ const SignupMultiStep = () => {
         return false;
       } finally {
         setIsLoading(false);
+      }
+
+      if (!formData.agreeToTerms) {
+        setTouched({ ...touched, agreeToTerms: true });
+        // Manually set error since validateField uses current state
+        setErrors(prev => ({ ...prev, agreeToTerms: "You must agree to the Terms of Service and Privacy Policy" }));
+        toast({ title: "Terms Agreement", description: "You must agree to the Terms of Service to continue", variant: "destructive" });
+        return false;
       }
 
       if (!otpVerified) {
@@ -382,7 +603,7 @@ const SignupMultiStep = () => {
           projectType: formData.projectType,
           budgetRange: formData.budget,
           timeline: formData.timeline,
-          propertySize: formData.propertySize,
+          propertySize: formData.propertySize ? Number(formData.propertySize) : undefined,
           financingStatus: formData.financingStatus,
           address: formData.address, // Property address
           companyName: formData.companyName, // Optional for client
@@ -394,7 +615,7 @@ const SignupMultiStep = () => {
           ...payload,
           companyName: formData.companyName,
           companySize: formData.companySize,
-          yearsInBusiness: formData.yearsInBusiness,
+          yearsInBusiness: Number(formData.yearsInBusiness),
           projectSizeRange: formData.projectSizeRange,
           address: formData.address,
           role: formData.role,
@@ -405,7 +626,7 @@ const SignupMultiStep = () => {
           ...payload,
           companyName: formData.companyName,
           companySize: formData.companySize,
-          yearsInBusiness: formData.yearsInBusiness,
+          yearsInBusiness: Number(formData.yearsInBusiness),
           serviceArea: formData.serviceArea,
           address: formData.address,
           role: formData.role,
@@ -416,9 +637,9 @@ const SignupMultiStep = () => {
           ...payload,
           companyName: formData.companyName,
           companySize: formData.companySize,
-          yearsInBusiness: formData.yearsInBusiness,
+          yearsInBusiness: Number(formData.yearsInBusiness),
           businessType: formData.businessType,
-          deliveryRadius: formData.deliveryRadius,
+          deliveryRadius: Number(formData.deliveryRadius),
           minOrderValue: formData.minOrderValue,
           offerCreditTerms: formData.offerCreditTerms,
           address: formData.address,
@@ -612,10 +833,14 @@ const SignupMultiStep = () => {
                           id="firstName"
                           placeholder="John"
                           value={formData.firstName}
-                          onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
-                          className="pl-10 h-11"
+                          onChange={(e) => handleInputChange('firstName', e.target.value)}
+                          onBlur={() => handleBlur('firstName')}
+                          className={`pl-10 h-11 ${touched.firstName && errors.firstName ? 'border-red-500' : ''}`}
                         />
                       </div>
+                      {touched.firstName && errors.firstName && (
+                        <p className="text-red-500 text-xs mt-1">{errors.firstName}</p>
+                      )}
                     </div>
 
                     <div>
@@ -626,10 +851,14 @@ const SignupMultiStep = () => {
                           id="lastName"
                           placeholder="Doe"
                           value={formData.lastName}
-                          onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
-                          className="pl-10 h-11"
+                          onChange={(e) => handleInputChange('lastName', e.target.value)}
+                          onBlur={() => handleBlur('lastName')}
+                          className={`pl-10 h-11 ${touched.lastName && errors.lastName ? 'border-red-500' : ''}`}
                         />
                       </div>
+                      {touched.lastName && errors.lastName && (
+                        <p className="text-red-500 text-xs mt-1">{errors.lastName}</p>
+                      )}
                     </div>
 
                     <div className="col-span-2">
@@ -641,10 +870,15 @@ const SignupMultiStep = () => {
                           type="email"
                           placeholder="john.doe@company.com"
                           value={formData.email}
-                          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                          className="pl-10 h-11"
+                          onChange={(e) => handleInputChange('email', e.target.value)}
+                          onBlur={() => handleBlur('email')}
+                          className={`pl-10 h-11 ${touched.email && errors.email ? 'border-red-500' : ''}`}
                         />
                       </div>
+                      {touched.email && errors.email && (
+                        <p className="text-red-500 text-xs mt-1">{errors.email}</p>
+                      )}
+
 
                       {/* OTP Section */}
                       {otpVerified ? (
@@ -708,8 +942,9 @@ const SignupMultiStep = () => {
                           type={showPassword ? "text" : "password"}
                           placeholder="Create a strong password"
                           value={formData.password}
-                          onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                          className="pl-10 pr-10 h-11"
+                          onChange={(e) => handleInputChange('password', e.target.value)}
+                          onBlur={() => handleBlur('password')}
+                          className={`pl-10 pr-10 h-11 ${touched.password && errors.password ? 'border-red-500' : ''}`}
                         />
                         <button
                           type="button"
@@ -723,10 +958,14 @@ const SignupMultiStep = () => {
                           )}
                         </button>
                       </div>
-                      <p className="text-xs text-gray-500 mt-2 flex items-center gap-1">
-                        <span className="w-1.5 h-1.5 bg-gray-400 rounded-full"></span>
-                        Minimum 8 characters with uppercase, lowercase, and number
-                      </p>
+                      {touched.password && errors.password ? (
+                        <p className="text-red-500 text-xs mt-1">{errors.password}</p>
+                      ) : (
+                        <p className="text-xs text-gray-500 mt-2 flex items-center gap-1">
+                          <span className="w-1.5 h-1.5 bg-gray-400 rounded-full"></span>
+                          Minimum 8 characters with uppercase, lowercase, and number
+                        </p>
+                      )}
                     </div>
 
                     <div className="col-span-2">
@@ -738,8 +977,9 @@ const SignupMultiStep = () => {
                           type={showConfirmPassword ? "text" : "password"}
                           placeholder="Confirm your password"
                           value={formData.confirmPassword}
-                          onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-                          className="pl-10 pr-10 h-11"
+                          onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
+                          onBlur={() => handleBlur('confirmPassword')}
+                          className={`pl-10 pr-10 h-11 ${touched.confirmPassword && errors.confirmPassword ? 'border-red-500' : ''}`}
                         />
                         <button
                           type="button"
@@ -753,14 +993,28 @@ const SignupMultiStep = () => {
                           )}
                         </button>
                       </div>
+                      {touched.confirmPassword && errors.confirmPassword && (
+                        <p className="text-red-500 text-xs mt-1">{errors.confirmPassword}</p>
+                      )}
                     </div>
                   </div>
 
-                  <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                  <div className={`rounded-xl p-4 border ${touched.agreeToTerms && errors.agreeToTerms ? 'bg-red-50 border-red-200' : 'bg-gray-50 border-gray-200'}`}>
                     <label className="flex items-start gap-3 cursor-pointer">
                       <input
                         type="checkbox"
-                        className="mt-1 rounded border-gray-300 text-black focus:ring-[#fce011] w-4 h-4"
+                        checked={formData.agreeToTerms}
+                        onChange={(e) => {
+                          const isChecked = e.target.checked;
+                          // Update state directly for checkbox
+                          setFormData(prev => ({ ...prev, agreeToTerms: isChecked }));
+                          // Mark as touched immediately
+                          const newTouched = { ...touched, agreeToTerms: true };
+                          setTouched(newTouched);
+                          // Validate immediately
+                          validateField('agreeToTerms', isChecked);
+                        }}
+                        className={`mt-1 rounded border-gray-300 text-black focus:ring-[#fce011] w-4 h-4 ${touched.agreeToTerms && errors.agreeToTerms ? 'border-red-500' : ''}`}
                       />
                       <span className="text-sm text-gray-700">
                         I agree to the{" "}
@@ -771,8 +1025,12 @@ const SignupMultiStep = () => {
                         <a href="/privacy" className="text-gray-900 hover:text-black font-medium underline">
                           Privacy Policy
                         </a>
+                        <span className="text-red-500 ml-1">*</span>
                       </span>
                     </label>
+                    {touched.agreeToTerms && errors.agreeToTerms && (
+                      <p className="text-red-500 text-xs mt-2 ml-7 font-medium">{errors.agreeToTerms}</p>
+                    )}
                   </div>
                 </div>
               </div>
@@ -801,7 +1059,10 @@ const SignupMultiStep = () => {
                         <button
                           key={type.value}
                           type="button"
-                          onClick={() => setFormData({ ...formData, workType: type.value })}
+                          onClick={() => {
+                            handleInputChange('workType', type.value);
+                            setTouched({ ...touched, workType: true });
+                          }}
                           className={`p-5 border-2 rounded-xl text-center transition-all flex flex-col items-center gap-2 ${formData.workType === type.value
                             ? "border-teal-500 bg-teal-50"
                             : "border-gray-300 hover:border-gray-400 bg-white"
@@ -815,6 +1076,9 @@ const SignupMultiStep = () => {
                       );
                     })}
                   </div>
+                  {touched.workType && errors.workType && (
+                    <p className="text-red-500 text-xs mt-1">{errors.workType}</p>
+                  )}
                 </div>
 
                 {/* Subcontractor Fields */}
@@ -823,36 +1087,60 @@ const SignupMultiStep = () => {
                     <div className="border-t pt-6 space-y-4">
                       <h3 className="text-base font-semibold text-gray-900 mb-4">Company Info</h3>
                       <div className="grid grid-cols-2 gap-4">
-                        <Input
-                          placeholder="Company Name *"
-                          value={formData.companyName}
-                          onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
-                          className="bg-gray-50"
-                        />
-                        <select
-                          value={formData.companySize}
-                          onChange={(e) => setFormData({ ...formData, companySize: e.target.value })}
-                          className="w-full h-10 rounded-md border border-gray-300 bg-gray-50 px-3 text-sm"
-                        >
-                          <option value="">Company Size *</option>
-                          <option value="1-5">1-5 employees</option>
-                          <option value="6-10">6-10 employees</option>
-                          <option value="11-25">11-25 employees</option>
-                          <option value="25+">25+ employees</option>
-                        </select>
-                        <Input
-                          placeholder="Years in Business *"
-                          type="number"
-                          value={formData.yearsInBusiness || ''}
-                          onChange={(e) => setFormData({ ...formData, yearsInBusiness: parseInt(e.target.value) || 0 })}
-                          className="bg-gray-50"
-                        />
-                        <Input
-                          placeholder="Service Area (City/Region) *"
-                          value={formData.serviceArea || ''}
-                          onChange={(e) => setFormData({ ...formData, serviceArea: e.target.value })}
-                          className="bg-gray-50"
-                        />
+                        <div>
+                          <Input
+                            placeholder="Company Name *"
+                            value={formData.companyName}
+                            onChange={(e) => handleInputChange('companyName', e.target.value)}
+                            onBlur={() => handleBlur('companyName')}
+                            className={`bg-gray-50 ${touched.companyName && errors.companyName ? 'border-red-500' : ''}`}
+                          />
+                          {touched.companyName && errors.companyName && (
+                            <p className="text-red-500 text-xs mt-1">{errors.companyName}</p>
+                          )}
+                        </div>
+                        <div>
+                          <select
+                            value={formData.companySize}
+                            onChange={(e) => handleInputChange('companySize', e.target.value)}
+                            onBlur={() => handleBlur('companySize')}
+                            className={`w-full h-10 rounded-md border bg-gray-50 px-3 text-sm ${touched.companySize && errors.companySize ? 'border-red-500' : 'border-gray-300'}`}
+                          >
+                            <option value="">Company Size *</option>
+                            <option value="1-5">1-5 employees</option>
+                            <option value="6-10">6-10 employees</option>
+                            <option value="11-25">11-25 employees</option>
+                            <option value="25+">25+ employees</option>
+                          </select>
+                          {touched.companySize && errors.companySize && (
+                            <p className="text-red-500 text-xs mt-1">{errors.companySize}</p>
+                          )}
+                        </div>
+                        <div>
+                          <Input
+                            placeholder="Years in Business *"
+                            type="number"
+                            value={formData.yearsInBusiness || ''}
+                            onChange={(e) => handleInputChange('yearsInBusiness', e.target.value)}
+                            onBlur={() => handleBlur('yearsInBusiness')}
+                            className={`bg-gray-50 ${touched.yearsInBusiness && errors.yearsInBusiness ? 'border-red-500' : ''}`}
+                          />
+                          {touched.yearsInBusiness && errors.yearsInBusiness && (
+                            <p className="text-red-500 text-xs mt-1">{errors.yearsInBusiness}</p>
+                          )}
+                        </div>
+                        <div>
+                          <Input
+                            placeholder="Service Area (City/Region) *"
+                            value={formData.serviceArea || ''}
+                            onChange={(e) => handleInputChange('serviceArea', e.target.value)}
+                            onBlur={() => handleBlur('serviceArea')}
+                            className={`bg-gray-50 ${touched.serviceArea && errors.serviceArea ? 'border-red-500' : ''}`}
+                          />
+                          {touched.serviceArea && errors.serviceArea && (
+                            <p className="text-red-500 text-xs mt-1">{errors.serviceArea}</p>
+                          )}
+                        </div>
                       </div>
                     </div>
 
@@ -861,32 +1149,43 @@ const SignupMultiStep = () => {
                       <Input
                         placeholder="Address *"
                         value={formData.address}
-                        onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                        className="bg-gray-50"
+                        onChange={(e) => handleInputChange('address', e.target.value)}
+                        onBlur={() => handleBlur('address')}
+                        className={`bg-gray-50 ${touched.address && errors.address ? 'border-red-500' : ''}`}
                       />
+                      {touched.address && errors.address && (
+                        <p className="text-red-500 text-xs mt-1">{errors.address}</p>
+                      )}
                     </div>
 
                     <div className="border-t pt-6 space-y-4">
                       <h3 className="text-base font-semibold text-gray-900 mb-4">Contact Details</h3>
                       <div className="grid grid-cols-2 gap-4">
-                        <select
-                          value={formData.role || ''}
-                          onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-                          className="w-full h-10 rounded-md border border-gray-300 bg-gray-50 px-3 text-sm">
-                          <option value="">Role *</option>
-                          <option value="owner">Owner</option>
-                          <option value="manager">Manager</option>
-                          <option value="foreman">Foreman</option>
-                          <option value="estimator">Estimator</option>
-                        </select>
+                        <div>
+                          <select
+                            value={formData.role || ''}
+                            onChange={(e) => handleInputChange('role', e.target.value)}
+                            onBlur={() => handleBlur('role')}
+                            className={`w-full h-10 rounded-md border bg-gray-50 px-3 text-sm ${touched.role && errors.role ? 'border-red-500' : 'border-gray-300'}`}>
+                            <option value="">Role *</option>
+                            <option value="owner">Owner</option>
+                            <option value="manager">Manager</option>
+                            <option value="foreman">Foreman</option>
+                            <option value="estimator">Estimator</option>
+                          </select>
+                          {touched.role && errors.role && (
+                            <p className="text-red-500 text-xs mt-1">{errors.role}</p>
+                          )}
+                        </div>
                         <div className="relative">
                           <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 z-10" />
                           <Input
                             placeholder="Phone Number *"
                             type="tel"
                             value={formData.phone}
-                            onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                            className="bg-gray-50 pl-10"
+                            onChange={(e) => handleInputChange('phone', e.target.value)}
+                            onBlur={() => handleBlur('phone')}
+                            className={`bg-gray-50 pl-10 ${touched.phone && errors.phone ? 'border-red-500' : ''}`}
                             disabled={smsVerified}
                           />
                           {smsVerified && (
@@ -940,40 +1239,64 @@ const SignupMultiStep = () => {
                     <div className="border-t pt-6 space-y-4">
                       <h3 className="text-base font-semibold text-gray-900 mb-4">Company Info</h3>
                       <div className="grid grid-cols-2 gap-4">
-                        <Input
-                          placeholder="Company Name *"
-                          value={formData.companyName}
-                          onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
-                          className="bg-gray-50"
-                        />
-                        <select
-                          value={formData.companySize}
-                          onChange={(e) => setFormData({ ...formData, companySize: e.target.value })}
-                          className="w-full h-10 rounded-md border border-gray-300 bg-gray-50 px-3 text-sm"
-                        >
-                          <option value="">Company Size *</option>
-                          <option value="10-25">10-25 employees</option>
-                          <option value="26-50">26-50 employees</option>
-                          <option value="51-100">51-100 employees</option>
-                          <option value="100+">100+ employees</option>
-                        </select>
-                        <Input
-                          placeholder="Years in Business *"
-                          type="number"
-                          value={formData.yearsInBusiness || ''}
-                          onChange={(e) => setFormData({ ...formData, yearsInBusiness: parseInt(e.target.value) || 0 })}
-                          className="bg-gray-50"
-                        />
-                        <select
-                          value={formData.projectSizeRange || ''}
-                          onChange={(e) => setFormData({ ...formData, projectSizeRange: e.target.value })}
-                          className="w-full h-10 rounded-md border border-gray-300 bg-gray-50 px-3 text-sm">
-                          <option value="">Project Size Range *</option>
-                          <option value="under-500k">Under $500K</option>
-                          <option value="500k-2m">$500K - $2M</option>
-                          <option value="2m-10m">$2M - $10M</option>
-                          <option value="10m+">$10M+</option>
-                        </select>
+                        <div>
+                          <Input
+                            placeholder="Company Name *"
+                            value={formData.companyName}
+                            onChange={(e) => handleInputChange('companyName', e.target.value)}
+                            onBlur={() => handleBlur('companyName')}
+                            className={`bg-gray-50 ${touched.companyName && errors.companyName ? 'border-red-500' : ''}`}
+                          />
+                          {touched.companyName && errors.companyName && (
+                            <p className="text-red-500 text-xs mt-1">{errors.companyName}</p>
+                          )}
+                        </div>
+                        <div>
+                          <select
+                            value={formData.companySize}
+                            onChange={(e) => handleInputChange('companySize', e.target.value)}
+                            onBlur={() => handleBlur('companySize')}
+                            className={`w-full h-10 rounded-md border bg-gray-50 px-3 text-sm ${touched.companySize && errors.companySize ? 'border-red-500' : 'border-gray-300'}`}
+                          >
+                            <option value="">Company Size *</option>
+                            <option value="10-25">10-25 employees</option>
+                            <option value="26-50">26-50 employees</option>
+                            <option value="51-100">51-100 employees</option>
+                            <option value="100+">100+ employees</option>
+                          </select>
+                          {touched.companySize && errors.companySize && (
+                            <p className="text-red-500 text-xs mt-1">{errors.companySize}</p>
+                          )}
+                        </div>
+                        <div>
+                          <Input
+                            placeholder="Years in Business *"
+                            type="number"
+                            value={formData.yearsInBusiness || ''}
+                            onChange={(e) => handleInputChange('yearsInBusiness', e.target.value)}
+                            onBlur={() => handleBlur('yearsInBusiness')}
+                            className={`bg-gray-50 ${touched.yearsInBusiness && errors.yearsInBusiness ? 'border-red-500' : ''}`}
+                          />
+                          {touched.yearsInBusiness && errors.yearsInBusiness && (
+                            <p className="text-red-500 text-xs mt-1">{errors.yearsInBusiness}</p>
+                          )}
+                        </div>
+                        <div>
+                          <select
+                            value={formData.projectSizeRange || ''}
+                            onChange={(e) => handleInputChange('projectSizeRange', e.target.value)}
+                            onBlur={() => handleBlur('projectSizeRange')}
+                            className={`w-full h-10 rounded-md border bg-gray-50 px-3 text-sm ${touched.projectSizeRange && errors.projectSizeRange ? 'border-red-500' : 'border-gray-300'}`}>
+                            <option value="">Project Size Range *</option>
+                            <option value="under-500k">Under $500K</option>
+                            <option value="500k-2m">$500K - $2M</option>
+                            <option value="2m-10m">$2M - $10M</option>
+                            <option value="10m+">$10M+</option>
+                          </select>
+                          {touched.projectSizeRange && errors.projectSizeRange && (
+                            <p className="text-red-500 text-xs mt-1">{errors.projectSizeRange}</p>
+                          )}
+                        </div>
                       </div>
                     </div>
 
@@ -982,32 +1305,43 @@ const SignupMultiStep = () => {
                       <Input
                         placeholder="Address *"
                         value={formData.address}
-                        onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                        className="bg-gray-50"
+                        onChange={(e) => handleInputChange('address', e.target.value)}
+                        onBlur={() => handleBlur('address')}
+                        className={`bg-gray-50 ${touched.address && errors.address ? 'border-red-500' : ''}`}
                       />
+                      {touched.address && errors.address && (
+                        <p className="text-red-500 text-xs mt-1">{errors.address}</p>
+                      )}
                     </div>
 
                     <div className="border-t pt-6 space-y-4">
                       <h3 className="text-base font-semibold text-gray-900 mb-4">Contact Details</h3>
                       <div className="grid grid-cols-2 gap-4">
-                        <select
-                          value={formData.role || ''}
-                          onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-                          className="w-full h-10 rounded-md border border-gray-300 bg-gray-50 px-3 text-sm">
-                          <option value="">Role *</option>
-                          <option value="owner">Owner</option>
-                          <option value="project-manager">Project Manager</option>
-                          <option value="estimator">Estimator</option>
-                          <option value="superintendent">Superintendent</option>
-                        </select>
+                        <div>
+                          <select
+                            value={formData.role || ''}
+                            onChange={(e) => handleInputChange('role', e.target.value)}
+                            onBlur={() => handleBlur('role')}
+                            className={`w-full h-10 rounded-md border bg-gray-50 px-3 text-sm ${touched.role && errors.role ? 'border-red-500' : 'border-gray-300'}`}>
+                            <option value="">Role *</option>
+                            <option value="owner">Owner</option>
+                            <option value="project-manager">Project Manager</option>
+                            <option value="estimator">Estimator</option>
+                            <option value="superintendent">Superintendent</option>
+                          </select>
+                          {touched.role && errors.role && (
+                            <p className="text-red-500 text-xs mt-1">{errors.role}</p>
+                          )}
+                        </div>
                         <div className="relative">
                           <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 z-10" />
                           <Input
                             placeholder="Phone Number *"
                             type="tel"
                             value={formData.phone}
-                            onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                            className="bg-gray-50 pl-10"
+                            onChange={(e) => handleInputChange('phone', e.target.value)}
+                            onBlur={() => handleBlur('phone')}
+                            className={`bg-gray-50 pl-10 ${touched.phone && errors.phone ? 'border-red-500' : ''}`}
                             disabled={false}
                           />
                           {otpVerified && (
@@ -1070,53 +1404,89 @@ const SignupMultiStep = () => {
                     <div className="border-t pt-6 space-y-4">
                       <h3 className="text-base font-semibold text-gray-900 mb-4">Company Info</h3>
                       <div className="grid grid-cols-2 gap-4">
-                        <Input
-                          placeholder="Company Name *"
-                          value={formData.companyName}
-                          onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
-                          className="bg-gray-50"
-                        />
-                        <select
-                          value={formData.companySize}
-                          onChange={(e) => setFormData({ ...formData, companySize: e.target.value })}
-                          className="w-full h-10 rounded-md border border-gray-300 bg-gray-50 px-3 text-sm"
-                        >
-                          <option value="">Company Size *</option>
-                          <option value="1-10">1-10 employees</option>
-                          <option value="11-50">11-50 employees</option>
-                          <option value="51-200">51-200 employees</option>
-                          <option value="200+">200+ employees</option>
-                        </select>
-                        <select
-                          value={formData.businessType || ''}
-                          onChange={(e) => setFormData({ ...formData, businessType: e.target.value })}
-                          className="w-full h-10 rounded-md border border-gray-300 bg-gray-50 px-3 text-sm">
-                          <option value="">Business Type *</option>
-                          <option value="manufacturer">Manufacturer</option>
-                          <option value="distributor">Distributor</option>
-                          <option value="wholesaler">Wholesaler</option>
-                          <option value="retailer">Retailer</option>
-                        </select>
-                        <Input
-                          placeholder="Years in Business *"
-                          type="number"
-                          value={formData.yearsInBusiness || ''}
-                          onChange={(e) => setFormData({ ...formData, yearsInBusiness: parseInt(e.target.value) || 0 })}
-                          className="bg-gray-50"
-                        />
-                        <Input
-                          placeholder="Delivery Radius (miles) *"
-                          type="number"
-                          value={formData.deliveryRadius || ''}
-                          onChange={(e) => setFormData({ ...formData, deliveryRadius: parseInt(e.target.value) || 0 })}
-                          className="bg-gray-50"
-                        />
-                        <Input
-                          placeholder="Minimum Order Value *"
-                          value={formData.minOrderValue || ''}
-                          onChange={(e) => setFormData({ ...formData, minOrderValue: e.target.value })}
-                          className="bg-gray-50"
-                        />
+                        <div>
+                          <Input
+                            placeholder="Company Name *"
+                            value={formData.companyName}
+                            onChange={(e) => handleInputChange('companyName', e.target.value)}
+                            onBlur={() => handleBlur('companyName')}
+                            className={`bg-gray-50 ${touched.companyName && errors.companyName ? 'border-red-500' : ''}`}
+                          />
+                          {touched.companyName && errors.companyName && (
+                            <p className="text-red-500 text-xs mt-1">{errors.companyName}</p>
+                          )}
+                        </div>
+                        <div>
+                          <select
+                            value={formData.companySize}
+                            onChange={(e) => handleInputChange('companySize', e.target.value)}
+                            onBlur={() => handleBlur('companySize')}
+                            className={`w-full h-10 rounded-md border bg-gray-50 px-3 text-sm ${touched.companySize && errors.companySize ? 'border-red-500' : 'border-gray-300'}`}
+                          >
+                            <option value="">Company Size *</option>
+                            <option value="1-10">1-10 employees</option>
+                            <option value="11-50">11-50 employees</option>
+                            <option value="51-200">51-200 employees</option>
+                            <option value="200+">200+ employees</option>
+                          </select>
+                          {touched.companySize && errors.companySize && (
+                            <p className="text-red-500 text-xs mt-1">{errors.companySize}</p>
+                          )}
+                        </div>
+                        <div>
+                          <select
+                            value={formData.businessType || ''}
+                            onChange={(e) => handleInputChange('businessType', e.target.value)}
+                            onBlur={() => handleBlur('businessType')}
+                            className={`w-full h-10 rounded-md border bg-gray-50 px-3 text-sm ${touched.businessType && errors.businessType ? 'border-red-500' : 'border-gray-300'}`}>
+                            <option value="">Business Type *</option>
+                            <option value="manufacturer">Manufacturer</option>
+                            <option value="distributor">Distributor</option>
+                            <option value="wholesaler">Wholesaler</option>
+                            <option value="retailer">Retailer</option>
+                          </select>
+                          {touched.businessType && errors.businessType && (
+                            <p className="text-red-500 text-xs mt-1">{errors.businessType}</p>
+                          )}
+                        </div>
+                        <div>
+                          <Input
+                            placeholder="Years in Business *"
+                            type="number"
+                            value={formData.yearsInBusiness || ''}
+                            onChange={(e) => handleInputChange('yearsInBusiness', e.target.value)}
+                            onBlur={() => handleBlur('yearsInBusiness')}
+                            className={`bg-gray-50 ${touched.yearsInBusiness && errors.yearsInBusiness ? 'border-red-500' : ''}`}
+                          />
+                          {touched.yearsInBusiness && errors.yearsInBusiness && (
+                            <p className="text-red-500 text-xs mt-1">{errors.yearsInBusiness}</p>
+                          )}
+                        </div>
+                        <div>
+                          <Input
+                            placeholder="Delivery Radius (miles) *"
+                            type="number"
+                            value={formData.deliveryRadius || ''}
+                            onChange={(e) => handleInputChange('deliveryRadius', parseInt(e.target.value) || 0)}
+                            onBlur={() => handleBlur('deliveryRadius')}
+                            className={`bg-gray-50 ${touched.deliveryRadius && errors.deliveryRadius ? 'border-red-500' : ''}`}
+                          />
+                          {touched.deliveryRadius && errors.deliveryRadius && (
+                            <p className="text-red-500 text-xs mt-1">{errors.deliveryRadius}</p>
+                          )}
+                        </div>
+                        <div>
+                          <Input
+                            placeholder="Minimum Order Value *"
+                            value={formData.minOrderValue || ''}
+                            onChange={(e) => handleInputChange('minOrderValue', e.target.value)}
+                            onBlur={() => handleBlur('minOrderValue')}
+                            className={`bg-gray-50 ${touched.minOrderValue && errors.minOrderValue ? 'border-red-500' : ''}`}
+                          />
+                          {touched.minOrderValue && errors.minOrderValue && (
+                            <p className="text-red-500 text-xs mt-1">{errors.minOrderValue}</p>
+                          )}
+                        </div>
                         <div className="col-span-2">
                           <label className="flex items-center gap-3 cursor-pointer p-4 border-2 border-gray-200 rounded-lg hover:border-teal-300">
                             <input
@@ -1136,31 +1506,42 @@ const SignupMultiStep = () => {
                       <Input
                         placeholder="Address *"
                         value={formData.address}
-                        onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                        className="bg-gray-50"
+                        onChange={(e) => handleInputChange('address', e.target.value)}
+                        onBlur={() => handleBlur('address')}
+                        className={`bg-gray-50 ${touched.address && errors.address ? 'border-red-500' : ''}`}
                       />
+                      {touched.address && errors.address && (
+                        <p className="text-red-500 text-xs mt-1">{errors.address}</p>
+                      )}
                     </div>
 
                     <div className="border-t pt-6 space-y-4">
                       <h3 className="text-base font-semibold text-gray-900 mb-4">Contact Details</h3>
                       <div className="grid grid-cols-2 gap-4">
-                        <select
-                          value={formData.role || ''}
-                          onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-                          className="w-full h-10 rounded-md border border-gray-300 bg-gray-50 px-3 text-sm">
-                          <option value="">Role *</option>
-                          <option value="owner">Owner</option>
-                          <option value="sales-manager">Sales Manager</option>
-                          <option value="account-rep">Account Representative</option>
-                        </select>
+                        <div>
+                          <select
+                            value={formData.role || ''}
+                            onChange={(e) => handleInputChange('role', e.target.value)}
+                            onBlur={() => handleBlur('role')}
+                            className={`w-full h-10 rounded-md border bg-gray-50 px-3 text-sm ${touched.role && errors.role ? 'border-red-500' : 'border-gray-300'}`}>
+                            <option value="">Role *</option>
+                            <option value="owner">Owner</option>
+                            <option value="sales-manager">Sales Manager</option>
+                            <option value="account-rep">Account Representative</option>
+                          </select>
+                          {touched.role && errors.role && (
+                            <p className="text-red-500 text-xs mt-1">{errors.role}</p>
+                          )}
+                        </div>
                         <div className="relative">
                           <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 z-10" />
                           <Input
                             placeholder="Phone Number *"
                             type="tel"
                             value={formData.phone}
-                            onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                            className="bg-gray-50 pl-10"
+                            onChange={(e) => handleInputChange('phone', e.target.value)}
+                            onBlur={() => handleBlur('phone')}
+                            className={`bg-gray-50 pl-10 ${touched.phone && errors.phone ? 'border-red-500' : ''}`}
                             disabled={smsVerified}
                           />
                           {otpVerified && (
@@ -1213,34 +1594,52 @@ const SignupMultiStep = () => {
                     <div className="border-t pt-6 space-y-4">
                       <h3 className="text-base font-semibold text-gray-900 mb-4">Project Details</h3>
                       <div className="grid grid-cols-2 gap-4">
-                        <select
-                          value={formData.projectType || ''}
-                          onChange={(e) => setFormData({ ...formData, projectType: e.target.value })}
-                          className="w-full h-10 rounded-md border border-gray-300 bg-gray-50 px-3 text-sm">
-                          <option value="">Project Type *</option>
-                          <option value="residential">Residential</option>
-                          <option value="commercial">Commercial</option>
-                          <option value="renovation">Renovation</option>
-                          <option value="new-construction">New Construction</option>
-                        </select>
-                        <select
-                          value={formData.budget || ''}
-                          onChange={(e) => setFormData({ ...formData, budget: e.target.value })}
-                          className="w-full h-10 rounded-md border border-gray-300 bg-gray-50 px-3 text-sm">
-                          <option value="">Budget Range *</option>
-                          <option value="over-1m">Over $1,000,000</option>
-                        </select>
-                        <select
-                          value={formData.timeline || ''}
-                          onChange={(e) => setFormData({ ...formData, timeline: e.target.value })}
-                          className="w-full h-10 rounded-md border border-gray-300 bg-gray-50 px-3 text-sm">
-                          <option value="">Timeline *</option>
-                          <option value="immediate">Immediate (Within 1 month)</option>
-                          <option value="1-3-months">1-3 months</option>
-                          <option value="3-6-months">3-6 months</option>
-                          <option value="6-12-months">6-12 months</option>
-                          <option value="planning">Planning Phase</option>
-                        </select>
+                        <div>
+                          <select
+                            value={formData.projectType || ''}
+                            onChange={(e) => handleInputChange('projectType', e.target.value)}
+                            onBlur={() => handleBlur('projectType')}
+                            className={`w-full h-10 rounded-md border bg-gray-50 px-3 text-sm ${touched.projectType && errors.projectType ? 'border-red-500' : 'border-gray-300'}`}>
+                            <option value="">Project Type *</option>
+                            <option value="residential">Residential</option>
+                            <option value="commercial">Commercial</option>
+                            <option value="renovation">Renovation</option>
+                            <option value="new-construction">New Construction</option>
+                          </select>
+                          {touched.projectType && errors.projectType && (
+                            <p className="text-red-500 text-xs mt-1">{errors.projectType}</p>
+                          )}
+                        </div>
+                        <div>
+                          <select
+                            value={formData.budget || ''}
+                            onChange={(e) => handleInputChange('budget', e.target.value)}
+                            onBlur={() => handleBlur('budget')}
+                            className={`w-full h-10 rounded-md border bg-gray-50 px-3 text-sm ${touched.budget && errors.budget ? 'border-red-500' : 'border-gray-300'}`}>
+                            <option value="">Budget Range *</option>
+                            <option value="over-1m">Over $1,000,000</option>
+                          </select>
+                          {touched.budget && errors.budget && (
+                            <p className="text-red-500 text-xs mt-1">{errors.budget}</p>
+                          )}
+                        </div>
+                        <div>
+                          <select
+                            value={formData.timeline || ''}
+                            onChange={(e) => handleInputChange('timeline', e.target.value)}
+                            onBlur={() => handleBlur('timeline')}
+                            className={`w-full h-10 rounded-md border bg-gray-50 px-3 text-sm ${touched.timeline && errors.timeline ? 'border-red-500' : 'border-gray-300'}`}>
+                            <option value="">Timeline *</option>
+                            <option value="immediate">Immediate (Within 1 month)</option>
+                            <option value="1-3-months">1-3 months</option>
+                            <option value="3-6-months">3-6 months</option>
+                            <option value="6-12-months">6-12 months</option>
+                            <option value="planning">Planning Phase</option>
+                          </select>
+                          {touched.timeline && errors.timeline && (
+                            <p className="text-red-500 text-xs mt-1">{errors.timeline}</p>
+                          )}
+                        </div>
                         <Input
                           placeholder="Property Size (sq ft)"
                           type="number"
@@ -1254,16 +1653,22 @@ const SignupMultiStep = () => {
                           onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
                           className="bg-gray-50"
                         />
-                        <select
-                          value={formData.financingStatus || ''}
-                          onChange={(e) => setFormData({ ...formData, financingStatus: e.target.value })}
-                          className="w-full h-10 rounded-md border border-gray-300 bg-gray-50 px-3 text-sm">
-                          <option value="">Financing Status *</option>
-                          <option value="secured">Financing Secured</option>
-                          <option value="in-progress">In Progress</option>
-                          <option value="not-started">Not Started</option>
-                          <option value="cash">Cash Purchase</option>
-                        </select>
+                        <div>
+                          <select
+                            value={formData.financingStatus || ''}
+                            onChange={(e) => handleInputChange('financingStatus', e.target.value)}
+                            onBlur={() => handleBlur('financingStatus')}
+                            className={`w-full h-10 rounded-md border bg-gray-50 px-3 text-sm ${touched.financingStatus && errors.financingStatus ? 'border-red-500' : 'border-gray-300'}`}>
+                            <option value="">Financing Status *</option>
+                            <option value="secured">Financing Secured</option>
+                            <option value="in-progress">In Progress</option>
+                            <option value="not-started">Not Started</option>
+                            <option value="cash">Cash Purchase</option>
+                          </select>
+                          {touched.financingStatus && errors.financingStatus && (
+                            <p className="text-red-500 text-xs mt-1">{errors.financingStatus}</p>
+                          )}
+                        </div>
                       </div>
                     </div>
 
@@ -1272,32 +1677,43 @@ const SignupMultiStep = () => {
                       <Input
                         placeholder="Property Address *"
                         value={formData.address}
-                        onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                        className="bg-gray-50"
+                        onChange={(e) => handleInputChange('address', e.target.value)}
+                        onBlur={() => handleBlur('address')}
+                        className={`bg-gray-50 ${touched.address && errors.address ? 'border-red-500' : ''}`}
                       />
+                      {touched.address && errors.address && (
+                        <p className="text-red-500 text-xs mt-1">{errors.address}</p>
+                      )}
                     </div>
 
                     <div className="border-t pt-6 space-y-4">
                       <h3 className="text-base font-semibold text-gray-900 mb-4">Contact Details</h3>
                       <div className="grid grid-cols-2 gap-4">
-                        <select
-                          value={formData.role || ''}
-                          onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-                          className="w-full h-10 rounded-md border border-gray-300 bg-gray-50 px-3 text-sm">
-                          <option value="">Role *</option>
-                          <option value="owner">Owner</option>
-                          <option value="property-manager">Property Manager</option>
-                          <option value="project-coordinator">Project Coordinator</option>
-                          <option value="facilities-manager">Facilities Manager</option>
-                        </select>
+                        <div>
+                          <select
+                            value={formData.role || ''}
+                            onChange={(e) => handleInputChange('role', e.target.value)}
+                            onBlur={() => handleBlur('role')}
+                            className={`w-full h-10 rounded-md border bg-gray-50 px-3 text-sm ${touched.role && errors.role ? 'border-red-500' : 'border-gray-300'}`}>
+                            <option value="">Role *</option>
+                            <option value="owner">Owner</option>
+                            <option value="property-manager">Property Manager</option>
+                            <option value="project-coordinator">Project Coordinator</option>
+                            <option value="facilities-manager">Facilities Manager</option>
+                          </select>
+                          {touched.role && errors.role && (
+                            <p className="text-red-500 text-xs mt-1">{errors.role}</p>
+                          )}
+                        </div>
                         <div className="relative">
                           <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 z-10" />
                           <Input
                             placeholder="Phone Number (+1...)"
                             type="tel"
                             value={formData.phone}
-                            onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                            className="bg-gray-50 pl-10"
+                            onChange={(e) => handleInputChange('phone', e.target.value)}
+                            onBlur={() => handleBlur('phone')}
+                            className={`bg-gray-50 pl-10 ${touched.phone && errors.phone ? 'border-red-500' : ''}`}
                             disabled={smsVerified}
                           />
                           {smsVerified && (

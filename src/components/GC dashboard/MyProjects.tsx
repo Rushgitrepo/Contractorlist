@@ -1,9 +1,9 @@
 import { createProject as createProjectAPI, updateProject as updateProjectAPI, deleteProject as deleteProjectAPI, assignTeamMember, removeTeamMemberFromProject, getProjectTeamMembers, uploadDocument, bulkUploadProjects } from '@/api/gc-apis';
 import { useState, useEffect } from 'react';
-import { z } from "zod";
 
 
 import { useNavigate, useSearchParams } from 'react-router-dom';
+
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -55,25 +55,10 @@ import {
   DropdownMenuPortal,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-
-const projectFormSchema = z.object({
-  name: z.string().min(1, "Project name is required"),
-  client: z.string().optional(),
-  project_type: z.string().optional(),
-  city: z.string().optional(),
-  state: z.string().optional(),
-  contract_value: z
-    .number({ invalid_type_error: "Contract value must be a number" })
-    .positive("Contract value must be greater than 0")
-    .optional(),
-  status: z.enum(["Planning", "Bidding", "Active", "Completed", "On Hold"]),
-  start_date: z.string().optional(),
-  expected_completion_date: z.string().optional(),
-});
-
-type ProjectFormInput = z.infer<typeof projectFormSchema>;
+import { projectFormSchema, ProjectFormInput } from "@/validation/projectSchemas";
 
 const MyProjects = () => {
+
 
   const { toast } = useToast();
   const navigate = useNavigate();

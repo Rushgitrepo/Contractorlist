@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
+import { loginSchema, LoginFormData } from "@/validation/authSchemas";
+
 import { Eye, EyeOff, Mail, Lock, ArrowLeft } from "lucide-react";
 import { useAppDispatch } from "@/store/hooks";
 import { loginUser } from "@/store/slices/authSlice"; // Added import
@@ -19,12 +20,7 @@ import {
 } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 
-const loginSchema = z.object({
-  email: z.string().email("Please enter a valid email address"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
-});
 
-type LoginFormData = z.infer<typeof loginSchema>;
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);

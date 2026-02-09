@@ -15,11 +15,14 @@ import {
     Truck,
     Clock,
     Tag,
-    Globe
+    Globe,
+    FolderOpen,
+    DollarSign
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import FilterAccordion from './FilterAccordion';
 
 const Suppliers = () => {
     const [searchQuery, setSearchQuery] = useState('');
@@ -103,10 +106,9 @@ const Suppliers = () => {
                     </button>
                 </div>
 
-                <div className="space-y-8">
+                <div className="space-y-4">
                     {/* Material Category */}
-                    <div>
-                        <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-3 block underline decoration-yellow-500/30 underline-offset-4">Material Category</Label>
+                    <FilterAccordion title="Material Category" icon={<FolderOpen className="w-4 h-4 text-muted-foreground" />}>
                         <Select value={materialCategory} onValueChange={setMaterialCategory}>
                             <SelectTrigger className="w-full h-11 border-gray-200 dark:border-white/10 bg-white dark:bg-black/20 text-xs font-bold rounded-xl shadow-sm">
                                 <SelectValue placeholder="All Categories" />
@@ -121,11 +123,10 @@ const Suppliers = () => {
                                 <SelectItem value="Drywall">Drywall & Insulation</SelectItem>
                             </SelectContent>
                         </Select>
-                    </div>
+                    </FilterAccordion>
 
                     {/* Product Type */}
-                    <div>
-                        <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-3 block underline decoration-yellow-500/30 underline-offset-4">Product Type</Label>
+                    <FilterAccordion title="Product Type" icon={<Package className="w-4 h-4 text-muted-foreground" />}>
                         <Select value={productType} onValueChange={setProductType}>
                             <SelectTrigger className="w-full h-11 border-gray-200 dark:border-white/10 bg-white dark:bg-black/20 text-xs font-bold rounded-xl">
                                 <SelectValue placeholder="Standard Goods" />
@@ -137,11 +138,10 @@ const Suppliers = () => {
                                 <SelectItem value="Bulk">Bulk Commodity</SelectItem>
                             </SelectContent>
                         </Select>
-                    </div>
+                    </FilterAccordion>
 
                     {/* Location (Radius) */}
-                    <div>
-                        <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-3 block underline decoration-yellow-500/30 underline-offset-4">Location (Radius)</Label>
+                    <FilterAccordion title="Location (Radius)" icon={<MapPin className="w-4 h-4 text-muted-foreground" />}>
                         <div className="flex items-center gap-3">
                             <div className="flex-1 relative">
                                 <Globe className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
@@ -155,11 +155,10 @@ const Suppliers = () => {
                             </div>
                             <span className="text-[10px] font-black text-gray-400">MILES</span>
                         </div>
-                    </div>
+                    </FilterAccordion>
 
                     {/* Stock & Delivery Availability */}
-                    <div>
-                        <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-4 block underline decoration-yellow-500/30 underline-offset-4">Inventory & Logistics</Label>
+                    <FilterAccordion title="Inventory & Logistics" icon={<Truck className="w-4 h-4 text-muted-foreground" />}>
                         <div className="space-y-3">
                             <div
                                 className="flex items-center group cursor-pointer"
@@ -186,11 +185,10 @@ const Suppliers = () => {
                                 <span className={cn("text-xs font-bold transition-all", deliveryAvailable ? "text-gray-900 dark:text-white" : "text-gray-500 dark:text-gray-400")}>Express Delivery Available</span>
                             </div>
                         </div>
-                    </div>
+                    </FilterAccordion>
 
                     {/* Pricing Type */}
-                    <div>
-                        <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-3 block underline decoration-yellow-500/30 underline-offset-4">Pricing Model</Label>
+                    <FilterAccordion title="Pricing Model" icon={<DollarSign className="w-4 h-4 text-muted-foreground" />}>
                         <Select value={pricingType} onValueChange={setPricingType}>
                             <SelectTrigger className="w-full h-11 border-gray-200 dark:border-white/10 bg-white dark:bg-black/20 text-xs font-bold rounded-xl">
                                 <SelectValue placeholder="Market Rate" />
@@ -202,11 +200,10 @@ const Suppliers = () => {
                                 <SelectItem value="Volume">Volume-Based</SelectItem>
                             </SelectContent>
                         </Select>
-                    </div>
+                    </FilterAccordion>
 
                     {/* Brand Selection */}
-                    <div>
-                        <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-3 block underline decoration-yellow-500/30 underline-offset-4">Brand Preference</Label>
+                    <FilterAccordion title="Brand Preference" icon={<Tag className="w-4 h-4 text-muted-foreground" />}>
                         <div className="relative">
                             <Tag className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
                             <Input
@@ -216,11 +213,10 @@ const Suppliers = () => {
                                 className="pl-9 h-11 border-gray-200 dark:border-white/10 bg-white dark:bg-black/20 text-xs font-bold rounded-xl"
                             />
                         </div>
-                    </div>
+                    </FilterAccordion>
 
                     {/* Lead Time */}
-                    <div>
-                        <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-3 block underline decoration-yellow-500/30 underline-offset-4">Lead Time</Label>
+                    <FilterAccordion title="Lead Time" icon={<Clock className="w-4 h-4 text-muted-foreground" />}>
                         <Select value={leadTime} onValueChange={setLeadTime}>
                             <SelectTrigger className="w-full h-11 border-gray-200 dark:border-white/10 bg-white dark:bg-black/20 text-xs font-bold rounded-xl">
                                 <SelectValue placeholder="Select Window" />
@@ -232,7 +228,7 @@ const Suppliers = () => {
                                 <SelectItem value="4w">4+ Weeks (Pre-order)</SelectItem>
                             </SelectContent>
                         </Select>
-                    </div>
+                    </FilterAccordion>
                 </div>
             </aside>
 

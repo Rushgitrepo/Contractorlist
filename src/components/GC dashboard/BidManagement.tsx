@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { z } from "zod";
 
 import { getMyBids, getBidDetail, updateBidItems, Bid as ApiBid, BidItem, finalizeBidSubmission, withdrawBid, deleteBid } from '@/api/gc-apis/backend';
+
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -46,15 +46,10 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from "@/components/ui/use-toast";
-
-const bidItemEditSchema = z.object({
-  name: z.string().min(1, "Item name is required"),
-  description: z.string().optional(),
-  price: z.number().nonnegative("Price cannot be negative"),
-});
-
+import { bidItemEditSchema } from "@/validation/gcBidSchemas";
 
 // Map backend status to frontend view
+
 type BidStatus = 'draft' | 'submitted' | 'viewed' | 'accepted' | 'started' | 'rejected' | 'withdrawn';
 
 // Extended local interface for display (though we mostly use ApiBid)

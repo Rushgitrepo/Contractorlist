@@ -204,7 +204,7 @@ class AuthService {
    */
   async checkEmail(email: string): Promise<{ success: boolean; exists: boolean; message: string }> {
     try {
-      const response = await api.post('/auth/check-email', { email });
+      const response = await api.post('/email/check', { email }); // Updated endpoint
       return response.data;
     } catch (error: any) {
       throw error.response?.data || { success: false, message: 'Failed to check email' };
@@ -213,7 +213,7 @@ class AuthService {
 
   async sendEmailOtp(email: string): Promise<{ success: boolean; message: string }> {
     try {
-      const response = await api.post('/auth/send-email-otp', { email });
+      const response = await api.post('/email/send-otp', { email }); // Updated endpoint
       return response.data;
     } catch (error: any) {
       throw error.response?.data || { success: false, message: 'Failed to send OTP' };
@@ -222,7 +222,7 @@ class AuthService {
 
   async verifyEmailOtp(email: string, code: string): Promise<{ success: boolean; message: string }> {
     try {
-      const response = await api.post('/auth/verify-email-otp', { email, code });
+      const response = await api.post('/email/verify-otp', { email, code }); // Updated endpoint
       return response.data;
     } catch (error: any) {
       throw error.response?.data || { success: false, message: 'Failed to verify OTP' };
