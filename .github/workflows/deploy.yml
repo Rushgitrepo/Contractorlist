@@ -54,16 +54,23 @@ jobs:
             echo "Deployment directory ready"
 
       - name: Copy build files to VPS
-        uses: appleboy/scp-action@v0.1.7
+        uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.VPS_PORT }}
-          source: "dist/*"
-          target: "/home/${{ secrets.CYBERPANEL_USER }}/public_html/"
-          strip_components: 1
-          overwrite: true
+          script: |
+            export TERM=xterm
+            echo "Ready to receive files"
+      
+      - name: Upload files via rsync
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          rsync -avz --delete -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -p ${{ secrets.VPS_PORT }}" dist/ ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_HOST }}:/home/${{ secrets.CYBERPANEL_USER }}/public_html/
+          rm -f ~/.ssh/deploy_key
 
       - name: Set correct permissions
         uses: appleboy/ssh-action@v1.0.3
