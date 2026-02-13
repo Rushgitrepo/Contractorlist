@@ -1,0 +1,84 @@
+name: Deploy Frontend to VPS
+
+on:
+  push:
+    branches:
+      - main  # Ya jo bhi aapki main branch hai (master/main)
+  workflow_dispatch:  # Manual trigger ke liye
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build project
+        run: npm run build
+        env:
+          NODE_ENV: production
+
+      - name: Deploy to VPS via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.VPS_PORT }}
+          script: |
+            # Project directory path (CyberPanel ke andar)
+            PROJECT_DIR="/home/${{ secrets.CYBERPANEL_USER }}/public_html"
+            
+            # Backup previous build
+            if [ -d "$PROJECT_DIR/dist_backup" ]; then
+              rm -rf "$PROJECT_DIR/dist_backup"
+            fi
+            if [ -d "$PROJECT_DIR/dist" ]; then
+              mv "$PROJECT_DIR/dist" "$PROJECT_DIR/dist_backup"
+            fi
+            
+            # Create directory if not exists
+            mkdir -p "$PROJECT_DIR"
+            
+            echo "Deployment directory ready"
+
+      - name: Copy build files to VPS
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.VPS_PORT }}
+          source: "dist/*"
+          target: "/home/${{ secrets.CYBERPANEL_USER }}/public_html/"
+          strip_components: 0
+
+      - name: Set correct permissions
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.VPS_PORT }}
+          script: |
+            PROJECT_DIR="/home/${{ secrets.CYBERPANEL_USER }}/public_html"
+            
+            # Set ownership (CyberPanel user)
+            chown -R ${{ secrets.CYBERPANEL_USER }}:${{ secrets.CYBERPANEL_USER }} "$PROJECT_DIR/dist"
+            
+            # Set permissions
+            find "$PROJECT_DIR/dist" -type d -exec chmod 755 {} \;
+            find "$PROJECT_DIR/dist" -type f -exec chmod 644 {} \;
+            
+            echo "Deployment completed successfully!"
+            echo "Deployed at: $(date)"

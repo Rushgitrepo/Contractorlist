@@ -22,6 +22,7 @@ import {
   AlertCircle,
   CheckCircle2,
   Clock,
+  Home,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -38,6 +39,7 @@ import { ScrollArea } from "@/components/ui/gc/scroll-area";
 import { Badge } from "@/components/ui/gc/badge";
 import CreateProjectDialog from "@/components/GC dashboard/CreateProjectDialog";
 import { useAuth } from "@/context/GC dashboard/contexts/AuthContext";
+import { SimpleThemeToggle } from "@/components/ThemeToggle";
 
 export default function AppHeader() {
   const { profile, signOut } = useAuth();
@@ -278,6 +280,18 @@ export default function AppHeader() {
 
       {/* Right: Actions */}
       <div className="flex items-center gap-2">
+        {/* Home Icon - Navigate to Contractor Website */}
+        <button
+          onClick={() => navigate("/")}
+          className="p-2 rounded-md hover:bg-muted transition-colors"
+          title="Go to Home"
+        >
+          <Home className="w-5 h-5 text-muted-foreground" />
+        </button>
+
+        {/* Theme Toggle */}
+        <SimpleThemeToggle />
+
         {/* Create Dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
