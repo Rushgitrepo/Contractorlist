@@ -33,6 +33,7 @@ interface NavItem {
   to: string;
   icon: React.ComponentType<{ className?: string }>;
   label: string;
+  newTab?: boolean;
 }
 
 interface NavSection {
@@ -44,55 +45,21 @@ const navSections: NavSection[] = [
   {
     label: "Project",
     items: [
-      { to: "/gc-dashboard", icon: LayoutDashboard, label: "Overview" },
-      { to: "/gc-dashboard/projects", icon: FolderKanban, label: "My Projects" },
+      { to: "/gc-dashboard", icon: LayoutDashboard, label: "Dashboard" },
       { to: "/gc-dashboard/project-discovery", icon: Search, label: "Find Projects" },
+    ],
+  },
+  {
+    label: "Project Management",
+    items: [
+      { to: "/project-management", icon: ClipboardList, label: "Project Management", newTab: true },
     ],
   },
   {
     label: "Marketplace",
     items: [
-      { to: "/gc-dashboard/directory", icon: HardHat, label: "Directory" },
-      { to: "/gc-dashboard/bids", icon: Gavel, label: "Bid Management" },
       { to: "/gc-dashboard/products", icon: Package, label: "Products" },
       { to: "/gc-dashboard/services", icon: Wrench, label: "Services" },
-    ],
-  },
-  {
-    label: "Resources",
-    items: [
-      { to: "/gc-dashboard/resources", icon: BarChart3, label: "Resource Mgmt" },
-    ],
-  },
-
-  {
-    label: "Project Management",
-    items: [
-      { to: "/gc-dashboard/schedule", icon: CalendarDays, label: "Schedule" },
-      { to: "/gc-dashboard/daily-logs", icon: ClipboardList, label: "Daily Log" },
-      { to: "/gc-dashboard/rfi", icon: MessageSquare, label: "RFIs" },
-      { to: "/gc-dashboard/communications", icon: MessageSquare, label: "Communications" },
-      { to: "/gc-dashboard/photos", icon: Camera, label: "Photos" },
-    ],
-  },
-  {
-    label: "Financial Management",
-    items: [
-      { to: "/gc-dashboard/analytics", icon: BarChart3, label: "Analytics" },
-      { to: "/gc-dashboard/financials", icon: DollarSign, label: "Budget" },
-      { to: "/gc-dashboard/billing", icon: Receipt, label: "Pay Applications" },
-      { to: "/gc-dashboard/change-orders", icon: ArrowLeftRight, label: "Change Events" },
-      { to: "/gc-dashboard/signature-history", icon: FileSignature, label: "Signatures" },
-    ],
-  },
-
-  {
-    label: "Risk & Compliance",
-    items: [
-      { to: "/gc-dashboard/liens", icon: Scale, label: "Commitments" },
-      { to: "/gc-dashboard/safety", icon: AlertTriangle, label: "Incidents" },
-      { to: "/gc-dashboard/insurance", icon: FileCheck, label: "Insurances" },
-      { to: "/gc-dashboard/payroll", icon: Landmark, label: "Certified Payroll" },
     ],
   },
 ];
@@ -147,6 +114,8 @@ export default function AppSidebar() {
                   <Link
                     key={item.to}
                     to={item.to}
+                    target={item.newTab ? "_blank" : undefined}
+                    rel={item.newTab ? "noopener noreferrer" : undefined}
                     title={collapsed ? item.label : undefined}
                     className={cn(
                       "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",

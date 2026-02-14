@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
+import { useAppSelector } from '@/store/hooks';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/gc/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/gc/card';
 import { Button } from '@/components/ui/gc/button';
@@ -29,195 +30,42 @@ import {
     Briefcase,
     CheckCircle2,
     Building2,
-    Award
+    Award,
+    Clock,
+    Shield,
+    Sparkles,
+    Languages,
+    DollarSign,
+    CheckCircle,
+    Wrench
 } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
-import { companyService } from '@/api/companyService';
+import { companyService, CompanySearchFilters } from '@/api/companyService';
 import { normalizeCompanyData } from '@/utils/normalizeCompany';
 import { getProjectDiscovery } from '@/api/gc-apis/backend';
 import FilterAccordion from '@/components/GC dashboard/FilterAccordion';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/gc/select';
 
-// --- Test Data for Subcontractors ---
-const TEST_SUBCONTRACTORS = [
-    {
-        id: 'sc-1',
-        name: 'Apex Electrical Solutions',
-        location: 'Austin, TX',
-        rating: 4.9,
-        reviews: 124,
-        verified: true,
-        specialties: ['Electrical', 'Industrial', 'Solar'],
-        status: 'Available',
-        projects: 42,
-        phone: '(512) 555-0123',
-        email: 'info@apexelectrical.com',
-        trade: 'Electrical'
-    },
-    {
-        id: 'sc-2',
-        name: 'Blue Ridge Plumbing',
-        location: 'Round Rock, TX',
-        rating: 4.7,
-        reviews: 89,
-        verified: true,
-        specialties: ['Plumbing', 'Commercial', 'Emergency'],
-        status: 'Busy',
-        projects: 31,
-        phone: '(512) 555-0124',
-        email: 'contact@blueridge.com',
-        trade: 'Plumbing'
-    },
-    {
-        id: 'sc-3',
-        name: 'Coastal HVAC Systems',
-        location: 'San Marcos, TX',
-        rating: 4.8,
-        reviews: 156,
-        verified: true,
-        specialties: ['HVAC', 'Refrigeration', 'Maintenance'],
-        status: 'Available',
-        projects: 67,
-        phone: '(512) 555-0125',
-        email: 'sales@coastalhvac.com',
-        trade: 'HVAC'
-    },
-    {
-        id: 'sc-4',
-        name: 'Summit Masonry & Stone',
-        location: 'Austin, TX',
-        rating: 4.6,
-        reviews: 45,
-        verified: false,
-        specialties: ['Masonry', 'Stonework', 'Hardscaping'],
-        status: 'Available',
-        projects: 18,
-        phone: '(512) 555-0126',
-        email: 'hello@summitmasonry.com',
-        trade: 'Masonry'
-    },
-    {
-        id: 'sc-5',
-        name: 'Texas Framing Partners',
-        location: 'Cedar Park, TX',
-        rating: 4.5,
-        reviews: 72,
-        verified: true,
-        specialties: ['Framing', 'Woodwork', 'Residential'],
-        status: 'AvailableNow',
-        projects: 54,
-        phone: '(512) 555-0127',
-        email: 'ops@txframing.com',
-        trade: 'Framing'
-    },
-    {
-        id: 'sc-6',
-        name: 'Lone Star Painting',
-        location: 'Austin, TX',
-        rating: 4.9,
-        reviews: 210,
-        verified: true,
-        specialties: ['Painting', 'Commercial', 'Finishing'],
-        status: 'Available',
-        projects: 124,
-        phone: '(512) 555-0128',
-        email: 'service@lonestarpainting.com',
-        trade: 'Painting'
-    }
-];
+// Internal Components for GCs, Subcontractors and Suppliers
 
-// --- Test Data for Suppliers ---
-const TEST_SUPPLIERS = [
-    {
-        id: 'sup-1',
-        name: 'Hill Country Lumber Co.',
-        location: 'Austin, TX',
-        rating: 4.8,
-        category: 'Lumber',
-        inventory: ['Dimensional Lumber', 'Plywood', 'Trusses'],
-        delivery: 'Local Delivery',
-        status: 'Platinum',
-        inventory_status: 'In Stock'
-    },
-    {
-        id: 'sup-2',
-        name: 'Metro Concrete & Aggregate',
-        location: 'Pflugerville, TX',
-        rating: 4.6,
-        category: 'Concrete',
-        inventory: ['Ready-mix', 'Rebar', 'Forms'],
-        delivery: 'Local Delivery',
-        status: 'Verified',
-        inventory_status: 'In Stock'
-    },
-    {
-        id: 'sup-3',
-        name: 'Titan Steel Supplies',
-        location: 'Round Rock, TX',
-        rating: 4.9,
-        category: 'Metals',
-        inventory: ['I-Beams', 'Roof Decking', 'Fasteners'],
-        delivery: 'Direct Shipping',
-        status: 'Gold',
-        inventory_status: 'Custom Order'
-    },
-    {
-        id: 'sup-4',
-        name: 'Austin Electrical Wholesale',
-        location: 'Austin, TX',
-        rating: 4.7,
-        category: 'Electrical',
-        inventory: ['Conduit', 'Panelboards', 'Wiring'],
-        delivery: 'Store Pickup',
-        status: 'Verified',
-        inventory_status: 'In Stock'
-    },
-    {
-        id: 'sup-5',
-        name: 'Quality Drywall & Insulation',
-        location: 'Taylor, TX',
-        rating: 4.5,
-        category: 'Drywall',
-        inventory: ['Sheetrock', 'Mineral Wool', 'Mud/Tape'],
-        delivery: 'Local Delivery',
-        status: 'Verified',
-        inventory_status: 'Bulk Only'
-    },
-    {
-        id: 'sup-6',
-        name: 'Elite Roofing Supply',
-        location: 'Austin, TX',
-        rating: 4.8,
-        category: 'Roofing',
-        inventory: ['Shingles', 'Underlayment', 'Flashing'],
-        delivery: 'Local Delivery',
-        status: 'Platinum',
-        inventory_status: 'In Stock'
-    }
-];
 
-// Internal Components for Subcontractors and Suppliers
 const SubcontractorList = ({ filters }: { filters: any }) => {
-    const { toast } = useToast();
-    const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-
     const { data: contractors = [], isLoading } = useQuery<any[]>({
         queryKey: ['directory-subcontractors', filters],
         queryFn: async () => {
-            // Artificial delay for realism
-            await new Promise(resolve => setTimeout(resolve, 600));
-
-            return TEST_SUBCONTRACTORS.filter(sc => {
-                const matchesSearch = !filters.searchQuery ||
-                    sc.name.toLowerCase().includes(filters.searchQuery.toLowerCase()) ||
-                    sc.specialties.some(s => s.toLowerCase().includes(filters.searchQuery.toLowerCase()));
-
-                const matchesTrade = filters.trade === 'All Trades' || sc.trade === filters.trade;
-
-                const matchesRating = sc.rating >= (filters.minRating || 0);
-
-                return matchesSearch && matchesTrade && matchesRating;
-            });
+            const apiFilters: CompanySearchFilters = {
+                search: filters.searchQuery || undefined,
+                location: filters.location || undefined,
+                service: filters.trade !== 'All Trades' ? filters.trade : undefined,
+                rating: filters.minRating || undefined,
+                verified_license: filters.hasLicense || undefined,
+                limit: 50
+            };
+            const response = await companyService.searchCompanies(apiFilters);
+            if (response.success) {
+                return response.data.map((item: any) => normalizeCompanyData(item.company || item));
+            }
+            return [];
         }
     });
 
@@ -241,22 +89,19 @@ const SubcontractorList = ({ filters }: { filters: any }) => {
     }
 
     return (
-        <div className={cn(
-            "grid gap-4",
-            viewMode === 'grid' ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3" : "grid-cols-1"
-        )}>
+        <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
             {contractors.map((c: any) => (
                 <Card key={c.id} className="group hover:shadow-md transition-all border-border overflow-hidden">
                     <CardHeader className="p-5 pb-3">
                         <div className="flex justify-between items-start">
                             <div className="flex items-center gap-3">
                                 <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary font-bold">
-                                    {c.name.substring(0, 2).toUpperCase()}
+                                    {(c.name || "SC").substring(0, 2).toUpperCase()}
                                 </div>
                                 <div>
                                     <h4 className="font-bold text-base truncate max-w-[150px] group-hover:text-primary transition-colors">{c.name}</h4>
                                     <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                                        <MapPin size={12} /> {c.location}
+                                        <MapPin size={12} /> {c.location || 'Location Not Specified'}
                                     </div>
                                 </div>
                             </div>
@@ -270,16 +115,16 @@ const SubcontractorList = ({ filters }: { filters: any }) => {
                     <CardContent className="p-5 pt-0 flex flex-col gap-4">
                         <div className="flex items-center gap-4 text-xs">
                             <div className="flex items-center gap-1 text-warning">
-                                <Star size={12} className="fill-current" /> {c.rating} <span className="text-muted-foreground">({c.reviews})</span>
+                                <Star size={12} className="fill-current" /> {c.rating || 'N/A'} <span className="text-muted-foreground">({c.reviews || 0})</span>
                             </div>
                             <div className="text-muted-foreground">•</div>
                             <div className="text-muted-foreground">
-                                {c.projects} Projects
+                                {c.projects || 0} Projects
                             </div>
                         </div>
 
                         <div className="flex flex-wrap gap-1">
-                            {c.specialties.slice(0, 3).map((s: string) => (
+                            {(c.specialties || ['General Contracting']).slice(0, 3).map((s: string) => (
                                 <Badge key={s} variant="secondary" className="text-[10px] font-medium h-5 bg-muted">
                                     {s}
                                 </Badge>
@@ -306,29 +151,66 @@ const SubcontractorList = ({ filters }: { filters: any }) => {
     );
 };
 
-const SupplierList = ({ filters }: { filters: any }) => {
-    const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+const TEST_SUPPLIERS = [
+    {
+        id: 's1',
+        name: 'Lone Star Materials',
+        location: 'Austin, TX',
+        rating: 4.8,
+        status: 'Verified',
+        inventory: ['Lumber', 'Drywall', 'Tools'],
+        reviews: 124
+    },
+    {
+        id: 's2',
+        name: 'Alamo Concrete Supply',
+        location: 'San Antonio, TX',
+        rating: 4.6,
+        status: 'Premium',
+        inventory: ['Concrete', 'Aggregates', 'Masonry'],
+        reviews: 89
+    },
+    {
+        id: 's3',
+        name: 'Metro Electric Wholesale',
+        location: 'Dallas, TX',
+        rating: 4.9,
+        status: 'Verified',
+        inventory: ['Electrical', 'Lighting', 'Wire'],
+        reviews: 215
+    },
+    {
+        id: 's4',
+        name: 'Texas Plumbing Depot',
+        location: 'Houston, TX',
+        rating: 4.7,
+        status: 'Verified',
+        inventory: ['Plumbing', 'Pipe', 'Fixtures'],
+        reviews: 156
+    },
+    {
+        id: 's5',
+        name: 'BuildRight Hardware',
+        location: 'Fort Worth, TX',
+        rating: 4.5,
+        status: 'Standard',
+        inventory: ['Hardware', 'Fasteners', 'Tools'],
+        reviews: 78
+    }
+];
 
+const SupplierList = ({ filters }: { filters: any }) => {
     const { data: suppliers = [], isLoading } = useQuery<any[]>({
         queryKey: ['directory-suppliers', filters],
         queryFn: async () => {
-            // Artificial delay for realism
-            await new Promise(resolve => setTimeout(resolve, 600));
+            // Simulate API delay
+            await new Promise(resolve => setTimeout(resolve, 800));
 
-            return TEST_SUPPLIERS.filter(sup => {
-                const matchesSearch = !filters.searchQuery ||
-                    sup.name.toLowerCase().includes(filters.searchQuery.toLowerCase()) ||
-                    sup.inventory.some(i => i.toLowerCase().includes(filters.searchQuery.toLowerCase()));
-
-                const matchesCategory = filters.category === 'All Materials' || sup.category === filters.category;
-
-                const matchesRating = sup.rating >= (filters.minRating || 0);
-
-                const matchesDelivery = filters.delivery.length === 0 || filters.delivery.includes(sup.delivery);
-
-                const matchesInventory = filters.inventory.length === 0 || filters.inventory.includes(sup.inventory_status);
-
-                return matchesSearch && matchesCategory && matchesRating && matchesDelivery && matchesInventory;
+            // Return mock data for now
+            return TEST_SUPPLIERS.filter(s => {
+                if (filters.searchQuery && !s.name.toLowerCase().includes(filters.searchQuery.toLowerCase())) return false;
+                if (filters.location && !s.location.toLowerCase().includes(filters.location.split(',')[0].toLowerCase())) return false;
+                return true;
             });
         }
     });
@@ -353,34 +235,31 @@ const SupplierList = ({ filters }: { filters: any }) => {
     }
 
     return (
-        <div className={cn(
-            "grid gap-4",
-            viewMode === 'grid' ? "grid-cols-1 lg:grid-cols-2" : "grid-cols-1"
-        )}>
+        <div className="grid gap-4 grid-cols-1 lg:grid-cols-2">
             {suppliers.map((s: any) => (
                 <Card key={s.id} className="group hover:shadow-md transition-all border-border overflow-hidden">
                     <CardHeader className="p-5 pb-3">
                         <div className="flex justify-between items-start">
                             <div className="flex items-center gap-3">
                                 <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary font-bold uppercase">
-                                    {s.name.substring(0, 2)}
+                                    {(s.name || "SUP").substring(0, 2)}
                                 </div>
                                 <div>
                                     <h4 className="font-bold text-base truncate max-w-[200px] group-hover:text-primary transition-colors">{s.name}</h4>
                                     <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                                        <MapPin size={12} /> {s.location}
+                                        <MapPin size={12} /> {s.location || 'Location Not Specified'}
                                     </div>
                                 </div>
                             </div>
-                            <Badge variant="outline" className="text-[10px] h-5 border-primary/20 text-primary bg-primary/5 font-bold">
-                                {s.status}
+                            <Badge variant="outline" className="text-[10px] h-5 border-primary/20 text-primary bg-primary/5 font-bold uppercase tracking-widest px-1.5">
+                                {s.status || 'Verified'}
                             </Badge>
                         </div>
                     </CardHeader>
                     <CardContent className="p-5 pt-0 flex flex-col gap-4">
                         <div className="flex items-center gap-3 text-xs">
                             <div className="flex items-center gap-1 text-warning">
-                                <Star size={12} className="fill-current" /> {s.rating}
+                                <Star size={12} className="fill-current" /> {s.rating || 'N/A'}
                             </div>
                             <div className="text-muted-foreground">•</div>
                             <div className="text-muted-foreground flex items-center gap-1">
@@ -391,7 +270,7 @@ const SupplierList = ({ filters }: { filters: any }) => {
                         <div className="space-y-2">
                             <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Inventory Availability</p>
                             <div className="flex flex-wrap gap-1">
-                                {s.inventory.map((item: string) => (
+                                {(s.inventory || ['Materials']).slice(0, 5).map((item: string) => (
                                     <Badge key={item} variant="secondary" className="text-[10px] font-medium h-5 bg-muted">
                                         {item}
                                     </Badge>
@@ -400,7 +279,7 @@ const SupplierList = ({ filters }: { filters: any }) => {
                         </div>
 
                         <div className="pt-4 border-t border-border flex items-center justify-between">
-                            <Button variant="ghost" size="sm" className="h-8 text-xs font-semibold gap-1.5 text-muted-foreground">
+                            <Button variant="ghost" size="sm" className="h-8 text-xs font-semibold gap-1.5 text-muted-foreground hover:text-primary transition-colors">
                                 <Plus size={14} /> Compare Pricing
                             </Button>
                             <Button size="sm" className="h-8 px-4 text-xs font-semibold">
@@ -415,8 +294,9 @@ const SupplierList = ({ filters }: { filters: any }) => {
 };
 
 const DirectoryPage = () => {
+    const { user } = useAppSelector((state) => state.auth);
     const [searchParams, setSearchParams] = useSearchParams();
-    const activeTab = (searchParams.get('tab') as 'sc' | 'suppliers') || 'sc';
+    const currentTab = (searchParams.get('tab') as 'sc' | 'suppliers') || 'sc';
 
     const [searchQuery, setSearchQuery] = useState('');
     const [location, setLocation] = useState('Austin, TX');
@@ -432,7 +312,6 @@ const DirectoryPage = () => {
     const [scAvailability, setScAvailability] = useState<string[]>([]);
     const [scExperience, setScExperience] = useState('');
     const [scCategories, setScCategories] = useState<string[]>([]);
-    const [showAllScCategories, setShowAllScCategories] = useState(false);
 
     // --- Supplier Filter States ---
     const [supplierCategory, setSupplierCategory] = useState<string>('All Materials');
@@ -442,42 +321,6 @@ const DirectoryPage = () => {
     const [supMinRating, setSupMinRating] = useState<number>(0);
     const [supDelivery, setSupDelivery] = useState<string[]>([]);
     const [supInventory, setSupInventory] = useState<string[]>([]);
-
-    const categories = [
-        'Procurement & Contracting',
-        'General Requirements',
-        'Existing Conditions',
-        'Concrete',
-        'Masonry',
-        'Metals',
-        'Wood, Plastics & Composites',
-        'Thermal & Moisture Protection',
-        'Openings',
-        'Finishes',
-        'Specialties',
-        'Equipment',
-        'Furnishings',
-        'Special Construction',
-        'Conveying Equipment',
-        'Fire Suppression',
-        'Plumbing',
-        'HVAC',
-        'Integrated Automation',
-        'Electrical',
-        'Communications',
-        'Electronic Safety & Security',
-        'Earthwork',
-        'Exterior Improvements',
-        'Utilities',
-        'Transportation',
-        'Waterway & Marine',
-        'Process Interconnections',
-        'Material Processing',
-        'Process Heating/Cooling',
-        'Gas/Liquid Handling',
-        'Pollution Control',
-        'Electrical Power Generation'
-    ];
 
     const scFilters = {
         searchQuery,
@@ -503,13 +346,15 @@ const DirectoryPage = () => {
         radius: supRadius,
         minRating: supMinRating,
         delivery: supDelivery,
-        inventory: supInventory
+        inventory: supInventory,
     };
+
+
 
     const handleResetFilters = () => {
         setSearchQuery('');
         setLocation('Austin, TX');
-        if (activeTab === 'sc') {
+        if (currentTab === 'sc') {
             setSelectedTrade('All Trades');
             setScState('');
             setScCity('');
@@ -520,7 +365,7 @@ const DirectoryPage = () => {
             setScAvailability([]);
             setScExperience('');
             setScCategories([]);
-        } else {
+        } else if (currentTab === 'suppliers') {
             setSupplierCategory('All Materials');
             setSupState('');
             setSupCity('');
@@ -532,20 +377,20 @@ const DirectoryPage = () => {
     };
 
     return (
-        <div className="p-6 animate-fade-in flex flex-col h-full overflow-hidden">
+        <div className="p-6 animate-fade-in flex flex-col h-full overflow-hidden gc-dashboard-theme">
             {/* Page Header */}
             <div className="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-foreground font-black tracking-tight uppercase">Partner Directory</h1>
+                    <h1 className="text-2xl font-bold text-foreground font-black tracking-tight uppercase">Directory</h1>
                     <p className="text-sm text-muted-foreground mt-1 font-medium">
-                        Manage and discover verified subcontractors and material suppliers in your network.
+                        Manage and discover verified partners, subcontractors and material suppliers in your network.
                     </p>
                 </div>
                 <div className="flex items-center gap-2">
                     <div className="relative w-64">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-4 h-4" />
                         <Input
-                            placeholder={`Search ${activeTab === 'sc' ? 'subcontractors' : 'suppliers'}...`}
+                            placeholder={`Search ${currentTab === 'sc' ? 'subcontractors' : 'suppliers'}...`}
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             className="pl-9 bg-background border-border h-10 text-sm rounded-xl"
@@ -565,7 +410,7 @@ const DirectoryPage = () => {
 
             {/* Directory Selection Tabs */}
             <div className="mb-6 bg-card border border-border rounded-xl px-4 h-14 flex items-center justify-between shadow-sm">
-                <Tabs value={activeTab} onValueChange={(val) => setSearchParams({ tab: val })} className="h-full">
+                <Tabs value={currentTab} onValueChange={(val) => setSearchParams({ tab: val })} className="h-full">
                     <TabsList className="bg-transparent h-full gap-8 p-0">
                         <TabsTrigger
                             value="sc"
@@ -585,47 +430,40 @@ const DirectoryPage = () => {
                 <div className="hidden md:flex items-center gap-4 text-[10px] font-black uppercase text-muted-foreground tracking-widest">
                     <div className="flex items-center gap-2">
                         <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-                        128 Verified Partners
+                        Verified Partners
                     </div>
                 </div>
             </div>
 
             <div className="flex-1 flex gap-6 overflow-hidden">
                 {/* Global Filter Sidebar */}
-                <aside className="hidden xl:flex w-72 flex-col border border-border bg-card rounded-xl overflow-y-auto p-6 custom-scrollbar">
+                <aside className="hidden xl:flex w-72 flex-col border border-border bg-card rounded-xl overflow-y-auto p-6 custom-scrollbar shadow-sm">
                     <div className="flex items-center justify-between mb-8">
-                        <h3 className="text-xl font-black tracking-tight uppercase">Filters</h3>
+                        <h3 className="text-sm font-black tracking-tight uppercase">Filters</h3>
                         <button
                             onClick={handleResetFilters}
-                            className="text-[10px] font-black uppercase text-primary hover:underline"
+                            className="text-[10px] font-black uppercase text-primary hover:underline hover:text-primary/80 transition-all"
                         >
-                            Reset
+                            Reset All
                         </button>
                     </div>
 
-                    <div className="space-y-4">
-                        {activeTab === 'sc' ? (
+                    <div className="space-y-2">
+                        {currentTab === 'sc' ? (
                             <>
-                                {/* Trade / Professional Category */}
                                 <FilterAccordion title="Trade" icon={<Briefcase className="w-4 h-4 text-muted-foreground" />}>
                                     <Select value={selectedTrade} onValueChange={setSelectedTrade}>
                                         <SelectTrigger className="w-full h-10 border-border bg-background text-xs font-bold rounded-xl">
                                             <SelectValue placeholder="Select Trade" />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="All Trades">All Trades</SelectItem>
-                                            <SelectItem value="Electrical">Electrical</SelectItem>
-                                            <SelectItem value="Plumbing">Plumbing</SelectItem>
-                                            <SelectItem value="HVAC">HVAC</SelectItem>
-                                            <SelectItem value="Roofing">Roofing</SelectItem>
-                                            <SelectItem value="Masonry">Masonry</SelectItem>
-                                            <SelectItem value="Framing">Framing</SelectItem>
-                                            <SelectItem value="Painting">Painting</SelectItem>
+                                            {['All Trades', 'Electrical', 'Plumbing', 'HVAC', 'Roofing', 'Masonry', 'Framing', 'Painting'].map(t => (
+                                                <SelectItem key={t} value={t}>{t}</SelectItem>
+                                            ))}
                                         </SelectContent>
                                     </Select>
                                 </FilterAccordion>
 
-                                {/* Location Details */}
                                 <FilterAccordion title="Region" icon={<MapPin className="w-4 h-4 text-muted-foreground" />}>
                                     <div className="space-y-3">
                                         <Select value={scState} onValueChange={setScState}>
@@ -653,13 +491,12 @@ const DirectoryPage = () => {
                                                 onChange={(e) => setScRadius(e.target.value)}
                                                 className="h-10 border-border bg-background text-xs font-bold rounded-xl"
                                             />
-                                            <span className="text-[10px] font-bold text-muted-foreground">Miles</span>
+                                            <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Miles</span>
                                         </div>
                                     </div>
                                 </FilterAccordion>
 
-                                {/* Availability */}
-                                <FilterAccordion title="Availability" icon={<CheckCircle2 className="w-4 h-4 text-muted-foreground" />}>
+                                <FilterAccordion title="Availability" icon={<Clock className="w-4 h-4 text-muted-foreground" />}>
                                     <div className="space-y-3">
                                         {['Available Now', 'Accepting Bids', 'Busy'].map(status => (
                                             <div key={status} className="flex items-center group cursor-pointer" onClick={() => {
@@ -671,30 +508,30 @@ const DirectoryPage = () => {
                                                 )}>
                                                     {scAvailability.includes(status) && <CheckCircle2 className="w-3 h-3" />}
                                                 </div>
-                                                <span className={cn("text-xs font-bold transition-all", scAvailability.includes(status) ? "text-foreground" : "text-muted-foreground group-hover:pl-1")}>{status}</span>
+                                                <span className={cn("text-xs font-bold transition-all", scAvailability.includes(status) ? "text-foreground" : "text-muted-foreground group-hover:pl-0.5")}>{status}</span>
                                             </div>
                                         ))}
                                     </div>
                                 </FilterAccordion>
 
-                                {/* Experience */}
                                 <FilterAccordion title="Experience" icon={<Building2 className="w-4 h-4 text-muted-foreground" />}>
-                                    <Select value={scExperience} onValueChange={setScExperience}>
-                                        <SelectTrigger className="w-full h-10 border-border bg-background text-xs font-bold rounded-xl">
-                                            <SelectValue placeholder="Select Experience" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="Residential">Residential</SelectItem>
-                                            <SelectItem value="Commercial">Commercial</SelectItem>
-                                            <SelectItem value="Industrial">Industrial</SelectItem>
-                                            <SelectItem value="Infrastructure">Infrastructure</SelectItem>
-                                        </SelectContent>
-                                    </Select>
+                                    <div className="space-y-2">
+                                        {['Residential', 'Commercial', 'Industrial', 'Infrastructure'].map(exp => (
+                                            <div key={exp} className="flex items-center group cursor-pointer" onClick={() => setScExperience(exp === scExperience ? '' : exp)}>
+                                                <div className={cn(
+                                                    "w-4 h-4 rounded border-full flex items-center justify-center transition-all mr-3",
+                                                    scExperience === exp ? "bg-primary border-primary text-primary-foreground" : "border-border group-hover:border-primary/50"
+                                                )}>
+                                                    {scExperience === exp && <CheckCircle2 className="w-3 h-3" />}
+                                                </div>
+                                                <span className={cn("text-xs font-bold transition-all", scExperience === exp ? "text-foreground" : "text-muted-foreground group-hover:pl-0.5")}>{exp}</span>
+                                            </div>
+                                        ))}
+                                    </div>
                                 </FilterAccordion>
 
-                                {/* Compliance */}
                                 <FilterAccordion title="Compliance" icon={<ShieldCheck className="w-4 h-4 text-muted-foreground" />}>
-                                    <div className="space-y-4">
+                                    <div className="space-y-3">
                                         <div className="flex items-center group cursor-pointer" onClick={() => setScHasLicense(!scHasLicense)}>
                                             <div className={cn(
                                                 "w-4 h-4 rounded border flex items-center justify-center transition-all mr-3",
@@ -702,7 +539,7 @@ const DirectoryPage = () => {
                                             )}>
                                                 {scHasLicense && <CheckCircle2 className="w-3 h-3" />}
                                             </div>
-                                            <span className={cn("text-xs font-bold transition-all", scHasLicense ? "text-foreground" : "text-muted-foreground group-hover:pl-1")}>Licensed Professional</span>
+                                            <span className={cn("text-xs font-bold transition-all", scHasLicense ? "text-foreground" : "text-muted-foreground")}>Licensed</span>
                                         </div>
                                         <div className="flex items-center group cursor-pointer" onClick={() => setScHasInsurance(!scHasInsurance)}>
                                             <div className={cn(
@@ -711,95 +548,49 @@ const DirectoryPage = () => {
                                             )}>
                                                 {scHasInsurance && <CheckCircle2 className="w-3 h-3" />}
                                             </div>
-                                            <span className={cn("text-xs font-bold transition-all", scHasInsurance ? "text-foreground" : "text-muted-foreground group-hover:pl-1")}>Insured & Bonded</span>
+                                            <span className={cn("text-xs font-bold transition-all", scHasInsurance ? "text-foreground" : "text-muted-foreground")}>Insured</span>
                                         </div>
                                     </div>
                                 </FilterAccordion>
 
-                                {/* Rating */}
-                                <FilterAccordion title="Min. Rating" icon={<Star className="w-4 h-4 text-muted-foreground" />}>
-                                    <div className="flex items-center gap-1.5 mt-2">
-                                        {[4.5, 4.0, 3.0, 0].map((rating) => (
-                                            <button
-                                                key={rating}
-                                                onClick={() => setScMinRating(rating)}
-                                                className={cn(
-                                                    "flex-1 py-2 rounded-lg text-[10px] font-black border transition-all",
-                                                    scMinRating === rating
-                                                        ? "bg-primary border-primary text-primary-foreground shadow-md"
-                                                        : "bg-background border-border text-muted-foreground hover:border-primary/50"
-                                                )}
-                                            >
-                                                {rating === 0 ? 'Any' : `${rating}+`}
-                                            </button>
-                                        ))}
-                                    </div>
-                                </FilterAccordion>
-
-                                {/* CSI Divisions */}
-                                <FilterAccordion title="CSI Divisions" defaultOpen={false} icon={<ListIcon className="w-4 h-4 text-muted-foreground" />}>
-                                    <div className="grid grid-cols-1 gap-2">
-                                        {(showAllScCategories ? categories : categories.slice(0, 10)).map(cat => (
-                                            <div key={cat} className="flex items-center group cursor-pointer" onClick={() => {
-                                                setScCategories(prev => prev.includes(cat) ? prev.filter(c => c !== cat) : [...prev, cat]);
-                                            }}>
+                                <FilterAccordion title="Rating" icon={<Star className="w-4 h-4 text-muted-foreground" />}>
+                                    <div className="space-y-2">
+                                        {[5, 4, 3].map(r => (
+                                            <div key={r} className="flex items-center group cursor-pointer" onClick={() => setScMinRating(r === scMinRating ? 0 : r)}>
                                                 <div className={cn(
                                                     "w-4 h-4 rounded border flex items-center justify-center transition-all mr-3",
-                                                    scCategories.includes(cat) ? "bg-primary border-primary text-primary-foreground" : "border-border group-hover:border-primary/50"
+                                                    scMinRating === r ? "bg-primary border-primary text-primary-foreground" : "border-border group-hover:border-primary/50"
                                                 )}>
-                                                    {scCategories.includes(cat) && <CheckCircle2 className="w-3 h-3" />}
+                                                    {scMinRating === r && <CheckCircle2 className="w-3 h-3" />}
                                                 </div>
-                                                <span className={cn("text-xs font-bold transition-all", scCategories.includes(cat) ? "text-foreground" : "text-muted-foreground group-hover:pl-1")}>{cat}</span>
+                                                <div className="flex items-center gap-1">
+                                                    {[...Array(r)].map((_, i) => <Star key={i} className="w-3 h-3 fill-primary text-primary" />)}
+                                                    <span className="text-[10px] font-black text-muted-foreground ml-1">& Up</span>
+                                                </div>
                                             </div>
                                         ))}
-                                        <Button
-                                            variant="link"
-                                            size="sm"
-                                            onClick={(e) => { e.stopPropagation(); setShowAllScCategories(!showAllScCategories); }}
-                                            className="h-auto p-0 text-[10px] font-black uppercase text-primary hover:no-underline flex items-center gap-1 mt-2 w-fit"
-                                        >
-                                            {showAllScCategories ? 'Show Less' : `+${categories.length - 10} More`}
-                                        </Button>
                                     </div>
                                 </FilterAccordion>
                             </>
                         ) : (
                             <>
-                                {/* Material Category */}
-                                <FilterAccordion title="Materials" icon={<Package className="w-4 h-4 text-muted-foreground" />}>
+                                <FilterAccordion title="Category" icon={<Package className="w-4 h-4 text-muted-foreground" />}>
                                     <Select value={supplierCategory} onValueChange={setSupplierCategory}>
                                         <SelectTrigger className="w-full h-10 border-border bg-background text-xs font-bold rounded-xl">
                                             <SelectValue placeholder="Select Material" />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="All Materials">All Materials</SelectItem>
-                                            <SelectItem value="Lumber">Lumber & Framing</SelectItem>
-                                            <SelectItem value="Concrete">Concrete & Masonry</SelectItem>
-                                            <SelectItem value="Electrical">Electrical Supplies</SelectItem>
-                                            <SelectItem value="Plumbing">Plumbing Fixtures</SelectItem>
-                                            <SelectItem value="HVAC">HVAC Equipment</SelectItem>
-                                            <SelectItem value="Roofing">Roofing Materials</SelectItem>
-                                            <SelectItem value="Drywall">Drywall & Insulation</SelectItem>
+                                            {['All Materials', 'Lumber', 'Concrete', 'Metals', 'Electrical', 'Plumbing', 'Roofing', 'Finishes'].map(m => (
+                                                <SelectItem key={m} value={m}>{m}</SelectItem>
+                                            ))}
                                         </SelectContent>
                                     </Select>
                                 </FilterAccordion>
 
-                                {/* Region for Suppliers */}
                                 <FilterAccordion title="Region" icon={<MapPin className="w-4 h-4 text-muted-foreground" />}>
                                     <div className="space-y-3">
-                                        <Select value={supState} onValueChange={setSupState}>
-                                            <SelectTrigger className="w-full h-10 border-border bg-background text-xs font-bold rounded-xl">
-                                                <SelectValue placeholder="Select State" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="TX">Texas</SelectItem>
-                                                <SelectItem value="CA">California</SelectItem>
-                                                <SelectItem value="NY">New York</SelectItem>
-                                                <SelectItem value="FL">Florida</SelectItem>
-                                            </SelectContent>
-                                        </Select>
                                         <Input
-                                            placeholder="City"
+                                            placeholder="City/State"
                                             value={supCity}
                                             onChange={(e) => setSupCity(e.target.value)}
                                             className="h-10 border-border bg-background text-xs font-bold rounded-xl"
@@ -812,32 +603,30 @@ const DirectoryPage = () => {
                                                 onChange={(e) => setSupRadius(e.target.value)}
                                                 className="h-10 border-border bg-background text-xs font-bold rounded-xl"
                                             />
-                                            <span className="text-[10px] font-bold text-muted-foreground">Miles</span>
+                                            <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Miles</span>
                                         </div>
                                     </div>
                                 </FilterAccordion>
 
-                                {/* Delivery Options */}
                                 <FilterAccordion title="Delivery" icon={<Truck className="w-4 h-4 text-muted-foreground" />}>
                                     <div className="space-y-3">
-                                        {['Store Pickup', 'Local Delivery', 'Direct Shipping'].map(opt => (
-                                            <div key={opt} className="flex items-center group cursor-pointer" onClick={() => {
-                                                setSupDelivery(prev => prev.includes(opt) ? prev.filter(s => s !== opt) : [...prev, opt]);
+                                        {['Local Delivery', 'Direct Shipping', 'Store Pickup'].map(status => (
+                                            <div key={status} className="flex items-center group cursor-pointer" onClick={() => {
+                                                setSupDelivery(prev => prev.includes(status) ? prev.filter(s => s !== status) : [...prev, status]);
                                             }}>
                                                 <div className={cn(
                                                     "w-4 h-4 rounded border flex items-center justify-center transition-all mr-3",
-                                                    supDelivery.includes(opt) ? "bg-primary border-primary text-primary-foreground" : "border-border group-hover:border-primary/50"
+                                                    supDelivery.includes(status) ? "bg-primary border-primary text-primary-foreground" : "border-border group-hover:border-primary/50"
                                                 )}>
-                                                    {supDelivery.includes(opt) && <CheckCircle2 className="w-3 h-3" />}
+                                                    {supDelivery.includes(status) && <CheckCircle2 className="w-3 h-3" />}
                                                 </div>
-                                                <span className={cn("text-xs font-bold transition-all", supDelivery.includes(opt) ? "text-foreground" : "text-muted-foreground group-hover:pl-1")}>{opt}</span>
+                                                <span className={cn("text-xs font-bold transition-all", supDelivery.includes(status) ? "text-foreground" : "text-muted-foreground")}>{status}</span>
                                             </div>
                                         ))}
                                     </div>
                                 </FilterAccordion>
 
-                                {/* Inventory Status */}
-                                <FilterAccordion title="Availability" icon={<CheckCircle2 className="w-4 h-4 text-muted-foreground" />}>
+                                <FilterAccordion title="Inventory Status" icon={<Package className="w-4 h-4 text-muted-foreground" />}>
                                     <div className="space-y-3">
                                         {['In Stock', 'Custom Order', 'Bulk Only'].map(status => (
                                             <div key={status} className="flex items-center group cursor-pointer" onClick={() => {
@@ -849,28 +638,27 @@ const DirectoryPage = () => {
                                                 )}>
                                                     {supInventory.includes(status) && <CheckCircle2 className="w-3 h-3" />}
                                                 </div>
-                                                <span className={cn("text-xs font-bold transition-all", supInventory.includes(status) ? "text-foreground" : "text-muted-foreground group-hover:pl-1")}>{status}</span>
+                                                <span className={cn("text-xs font-bold transition-all", supInventory.includes(status) ? "text-foreground" : "text-muted-foreground")}>{status}</span>
                                             </div>
                                         ))}
                                     </div>
                                 </FilterAccordion>
 
-                                {/* Supplier Rating */}
-                                <FilterAccordion title="Min. Rating" icon={<Star className="w-4 h-4 text-muted-foreground" />}>
-                                    <div className="flex items-center gap-1.5 mt-2">
-                                        {[4.5, 4.0, 3.0, 0].map((rating) => (
-                                            <button
-                                                key={rating}
-                                                onClick={() => setSupMinRating(rating)}
-                                                className={cn(
-                                                    "flex-1 py-2 rounded-lg text-[10px] font-black border transition-all",
-                                                    supMinRating === rating
-                                                        ? "bg-primary border-primary text-primary-foreground shadow-md"
-                                                        : "bg-background border-border text-muted-foreground hover:border-primary/50"
-                                                )}
-                                            >
-                                                {rating === 0 ? 'Any' : `${rating}+`}
-                                            </button>
+                                <FilterAccordion title="Rating" icon={<Star className="w-4 h-4 text-muted-foreground" />}>
+                                    <div className="space-y-2">
+                                        {[5, 4, 3].map(r => (
+                                            <div key={r} className="flex items-center group cursor-pointer" onClick={() => setSupMinRating(r === supMinRating ? 0 : r)}>
+                                                <div className={cn(
+                                                    "w-4 h-4 rounded border flex items-center justify-center transition-all mr-3",
+                                                    supMinRating === r ? "bg-primary border-primary text-primary-foreground" : "border-border group-hover:border-primary/50"
+                                                )}>
+                                                    {supMinRating === r && <CheckCircle2 className="w-3 h-3" />}
+                                                </div>
+                                                <div className="flex items-center gap-1">
+                                                    {[...Array(r)].map((_, i) => <Star key={i} className="w-3 h-3 fill-primary text-primary" />)}
+                                                    <span className="text-[10px] font-black text-muted-foreground ml-1">& Up</span>
+                                                </div>
+                                            </div>
                                         ))}
                                     </div>
                                 </FilterAccordion>
@@ -879,19 +667,37 @@ const DirectoryPage = () => {
                     </div>
                 </aside>
 
-                <div className="flex-1 flex flex-col overflow-hidden bg-card border border-border rounded-xl">
-                    <div className="flex-1 overflow-hidden">
-                        {activeTab === 'sc' ? (
-                            <div className="h-full overflow-y-auto p-6 custom-scrollbar">
-                                <SubcontractorList filters={scFilters} />
+                {/* Main Content Area */}
+                <main className="flex-1 overflow-hidden flex flex-col min-w-0">
+                    {/* Active Filters Bar */}
+                    <div className="mb-4 flex flex-wrap gap-2 items-center">
+                        <span className="text-[10px] font-black uppercase text-muted-foreground tracking-widest mr-2">Active:</span>
+                        {currentTab === 'sc' && selectedTrade !== 'All Trades' && (
+                            <Badge variant="secondary" className="bg-primary/5 text-primary border-primary/20 hover:bg-primary/10 transition-colors h-7 gap-1">
+                                {selectedTrade} <Plus className="w-3 h-3 rotate-45 cursor-pointer" onClick={() => setSelectedTrade('All Trades')} />
+                            </Badge>
+                        )}
+                        {/* More active filter badges could be added here */}
+                        <div className="ml-auto flex items-center gap-4">
+                            <div className="flex bg-muted/30 rounded-lg p-1 border border-border">
+                                <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-muted-foreground hover:text-primary rounded-md">
+                                    <Grid3x3 size={16} />
+                                </Button>
+                                <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-muted-foreground hover:text-primary rounded-md">
+                                    <ListIcon size={16} />
+                                </Button>
                             </div>
+                        </div>
+                    </div>
+
+                    <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
+                        {currentTab === 'sc' ? (
+                            <SubcontractorList filters={scFilters} />
                         ) : (
-                            <div className="h-full overflow-y-auto p-6 custom-scrollbar">
-                                <SupplierList filters={supFilters} />
-                            </div>
+                            <SupplierList filters={supFilters} />
                         )}
                     </div>
-                </div>
+                </main>
             </div>
         </div>
     );

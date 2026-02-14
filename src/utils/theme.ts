@@ -173,6 +173,7 @@ export const isDashboardRoute = (pathname: string): boolean => {
         '/subcontractor-dashboard',
         '/supplier-dashboard',
         '/homeowner-dashboard',
+        '/project-management',
         '/settings',
         '/subscription'
     ];

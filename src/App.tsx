@@ -53,6 +53,7 @@ import ContactUs from "./pages/ContactUs";
 import GCDashboard from "./pages/GCDashboard";
 import SubcontractorDashboard from "./pages/SubcontractorDashboard";
 import SupplierDashboard from "./pages/SupplierDashboard";
+import ProjectManagementDashboard from "./pages/ProjectManagementDashboard";
 import HomeownerDashboard from "./pages/HomeownerDashboard";
 import Settings from "./pages/Settings";
 import Subscription from "./pages/Subscription";
@@ -150,6 +151,14 @@ const AppRoutes = () => {
           element={
             <ProtectedRoute allowedRoles={['general-contractor']}>
               <GCDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/project-management/*"
+          element={
+            <ProtectedRoute allowedRoles={['general-contractor', 'subcontractor']}>
+              <ProjectManagementDashboard />
             </ProtectedRoute>
           }
         />

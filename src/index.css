@@ -235,6 +235,82 @@
     --sidebar-muted: 220 10% 45%;
   }
 
+  /* Scoped Theme for Subcontractor Dashboard */
+  .subcontractor-dashboard-theme {
+    --background: 0 0% 98%;
+    --foreground: 220 15% 15%;
+    --card: 0 0% 100%;
+    --card-foreground: 220 15% 15%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 15% 15%;
+    --primary: 53 98% 53%;
+    --primary-foreground: 240 5.9% 10%;
+    --secondary: 220 14% 96%;
+    --secondary-foreground: 220 15% 15%;
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 10% 46%;
+    --accent: 215 40% 45%;
+    /* Slightly more blueish slate for SC */
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 142 30% 45%;
+    --success-foreground: 0 0% 100%;
+    --info: 200 30% 45%;
+    /* Teal-ish Info for SC */
+    --info-foreground: 0 0% 100%;
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 53 98% 53%;
+    --radius: 0.375rem;
+
+    --sidebar-background: 215 30% 12%;
+    /* Deeper navy sidebar for SC */
+    --sidebar-foreground: 215 15% 85%;
+    --sidebar-primary: 53 98% 53%;
+    --sidebar-primary-foreground: 240 5.9% 10%;
+    --sidebar-accent: 215 25% 18%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 215 20% 18%;
+    --sidebar-ring: 53 98% 53%;
+    --sidebar-muted: 215 15% 50%;
+  }
+
+  .dark .subcontractor-dashboard-theme {
+    --background: 215 25% 8%;
+    --foreground: 215 15% 92%;
+    --card: 215 22% 12%;
+    --card-foreground: 215 15% 92%;
+    --popover: 215 22% 12%;
+    --popover-foreground: 215 15% 92%;
+    --primary: 53 98% 53%;
+    --primary-foreground: 240 5.9% 10%;
+    --secondary: 215 20% 16%;
+    --secondary-foreground: 215 15% 92%;
+    --muted: 215 20% 16%;
+    --muted-foreground: 215 15% 55%;
+    --accent: 215 30% 60%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 142 30% 55%;
+    --success-foreground: 0 0% 100%;
+    --info: 200 30% 50%;
+    --info-foreground: 0 0% 100%;
+    --border: 215 20% 20%;
+    --input: 215 20% 20%;
+    --ring: 53 98% 53%;
+
+    --sidebar-background: 215 28% 8%;
+    --sidebar-foreground: 215 15% 85%;
+    --sidebar-primary: 53 98% 53%;
+    --sidebar-accent: 215 25% 14%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 215 18% 14%;
+    --sidebar-ring: 53 98% 53%;
+    --sidebar-muted: 215 15% 45%;
+  }
+
   /* Restoring .glass class */
   .glass {
     @apply bg-white/40 dark:bg-black/40 backdrop-blur-xl border border-black/5 dark:border-white/10;

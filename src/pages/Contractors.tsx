@@ -87,7 +87,7 @@ const USLocations = [
   "Wisconsin", "Wyoming"
 ].sort();
 
-const Contractors = () => {
+const Contractors = ({ showHeader = true }: { showHeader?: boolean }) => {
   const [params] = useSearchParams();
   const navigate = useNavigate();
 
@@ -343,7 +343,7 @@ const Contractors = () => {
       // Pass location as city if applicable, though backend support varies
       // For now, we rely on zip and other filters primarily.
 
-      const response = await companyService.searchCompanies(apiFilters);
+      const response = await companyService.searchCompanies(apiFilters) as any;
 
       if (response.success) {
         const mappedCompanies = response.data.map((item: any) =>
@@ -453,7 +453,7 @@ const Contractors = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <ReduxHeader />
+      {showHeader && <ReduxHeader />}
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div>
@@ -1023,7 +1023,7 @@ const Contractors = () => {
                           }
 
                           // Generate page numbers
-                          const pages = [];
+                          const pages: number[] = [];
                           for (let i = startPage; i <= endPage; i++) {
                             pages.push(i);
                           }
