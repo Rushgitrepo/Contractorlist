@@ -1,9 +1,11 @@
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Label } from "@/components/ui/label";
 import { 
   HelpCircle, 
   MessageSquare, 
@@ -19,204 +21,328 @@ import {
   Star,
   Shield,
   Zap,
-  Users
+  Users,
+  Send,
+  BookOpen,
+  Headphones,
+  AlertCircle,
+  TrendingUp,
+  Download
 } from "lucide-react";
 
 const HelpSupport = () => {
+  const [searchQuery, setSearchQuery] = useState('');
+
   const faqs = [
     {
       question: "How do I post a new project?",
-      answer: "Click the 'Post Project' button in the top navigation, fill out the project details form, and submit. You'll start receiving bids within 24 hours.",
-      category: "Getting Started"
+      answer: "Click the 'New Project' button in your dashboard, fill out the project details including title, description, budget, and timeline. You'll start receiving bids from qualified contractors within 24 hours.",
+      category: "Getting Started",
+      helpful: 245
     },
     {
       question: "How do I verify a contractor is legitimate?",
-      answer: "Look for the verified badge, check their license status, read reviews, and request references. All contractors on our platform undergo background checks.",
-      category: "Contractor Verification"
+      answer: "Look for the verified badge on their profile, check their license status, read reviews from other homeowners, and request references. All contractors on our platform undergo thorough background checks and license verification.",
+      category: "Contractor Verification",
+      helpful: 189
     },
     {
       question: "What payment methods are accepted?",
-      answer: "We accept all major credit cards, bank transfers, and digital wallets. Payments are processed securely through our escrow system.",
-      category: "Payments"
+      answer: "We accept all major credit cards (Visa, Mastercard, American Express), bank transfers, and digital wallets. All payments are processed securely through our encrypted payment system with escrow protection.",
+      category: "Payments",
+      helpful: 156
     },
     {
       question: "How does the escrow system work?",
-      answer: "Funds are held securely until project milestones are completed. You approve each phase before payment is released to the contractor.",
-      category: "Payments"
+      answer: "Funds are held securely in escrow until project milestones are completed and approved by you. This protects both you and the contractor. You review and approve each phase before payment is released.",
+      category: "Payments",
+      helpful: 203
     },
     {
       question: "Can I cancel a project after accepting a bid?",
-      answer: "Yes, but cancellation terms depend on the project stage. Review our cancellation policy or contact support for specific situations.",
-      category: "Project Management"
+      answer: "Yes, but cancellation terms depend on the project stage. Review our cancellation policy in your project agreement or contact support for specific situations. Early cancellations may incur minimal fees.",
+      category: "Project Management",
+      helpful: 134
+    },
+    {
+      question: "How do I compare multiple bids?",
+      answer: "Use our bid comparison tool in the Bid Management section. Compare pricing, timelines, contractor ratings, and proposal details side-by-side to make an informed decision.",
+      category: "Bidding",
+      helpful: 178
     }
   ];
 
   const supportTickets = [
     {
-      id: "HO-001",
-      subject: "Question about bid comparison",
+      id: "HO-2024-001",
+      subject: "Question about bid comparison feature",
       status: "Open",
       priority: "Medium",
-      created: "2 hours ago"
+      created: "2 hours ago",
+      lastUpdate: "2 hours ago"
     },
     {
-      id: "HO-002", 
-      subject: "Payment processing issue",
+      id: "HO-2024-002", 
+      subject: "Payment processing issue resolved",
       status: "Resolved",
       priority: "High",
-      created: "1 day ago"
+      created: "1 day ago",
+      lastUpdate: "5 hours ago"
     },
     {
-      id: "HO-003",
+      id: "HO-2024-003",
       subject: "Contractor communication problem",
       status: "In Progress",
       priority: "High",
-      created: "3 days ago"
+      created: "3 days ago",
+      lastUpdate: "1 day ago"
     }
   ];
 
   const guides = [
     {
-      title: "First-Time Homeowner's Guide",
-      description: "Everything you need to know about hiring contractors and managing home projects.",
+      title: "First-Time Homeowner's Complete Guide",
+      description: "Everything you need to know about hiring contractors, managing home projects, and getting the best value for your investment.",
       category: "Getting Started",
       readTime: "8 min read",
-      image: "https://lh3.googleusercontent.com/aida-public/AB6AXuCQub6A5Gfs4FK1gro1_kQZ_io6ltfvSXlHAMa4nsNUfG0k4PIvg4tHQWCnVWYRILwjk0fZUnlimfkpy2tO_8NyjH1GOlIcCwSlMwF6x_qPDZbLCdVH_cAx0KIQkBXpw6JgQUDD3QspBejV-RGF33I7zu4ZkonAebCv7t0hlPN_JVvN3WO5DQvXwV_alXX86BZvlrRwKsQFX9uaqtDxO10vSete-BH5_KpKL8H3ZHa1bRECg7ArAEnhuoQsJDK2gCoVrTjJw3bdLB3h"
+      views: "12.5K",
+      image: "/home1.jpeg"
     },
     {
-      title: "Understanding Project Bids",
-      description: "How to compare quotes, spot red flags, and choose the right contractor for your budget.",
+      title: "Understanding Project Bids & Proposals",
+      description: "Learn how to compare quotes effectively, spot red flags, negotiate pricing, and choose the right contractor for your budget and timeline.",
       category: "Bidding",
       readTime: "5 min read",
-      image: "https://lh3.googleusercontent.com/aida-public/AB6AXuAjCohTvMFAxfTSqkLC7BbdkGSFTgfPZxFSvzNfkxfz8perh7mmaQm4gico4ItU2eQ0cULibv7SsNOL31KjkCjCmU6jEE5RcD111ErWB8qhBvDbGsBCu7Ra_rVb7AnW22O_GCkkL0IGIN3NM3jw3c6SElwwIZZ5ZkvhDnfpHqkAvJFkR5sYOp9CdAdvZ6jjnEjeMkNhdNRWSTTLT8kRWPCiixtQGkd6VB0jB3VcgA8eylLsK6ZotT6-j-KeZtqrGpHoxB3NuHNQPSsR"
+      views: "9.8K",
+      image: "/home2.jpeg"
     },
     {
       title: "Project Management Best Practices",
-      description: "Tips for staying on schedule, managing budgets, and communicating effectively with contractors.",
+      description: "Expert tips for staying on schedule, managing budgets, communicating effectively with contractors, and ensuring quality work.",
       category: "Project Management",
       readTime: "12 min read",
-      image: "https://lh3.googleusercontent.com/aida-public/AB6AXuDdfvwqd5q85N0BkUuYkE-TmXeGgJqpm3CsNZaxUXAqp_n2XOQZ38zRI0w7aWCv3LuMEh947kooH-aZa9NMygn-uW8TJRgnlFnoA6TT9lWHXuxLF00FNxXFqV_gH-DE8A6uALiDK11CAc7rmdqk4K7FTp1EwI39X7LAk56o3a0U8juoMUXZO4GXnoEcx2Ia9oWTcoirAPyhjHYLapdOol0o0C-OkP2CyKM1I8JXtwGUU0OwNf3PlOf4AX4b4ZTnXKXFqXmbysPU2tsx"
+      views: "15.2K",
+      image: "/home3.jpeg"
+    },
+    {
+      title: "Contractor Verification Checklist",
+      description: "Step-by-step guide to verifying contractor credentials, checking licenses, reading reviews, and protecting yourself from fraud.",
+      category: "Safety",
+      readTime: "6 min read",
+      views: "11.3K",
+      image: "/home4.jpeg"
+    },
+    {
+      title: "Payment & Escrow Protection",
+      description: "Understanding how our escrow system works, payment milestones, dispute resolution, and keeping your money safe.",
+      category: "Payments",
+      readTime: "7 min read",
+      views: "8.9K",
+      image: "/home5.jpeg"
+    },
+    {
+      title: "Maximizing Your Project Success",
+      description: "Advanced strategies for getting the best results, building contractor relationships, and managing multiple projects efficiently.",
+      category: "Advanced",
+      readTime: "10 min read",
+      views: "6.7K",
+      image: "/home1.jpeg"
     }
   ];
 
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'Open': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400';
+      case 'In Progress': return 'bg-accent/20 text-accent border-accent/30';
+      case 'Resolved': return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400';
+      default: return 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400';
+    }
+  };
+
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'High': return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400';
+      case 'Medium': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400';
+      case 'Low': return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400';
+      default: return 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400';
+    }
+  };
+
   return (
-    <div className="p-6 space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
+    <div className="p-6 bg-gray-50/50 dark:bg-slate-950/50 min-h-screen">
+      <div className="max-w-6xl mx-auto space-y-8">
+        {/* Header */}
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
         <div>
-          <h1 className="text-3xl font-bold text-text-primary-light dark:text-text-primary-dark">Help & Support</h1>
-          <p className="text-text-secondary-light dark:text-text-secondary-dark mt-2">
+          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">
+            Help & Support
+          </h1>
+          <p className="text-gray-600 dark:text-gray-400 text-lg">
             Get help with your projects and find answers to common questions
           </p>
+          <div className="flex items-center gap-4 mt-3 text-sm text-gray-500 dark:text-gray-400">
+            <div className="flex items-center gap-1">
+              <Headphones className="w-4 h-4 text-accent" />
+              <span>24/7 support</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <Clock className="w-4 h-4 text-accent" />
+              <span>Avg response: 2 hours</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <Star className="w-4 h-4 text-accent" />
+              <span>4.9/5 satisfaction</span>
+            </div>
+          </div>
         </div>
       </div>
 
       {/* Search Bar */}
-      <Card className="bg-gradient-to-r from-primary/5 to-blue-500/5 border-primary/20">
-        <CardContent className="p-6">
+      <Card className="shadow-lg bg-gradient-to-r from-accent/10 to-accent/5 border-accent/20">
+        <CardContent className="p-8">
           <div className="text-center mb-6">
-            <h2 className="text-2xl font-bold text-text-primary-light dark:text-white mb-2">
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
               How can we help you today?
             </h2>
-            <p className="text-text-secondary-light dark:text-text-secondary-dark">
+            <p className="text-gray-600 dark:text-gray-400 text-lg">
               Search for articles, guides, or troubleshooting help
             </p>
           </div>
-          <div className="relative max-w-2xl mx-auto">
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+          <div className="relative max-w-3xl mx-auto">
+            <Search className="absolute left-5 top-1/2 transform -translate-y-1/2 text-gray-400 w-6 h-6" />
             <Input
               placeholder="e.g. How to verify a contractor or payment milestones"
-              className="pl-12 h-12 text-base"
+              className="pl-14 h-14 text-base shadow-lg"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
             />
-            <Button className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-primary hover:bg-blue-600 text-white">
+            <Button className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-accent hover:bg-accent/90 text-accent-foreground h-10 px-6 font-semibold">
               Search
             </Button>
           </div>
         </CardContent>
       </Card>
 
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card className="bg-gradient-to-br from-accent/10 to-accent/5 border-accent/20 hover:shadow-lg transition-shadow cursor-pointer">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-semibold text-accent">Articles</p>
+                <p className="text-3xl font-bold text-gray-900 dark:text-white">150+</p>
+              </div>
+              <div className="p-3 bg-accent/20 rounded-full">
+                <BookOpen className="w-6 h-6 text-accent" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900/50 dark:to-gray-800/50 border-gray-200 dark:border-gray-800 hover:shadow-lg transition-shadow cursor-pointer">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-semibold text-gray-600 dark:text-gray-400">Video Guides</p>
+                <p className="text-3xl font-bold text-gray-900 dark:text-white">45+</p>
+              </div>
+              <div className="p-3 bg-gray-200 dark:bg-gray-800 rounded-full">
+                <Video className="w-6 h-6 text-gray-600 dark:text-gray-400" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900/50 dark:to-gray-800/50 border-gray-200 dark:border-gray-800 hover:shadow-lg transition-shadow cursor-pointer">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-semibold text-gray-600 dark:text-gray-400">Active Tickets</p>
+                <p className="text-3xl font-bold text-gray-900 dark:text-white">2</p>
+              </div>
+              <div className="p-3 bg-gray-200 dark:bg-gray-800 rounded-full">
+                <MessageSquare className="w-6 h-6 text-gray-600 dark:text-gray-400" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900/50 dark:to-gray-800/50 border-gray-200 dark:border-gray-800 hover:shadow-lg transition-shadow cursor-pointer">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-semibold text-gray-600 dark:text-gray-400">Satisfaction</p>
+                <p className="text-3xl font-bold text-gray-900 dark:text-white">4.9</p>
+              </div>
+              <div className="p-3 bg-gray-200 dark:bg-gray-800 rounded-full">
+                <Star className="w-6 h-6 text-gray-600 dark:text-gray-400" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
       <Tabs defaultValue="faq" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="faq">FAQ</TabsTrigger>
-          <TabsTrigger value="guides">Guides</TabsTrigger>
-          <TabsTrigger value="contact">Contact Support</TabsTrigger>
-          <TabsTrigger value="tickets">My Tickets</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-4 bg-gray-100 dark:bg-gray-800 h-12">
+          <TabsTrigger value="faq" className="font-semibold text-sm">FAQ</TabsTrigger>
+          <TabsTrigger value="guides" className="font-semibold text-sm">Guides</TabsTrigger>
+          <TabsTrigger value="contact" className="font-semibold text-sm">Contact Support</TabsTrigger>
+          <TabsTrigger value="tickets" className="font-semibold text-sm">My Tickets</TabsTrigger>
         </TabsList>
 
         <TabsContent value="faq" className="space-y-6">
           {/* Popular Topics */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <Card className="hover:shadow-md transition-shadow cursor-pointer group">
-              <CardContent className="p-4 text-center">
-                <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center mx-auto mb-3 group-hover:bg-primary group-hover:text-white transition-colors">
-                  <HelpCircle className="w-6 h-6 text-blue-600 dark:text-blue-400 group-hover:text-white" />
-                </div>
-                <h3 className="font-semibold text-sm mb-1">Getting Started</h3>
-                <p className="text-xs text-text-secondary-light dark:text-text-secondary-dark">
-                  Basic platform usage
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="hover:shadow-md transition-shadow cursor-pointer group">
-              <CardContent className="p-4 text-center">
-                <div className="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center mx-auto mb-3 group-hover:bg-primary group-hover:text-white transition-colors">
-                  <Shield className="w-6 h-6 text-green-600 dark:text-green-400 group-hover:text-white" />
-                </div>
-                <h3 className="font-semibold text-sm mb-1">Verification</h3>
-                <p className="text-xs text-text-secondary-light dark:text-text-secondary-dark">
-                  Contractor vetting
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="hover:shadow-md transition-shadow cursor-pointer group">
-              <CardContent className="p-4 text-center">
-                <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center mx-auto mb-3 group-hover:bg-primary group-hover:text-white transition-colors">
-                  <Zap className="w-6 h-6 text-purple-600 dark:text-purple-400 group-hover:text-white" />
-                </div>
-                <h3 className="font-semibold text-sm mb-1">Payments</h3>
-                <p className="text-xs text-text-secondary-light dark:text-text-secondary-dark">
-                  Billing & escrow
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="hover:shadow-md transition-shadow cursor-pointer group">
-              <CardContent className="p-4 text-center">
-                <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900/30 rounded-lg flex items-center justify-center mx-auto mb-3 group-hover:bg-primary group-hover:text-white transition-colors">
-                  <Users className="w-6 h-6 text-orange-600 dark:text-orange-400 group-hover:text-white" />
-                </div>
-                <h3 className="font-semibold text-sm mb-1">Projects</h3>
-                <p className="text-xs text-text-secondary-light dark:text-text-secondary-dark">
-                  Managing work
-                </p>
-              </CardContent>
-            </Card>
+            {[
+              { icon: HelpCircle, title: 'Getting Started', desc: 'Basic platform usage', color: 'blue' },
+              { icon: Shield, title: 'Verification', desc: 'Contractor vetting', color: 'green' },
+              { icon: Zap, title: 'Payments', desc: 'Billing & escrow', color: 'purple' },
+              { icon: Users, title: 'Projects', desc: 'Managing work', color: 'orange' }
+            ].map((topic, index) => (
+              <Card key={index} className="hover:shadow-lg transition-all cursor-pointer group border-gray-200 dark:border-gray-800">
+                <CardContent className="p-6 text-center">
+                  <div className={`w-14 h-14 bg-${topic.color}-100 dark:bg-${topic.color}-900/30 rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:bg-accent group-hover:scale-110 transition-all`}>
+                    <topic.icon className={`w-7 h-7 text-${topic.color}-600 dark:text-${topic.color}-400 group-hover:text-accent-foreground`} />
+                  </div>
+                  <h3 className="font-bold text-base mb-1 text-gray-900 dark:text-white">{topic.title}</h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    {topic.desc}
+                  </p>
+                </CardContent>
+              </Card>
+            ))}
           </div>
 
           {/* FAQ List */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <HelpCircle className="h-5 w-5" />
+          <Card className="shadow-lg border-gray-200 dark:border-gray-800">
+            <CardHeader className="border-b border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900">
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <HelpCircle className="h-5 w-5 text-accent" />
                 Frequently Asked Questions
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
+            <CardContent className="p-6">
+              <div className="space-y-3">
                 {faqs.map((faq, index) => (
-                  <details key={index} className="group rounded-lg border border-border-light dark:border-border-dark p-4 [&_summary::-webkit-details-marker]:hidden">
-                    <summary className="flex cursor-pointer items-center justify-between gap-1.5 text-text-primary-light dark:text-white font-medium">
-                      <div className="flex items-center gap-3">
-                        <h3 className="text-base">{faq.question}</h3>
+                  <details key={index} className="group rounded-xl border border-gray-200 dark:border-gray-800 p-5 hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors [&_summary::-webkit-details-marker]:hidden">
+                    <summary className="flex cursor-pointer items-center justify-between gap-3">
+                      <div className="flex items-center gap-3 flex-1">
+                        <h3 className="text-base font-semibold text-gray-900 dark:text-white">{faq.question}</h3>
                         <Badge variant="secondary" className="text-xs">{faq.category}</Badge>
                       </div>
-                      <ChevronRight className="h-4 w-4 text-gray-500 transition group-open:rotate-90" />
+                      <ChevronRight className="h-5 w-5 text-gray-500 transition-transform group-open:rotate-90" />
                     </summary>
-                    <p className="mt-4 leading-relaxed text-text-secondary-light dark:text-text-secondary-dark text-sm">
-                      {faq.answer}
-                    </p>
+                    <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-800">
+                      <p className="leading-relaxed text-gray-700 dark:text-gray-300 text-sm mb-4">
+                        {faq.answer}
+                      </p>
+                      <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+                        <button className="flex items-center gap-1 hover:text-accent transition-colors">
+                          <TrendingUp className="w-4 h-4" />
+                          <span>{faq.helpful} found this helpful</span>
+                        </button>
+                      </div>
+                    </div>
                   </details>
                 ))}
               </div>
@@ -227,27 +353,31 @@ const HelpSupport = () => {
         <TabsContent value="guides" className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {guides.map((guide, index) => (
-              <Card key={index} className="hover:shadow-lg transition-shadow cursor-pointer overflow-hidden">
+              <Card key={index} className="hover:shadow-xl transition-all cursor-pointer overflow-hidden group border-gray-200 dark:border-gray-800">
                 <div 
-                  className="h-48 bg-cover bg-center"
+                  className="h-48 bg-cover bg-center group-hover:scale-105 transition-transform duration-300"
                   style={{ backgroundImage: `url(${guide.image})` }}
                 />
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-2 mb-2">
+                <CardContent className="p-5">
+                  <div className="flex items-center gap-2 mb-3">
                     <Badge variant="secondary" className="text-xs">{guide.category}</Badge>
-                    <span className="text-xs text-text-secondary-light dark:text-text-secondary-dark">
+                    <span className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
+                      <Clock className="w-3 h-3" />
                       {guide.readTime}
                     </span>
                   </div>
-                  <h3 className="font-bold text-base mb-2 text-text-primary-light dark:text-white">
+                  <h3 className="font-bold text-base mb-2 text-gray-900 dark:text-white group-hover:text-accent transition-colors">
                     {guide.title}
                   </h3>
-                  <p className="text-sm text-text-secondary-light dark:text-text-secondary-dark line-clamp-2">
+                  <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 mb-4">
                     {guide.description}
                   </p>
-                  <Button variant="outline" size="sm" className="w-full mt-4">
-                    Read Guide
-                  </Button>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-gray-500 dark:text-gray-400">{guide.views} views</span>
+                    <Button size="sm" className="bg-accent hover:bg-accent/90 text-accent-foreground">
+                      Read Guide
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
             ))}
@@ -257,78 +387,88 @@ const HelpSupport = () => {
         <TabsContent value="contact" className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Contact Information */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Contact Information</CardTitle>
+            <Card className="shadow-lg border-gray-200 dark:border-gray-800">
+              <CardHeader className="border-b border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900">
+                <CardTitle className="text-lg">Contact Information</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center gap-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                  <Phone className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                  <div>
-                    <p className="font-medium">Phone Support</p>
-                    <p className="text-sm text-text-secondary-light dark:text-text-secondary-dark">1-800-HOMEOWNER</p>
-                    <p className="text-xs text-text-secondary-light dark:text-text-secondary-dark">Mon-Fri, 9AM-6PM EST</p>
+              <CardContent className="p-6 space-y-4">
+                {[
+                  { 
+                    icon: Phone, 
+                    title: 'Phone Support', 
+                    detail: '1-800-HOMEOWNER', 
+                    subtext: 'Mon-Fri, 9AM-6PM EST',
+                    color: 'blue',
+                    action: 'Call Now'
+                  },
+                  { 
+                    icon: Mail, 
+                    title: 'Email Support', 
+                    detail: 'support@contractorslist.com', 
+                    subtext: 'Response within 24 hours',
+                    color: 'green',
+                    action: 'Send Email'
+                  },
+                  { 
+                    icon: MessageSquare, 
+                    title: 'Live Chat', 
+                    detail: 'Available 24/7', 
+                    subtext: 'Average wait time: 2 minutes',
+                    color: 'purple',
+                    action: 'Start Chat'
+                  },
+                  { 
+                    icon: Bot, 
+                    title: 'AI Assistant', 
+                    detail: 'Instant help', 
+                    subtext: 'Common questions answered instantly',
+                    color: 'indigo',
+                    action: 'Ask AI'
+                  }
+                ].map((contact, index) => (
+                  <div key={index} className="flex items-center gap-4 p-5 bg-gray-50 dark:bg-gray-900 rounded-xl hover:shadow-md transition-shadow">
+                    <div className={`p-3 bg-${contact.color}-100 dark:bg-${contact.color}-900/30 rounded-xl`}>
+                      <contact.icon className={`h-6 w-6 text-${contact.color}-600 dark:text-${contact.color}-400`} />
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-semibold text-gray-900 dark:text-white">{contact.title}</p>
+                      <p className="text-sm text-gray-700 dark:text-gray-300">{contact.detail}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">{contact.subtext}</p>
+                    </div>
+                    <Button size="sm" className="bg-accent hover:bg-accent/90 text-accent-foreground">
+                      {contact.action}
+                    </Button>
                   </div>
-                </div>
-                
-                <div className="flex items-center gap-3 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                  <Mail className="h-5 w-5 text-green-600 dark:text-green-400" />
-                  <div>
-                    <p className="font-medium">Email Support</p>
-                    <p className="text-sm text-text-secondary-light dark:text-text-secondary-dark">homeowner-support@contractorslist.com</p>
-                    <p className="text-xs text-text-secondary-light dark:text-text-secondary-dark">Response within 24 hours</p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3 p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
-                  <MessageSquare className="h-5 w-5 text-purple-600 dark:text-purple-400" />
-                  <div className="flex-1">
-                    <p className="font-medium">Live Chat</p>
-                    <p className="text-sm text-text-secondary-light dark:text-text-secondary-dark">Available 24/7</p>
-                  </div>
-                  <Button size="sm" className="bg-purple-600 hover:bg-purple-700 text-white">
-                    Start Chat
-                  </Button>
-                </div>
-
-                <div className="flex items-center gap-3 p-3 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg">
-                  <Bot className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
-                  <div className="flex-1">
-                    <p className="font-medium">AI Assistant</p>
-                    <p className="text-sm text-text-secondary-light dark:text-text-secondary-dark">Instant help with common questions</p>
-                  </div>
-                  <Button size="sm" className="bg-indigo-600 hover:bg-indigo-700 text-white">
-                    Ask AI
-                  </Button>
-                </div>
+                ))}
               </CardContent>
             </Card>
 
             {/* Submit Ticket */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Submit a Support Ticket</CardTitle>
+            <Card className="shadow-lg border-gray-200 dark:border-gray-800">
+              <CardHeader className="border-b border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900">
+                <CardTitle className="text-lg">Submit a Support Ticket</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="p-6 space-y-4">
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Subject</label>
-                  <Input placeholder="Brief description of your issue" />
+                  <Label htmlFor="subject" className="text-sm font-semibold">Subject</Label>
+                  <Input id="subject" placeholder="Brief description of your issue" className="h-11" />
                 </div>
                 
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Category</label>
-                  <select className="w-full p-2 border border-border-light dark:border-border-dark rounded-md bg-background-light dark:bg-background-dark">
+                  <Label htmlFor="category" className="text-sm font-semibold">Category</Label>
+                  <select id="category" className="w-full h-11 px-3 rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-950">
                     <option>General Question</option>
                     <option>Technical Issue</option>
                     <option>Billing Problem</option>
                     <option>Contractor Dispute</option>
                     <option>Account Issue</option>
+                    <option>Feature Request</option>
                   </select>
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Priority</label>
-                  <select className="w-full p-2 border border-border-light dark:border-border-dark rounded-md bg-background-light dark:bg-background-dark">
+                  <Label htmlFor="priority" className="text-sm font-semibold">Priority</Label>
+                  <select id="priority" className="w-full h-11 px-3 rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-950">
                     <option>Low</option>
                     <option>Medium</option>
                     <option>High</option>
@@ -337,14 +477,16 @@ const HelpSupport = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Description</label>
+                  <Label htmlFor="description" className="text-sm font-semibold">Description</Label>
                   <Textarea 
+                    id="description"
                     placeholder="Please provide detailed information about your issue..."
-                    rows={4}
+                    rows={5}
                   />
                 </div>
 
-                <Button className="w-full bg-primary hover:bg-blue-600 text-white">
+                <Button className="w-full h-11 bg-accent hover:bg-accent/90 text-accent-foreground font-semibold gap-2">
+                  <Send className="w-4 h-4" />
                   Submit Ticket
                 </Button>
               </CardContent>
@@ -353,45 +495,51 @@ const HelpSupport = () => {
         </TabsContent>
 
         <TabsContent value="tickets" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>My Support Tickets</CardTitle>
+          <Card className="shadow-lg border-gray-200 dark:border-gray-800">
+            <CardHeader className="border-b border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-lg">My Support Tickets</CardTitle>
+                <Button size="sm" className="bg-accent hover:bg-accent/90 text-accent-foreground gap-2">
+                  <Send className="w-4 h-4" />
+                  New Ticket
+                </Button>
+              </div>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-6">
               <div className="space-y-4">
                 {supportTickets.map((ticket) => (
-                  <div key={ticket.id} className="border border-border-light dark:border-border-dark rounded-lg p-4 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
-                    <div className="flex items-center justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2">
-                          <span className="font-mono text-sm text-text-secondary-light dark:text-text-secondary-dark">{ticket.id}</span>
-                          <Badge 
-                            className={`text-xs ${
-                              ticket.status === 'Resolved' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' :
-                              ticket.status === 'In Progress' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400' :
-                              'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400'
-                            }`}
-                          >
-                            {ticket.status === 'Resolved' ? (
-                              <CheckCircle className="h-3 w-3 mr-1" />
-                            ) : (
-                              <Clock className="h-3 w-3 mr-1" />
-                            )}
-                            {ticket.status}
-                          </Badge>
-                          <Badge 
-                            variant={ticket.priority === 'High' ? 'destructive' : 'outline'}
-                            className="text-xs"
-                          >
-                            {ticket.priority}
-                          </Badge>
+                  <Card key={ticket.id} className="border-gray-200 dark:border-gray-800 hover:shadow-lg transition-shadow">
+                    <CardContent className="p-5">
+                      <div className="flex items-start justify-between mb-4">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-2">
+                            <span className="font-mono text-sm font-semibold text-accent">{ticket.id}</span>
+                            <Badge className={`text-xs ${getStatusColor(ticket.status)}`}>
+                              {ticket.status === 'Resolved' && <CheckCircle className="h-3 w-3 mr-1" />}
+                              {ticket.status === 'In Progress' && <Clock className="h-3 w-3 mr-1" />}
+                              {ticket.status === 'Open' && <AlertCircle className="h-3 w-3 mr-1" />}
+                              {ticket.status}
+                            </Badge>
+                            <Badge className={`text-xs ${getPriorityColor(ticket.priority)}`}>
+                              {ticket.priority}
+                            </Badge>
+                          </div>
+                          <h3 className="font-bold text-base text-gray-900 dark:text-white mb-2">{ticket.subject}</h3>
+                          <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
+                            <span className="flex items-center gap-1">
+                              <Clock className="w-4 h-4" />
+                              Created {ticket.created}
+                            </span>
+                            <span>•</span>
+                            <span>Last update {ticket.lastUpdate}</span>
+                          </div>
                         </div>
-                        <h3 className="font-semibold text-text-primary-light dark:text-white mb-1">{ticket.subject}</h3>
-                        <p className="text-sm text-text-secondary-light dark:text-text-secondary-dark">Created {ticket.created}</p>
+                        <Button variant="outline" size="sm" className="hover:bg-accent/10 border-accent/20 text-accent">
+                          View Details
+                        </Button>
                       </div>
-                      <Button variant="outline" size="sm">View Details</Button>
-                    </div>
-                  </div>
+                    </CardContent>
+                  </Card>
                 ))}
               </div>
             </CardContent>
@@ -401,50 +549,52 @@ const HelpSupport = () => {
 
       {/* Resource Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-          <CardContent className="p-6 text-center">
-            <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center mx-auto mb-4">
-              <FileText className="w-6 h-6 text-blue-600 dark:text-blue-400" />
-            </div>
-            <h3 className="font-semibold mb-2">User Guide</h3>
-            <p className="text-sm text-text-secondary-light dark:text-text-secondary-dark mb-4">
-              Complete homeowner platform guide
-            </p>
-            <Button variant="outline" size="sm" className="w-full">
-              Download PDF
-            </Button>
-          </CardContent>
-        </Card>
+        {[
+          { 
+            icon: FileText, 
+            title: 'User Guide', 
+            desc: 'Complete homeowner platform guide',
+            action: 'Download PDF',
+            color: 'blue'
+          },
+          { 
+            icon: Video, 
+            title: 'Video Tutorials', 
+            desc: 'Step-by-step video guides',
+            action: 'Watch Videos',
+            color: 'green'
+          },
+          { 
+            icon: Star, 
+            title: 'Best Practices', 
+            desc: 'Tips for successful projects',
+            action: 'View Tips',
+            color: 'purple'
+          }
+        ].map((resource, index) => (
+          <Card key={index} className="hover:shadow-xl transition-all cursor-pointer group border-gray-200 dark:border-gray-800">
+            <CardContent className="p-6 text-center">
+              <div className={`w-16 h-16 bg-${resource.color}-100 dark:bg-${resource.color}-900/30 rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:bg-accent group-hover:scale-110 transition-all`}>
+                <resource.icon className={`w-8 h-8 text-${resource.color}-600 dark:text-${resource.color}-400 group-hover:text-accent-foreground`} />
+              </div>
+              <h3 className="font-bold text-lg mb-2 text-gray-900 dark:text-white">{resource.title}</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                {resource.desc}
+              </p>
+              <Button variant="outline" size="sm" className="w-full hover:bg-accent/10 border-accent/20 text-accent gap-2">
+                <Download className="w-4 h-4" />
+                {resource.action}
+              </Button>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
 
-        <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-          <CardContent className="p-6 text-center">
-            <div className="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center mx-auto mb-4">
-              <Video className="w-6 h-6 text-green-600 dark:text-green-400" />
-            </div>
-            <h3 className="font-semibold mb-2">Video Tutorials</h3>
-            <p className="text-sm text-text-secondary-light dark:text-text-secondary-dark mb-4">
-              Step-by-step video guides
-            </p>
-            <Button variant="outline" size="sm" className="w-full">
-              Watch Videos
-            </Button>
-          </CardContent>
-        </Card>
-
-        <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-          <CardContent className="p-6 text-center">
-            <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center mx-auto mb-4">
-              <Star className="w-6 h-6 text-purple-600 dark:text-purple-400" />
-            </div>
-            <h3 className="font-semibold mb-2">Best Practices</h3>
-            <p className="text-sm text-text-secondary-light dark:text-text-secondary-dark mb-4">
-              Tips for successful projects
-            </p>
-            <Button variant="outline" size="sm" className="w-full">
-              View Tips
-            </Button>
-          </CardContent>
-        </Card>
+      {/* Bottom Info */}
+      <div className="flex items-center justify-center gap-2 text-gray-500 dark:text-gray-400 text-sm">
+        <Shield className="w-4 h-4 text-accent" />
+        <span>Need urgent help? Call our 24/7 emergency line: 1-800-URGENT-HELP</span>
+      </div>
       </div>
     </div>
   );

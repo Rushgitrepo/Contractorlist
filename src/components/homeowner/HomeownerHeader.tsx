@@ -7,29 +7,18 @@ import { cn } from '@/lib/utils';
 import {
   Search,
   Bell,
-  Plus,
   Menu,
   Moon,
   Sun,
-  Settings,
   User,
   LogOut,
-  HelpCircle,
   X,
   Command,
-  Clock,
   CheckCircle2,
-  AlertCircle,
   FileText,
   Building2,
   Users,
-  FolderOpen,
-  Eye,
-  Home,
-  MapPin,
-  Calendar,
-  DollarSign,
-  Sparkles
+  FolderOpen
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -43,17 +32,6 @@ import { useTheme } from '@/hooks/useTheme';
 import { useDispatch } from 'react-redux';
 import { logoutUser } from '@/store/slices/authSlice';
 import { AppDispatch } from '@/store';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface HomeownerHeaderProps {
   onMenuClick: () => void;
@@ -77,16 +55,6 @@ const HomeownerHeader = ({ onMenuClick }: HomeownerHeaderProps) => {
   const searchRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const [notifications] = useState(3); // Mock notification count
-  const [showPostProjectDialog, setShowPostProjectDialog] = useState(false);
-  const [projectForm, setProjectForm] = useState({
-    title: '',
-    description: '',
-    projectType: '',
-    budget: '',
-    location: '',
-    timeline: '',
-    urgency: 'medium'
-  });
 
   const handleLogout = async () => {
     await dispatch(logoutUser());
@@ -286,75 +254,6 @@ const HomeownerHeader = ({ onMenuClick }: HomeownerHeaderProps) => {
           <Sun className={cn("w-5 h-5 transition-all", isDark ? "rotate-90 scale-0 absolute" : "rotate-0 scale-100")} />
           <Moon className={cn("w-5 h-5 transition-all", isDark ? "rotate-0 scale-100" : "rotate-90 scale-0 absolute")} />
         </Button>
-
-        <Button onClick={() => setShowPostProjectDialog(true)} className="bg-accent hover:bg-accent/90 text-accent-foreground shadow-lg transition-all hover:shadow-xl font-semibold">
-          <Plus className="w-4 h-4 mr-2" />
-          <span className="hidden sm:inline">Post Project</span>
-          <span className="sm:hidden">Post</span>
-        </Button>
-
-        <Dialog open={showPostProjectDialog} onOpenChange={setShowPostProjectDialog}>
-          <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800">
-            <DialogHeader>
-              <DialogTitle className="text-2xl font-bold flex items-center gap-2 text-gray-900 dark:text-white">
-                <div className="w-10 h-10 rounded-xl bg-accent flex items-center justify-center">
-                  <Plus className="w-5 h-5 text-accent-foreground" />
-                </div>
-                Post New Project
-              </DialogTitle>
-              <DialogDescription className="text-gray-600 dark:text-gray-400">
-                Create a new project listing to get bids from qualified contractors
-              </DialogDescription>
-            </DialogHeader>
-
-            <div className="space-y-4 py-4">
-              <div className="space-y-2">
-                <Label htmlFor="title" className="text-sm font-semibold text-gray-900 dark:text-white">Project Title <span className="text-red-500">*</span></Label>
-                <Input id="title" placeholder="e.g., Kitchen Renovation, Backyard Deck, etc." value={projectForm.title} onChange={(e) => setProjectForm({ ...projectForm, title: e.target.value })} />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="description" className="text-sm font-semibold text-gray-900 dark:text-white">Project Description <span className="text-red-500">*</span></Label>
-                <Textarea id="description" placeholder="Describe your project in detail..." value={projectForm.description} onChange={(e) => setProjectForm({ ...projectForm, description: e.target.value })} className="min-h-[100px]" />
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="projectType" className="text-sm font-semibold text-gray-900 dark:text-white">Project Type <span className="text-red-500">*</span></Label>
-                  <Select value={projectForm.projectType} onValueChange={(value) => setProjectForm({ ...projectForm, projectType: value })}>
-                    <SelectTrigger><SelectValue placeholder="Select type" /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="residential">Residential</SelectItem>
-                      <SelectItem value="commercial">Commercial</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="budget" className="text-sm font-semibold text-gray-900 dark:text-white">Budget Range <span className="text-red-500">*</span></Label>
-                  <Select value={projectForm.budget} onValueChange={(value) => setProjectForm({ ...projectForm, budget: value })}>
-                    <SelectTrigger><SelectValue placeholder="Select budget" /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="under-25k">Under $25,000</SelectItem>
-                      <SelectItem value="25k-50k">$25,000 - $50,000</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              <div className="p-4 bg-accent/10 dark:bg-accent/20 rounded-lg border border-accent/20 dark:border-accent/30">
-                <div className="flex items-start gap-3">
-                  <Sparkles className="w-5 h-5 text-accent" />
-                  <div className="flex-1">
-                    <h4 className="font-semibold text-sm text-gray-900 dark:text-white mb-1">AI Suggestion</h4>
-                    <p className="text-xs text-gray-600 dark:text-gray-400">Detailed requirements help get accurate bids.</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <DialogFooter className="gap-2">
-              <Button variant="outline" onClick={() => setShowPostProjectDialog(false)}>Cancel</Button>
-              <Button onClick={() => setShowPostProjectDialog(false)} className="bg-accent hover:bg-accent/90 text-accent-foreground font-semibold">Post Project</Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

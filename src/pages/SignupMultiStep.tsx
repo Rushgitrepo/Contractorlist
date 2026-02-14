@@ -631,7 +631,7 @@ const SignupMultiStep = () => {
           projectType: formData.projectType,
           budgetRange: formData.budget,
           timeline: formData.timeline,
-          propertySize: formData.propertySize ? Number(formData.propertySize) : undefined,
+          propertySize: formData.propertySize || undefined,
           financingStatus: formData.financingStatus,
           address: formData.address, // Property address
           companyName: formData.companyName, // Optional for client
