@@ -5,6 +5,16 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Progress } from '@/components/ui/progress';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import {
   Search,
   Star,
@@ -45,7 +55,9 @@ import {
   Calendar,
   DollarSign,
   Target,
-  Briefcase
+  Briefcase,
+  Send,
+  UserPlus
 } from 'lucide-react';
 
 interface Contractor {
@@ -89,6 +101,10 @@ const ContractorDirectory = () => {
   const [savedContractors, setSavedContractors] = useState<number[]>([1, 3, 7]);
   const [sortBy, setSortBy] = useState('rating');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
+  const [selectedContractor, setSelectedContractor] = useState<Contractor | null>(null);
+  const [inviteMessage, setInviteMessage] = useState('');
+  const [selectedProject, setSelectedProject] = useState('');
 
   useEffect(() => {
     const timer = setTimeout(() => setIsLoading(false), 1000);
@@ -430,6 +446,24 @@ const ContractorDirectory = () => {
         ? prev.filter(id => id !== contractorId)
         : [...prev, contractorId]
     );
+  };
+
+  const handleInviteToBid = (contractor: Contractor) => {
+    setSelectedContractor(contractor);
+    setInviteDialogOpen(true);
+    setInviteMessage(`Hi ${contractor.name},\n\nI'm interested in getting a bid for my project. Please review the details and let me know if you're available.\n\nLooking forward to hearing from you!`);
+  };
+
+  const handleSendInvite = () => {
+    if (!selectedProject) {
+      alert('Please select a project');
+      return;
+    }
+    alert(`Invitation sent to ${selectedContractor?.name} for project: ${selectedProject}`);
+    setInviteDialogOpen(false);
+    setInviteMessage('');
+    setSelectedProject('');
+    setSelectedContractor(null);
   };
 
   const filteredContractors = contractors
@@ -808,21 +842,33 @@ const ContractorDirectory = () => {
                     </div>
 
                     {/* Actions */}
-                    <div className="flex gap-2">
+                    <div className="space-y-2">
                       <Button 
                         size="sm" 
-                        className="flex-1 bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-white font-semibold"
+                        className="w-full bg-accent hover:bg-accent/90 text-accent-foreground font-semibold gap-2"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleInviteToBid(contractor);
+                        }}
                       >
-                        View Profile
+                        <UserPlus className="w-4 h-4" />
+                        Invite to Bid
                       </Button>
-                      <Button variant="outline" size="sm" className="gap-1 hover:bg-yellow-50">
-                        <MessageSquare className="w-3 h-3" />
-                        Chat
-                      </Button>
-                      <Button variant="outline" size="sm" className="gap-1 hover:bg-yellow-50">
-                        <Phone className="w-3 h-3" />
-                        Call
-                      </Button>
+                      <div className="flex gap-2">
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          className="flex-1 hover:bg-gray-50 dark:hover:bg-gray-800"
+                        >
+                          View Profile
+                        </Button>
+                        <Button variant="outline" size="sm" className="gap-1 hover:bg-gray-50 dark:hover:bg-gray-800">
+                          <MessageSquare className="w-3 h-3" />
+                        </Button>
+                        <Button variant="outline" size="sm" className="gap-1 hover:bg-gray-50 dark:hover:bg-gray-800">
+                          <Phone className="w-3 h-3" />
+                        </Button>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
@@ -831,6 +877,103 @@ const ContractorDirectory = () => {
           )}
         </div>
       </div>
+
+      {/* Invite to Bid Dialog */}
+      <Dialog open={inviteDialogOpen} onOpenChange={setInviteDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-2xl">Invite to Bid</DialogTitle>
+            <DialogDescription>
+              Send an invitation to {selectedContractor?.name} to bid on your project
+            </DialogDescription>
+          </DialogHeader>
+
+          {selectedContractor && (
+            <div className="space-y-6 mt-4">
+              {/* Contractor Info */}
+              <Card className="bg-gradient-to-r from-accent/10 to-accent/5 border-accent/20">
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-4">
+                    <div 
+                      className="w-16 h-16 rounded-xl bg-cover bg-center shadow-md ring-2 ring-white"
+                      style={{ backgroundImage: `url(${selectedContractor.image})` }}
+                    />
+                    <div className="flex-1">
+                      <h3 className="font-bold text-lg text-gray-900 dark:text-white">
+                        {selectedContractor.name}
+                      </h3>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        {selectedContractor.trade} • {selectedContractor.yearsExperience} years experience
+                      </p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <Star className="w-4 h-4 text-yellow-400 fill-current" />
+                        <span className="text-sm font-semibold">{selectedContractor.rating}</span>
+                        <span className="text-sm text-gray-500">({selectedContractor.reviews} reviews)</span>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Select Project */}
+              <div className="space-y-2">
+                <Label htmlFor="project" className="text-sm font-semibold">Select Project</Label>
+                <select
+                  id="project"
+                  value={selectedProject}
+                  onChange={(e) => setSelectedProject(e.target.value)}
+                  className="w-full h-11 px-3 rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-950"
+                >
+                  <option value="">Choose a project...</option>
+                  <option value="Kitchen Renovation">Kitchen Renovation - $25,000</option>
+                  <option value="Backyard ADU Construction">Backyard ADU Construction - $45,000</option>
+                  <option value="Master Bathroom Remodel">Master Bathroom Remodel - $18,000</option>
+                </select>
+              </div>
+
+              {/* Message */}
+              <div className="space-y-2">
+                <Label htmlFor="message" className="text-sm font-semibold">Message (Optional)</Label>
+                <Textarea
+                  id="message"
+                  value={inviteMessage}
+                  onChange={(e) => setInviteMessage(e.target.value)}
+                  rows={6}
+                  placeholder="Add a personal message to your invitation..."
+                />
+              </div>
+
+              {/* Info Box */}
+              <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                <div className="flex gap-3">
+                  <Mail className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-semibold text-blue-900 dark:text-blue-200 mb-1">
+                      What happens next?
+                    </p>
+                    <p className="text-sm text-blue-800 dark:text-blue-300">
+                      The contractor will receive your invitation via email and SMS. They can review your project details and submit a bid within 48 hours.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <DialogFooter className="gap-2 mt-6">
+            <Button variant="outline" onClick={() => setInviteDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              className="bg-accent hover:bg-accent/90 text-accent-foreground font-semibold gap-2"
+              onClick={handleSendInvite}
+            >
+              <Send className="w-4 h-4" />
+              Send Invitation
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

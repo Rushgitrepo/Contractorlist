@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
+import { cn } from '@/lib/utils';
 import {
   Calendar,
   MapPin,
@@ -19,33 +20,42 @@ import {
   Share,
   FileText,
   MessageSquare,
-  Camera,
-  User,
   Plus,
   Filter,
-  Search,
-  Download,
-  Upload,
   Phone,
-  Mail,
-  AlertCircle,
   Target,
   Zap,
   Activity,
   BarChart3,
   Users
 } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import CreateProjectDialog from './CreateProjectDialog';
 
 const MyProjects = () => {
   const [selectedProject, setSelectedProject] = useState('kitchen');
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
-
-  // Simulate loading
-  useEffect(() => {
-    const timer = setTimeout(() => setIsLoading(false), 1000);
-    return () => clearTimeout(timer);
-  }, []);
+  const [createProjectOpen, setCreateProjectOpen] = useState(false);
+  const [manageProjectOpen, setManageProjectOpen] = useState(false);
+  const [editingMilestone, setEditingMilestone] = useState<string | null>(null);
+  const [uploadingDoc, setUploadingDoc] = useState(false);
 
   const projects = [
     {
@@ -144,7 +154,7 @@ const MyProjects = () => {
       description: '$3,250 payment approved for materials',
       time: '5 hours ago',
       icon: DollarSign,
-      color: 'text-blue-600',
+      color: 'text-accent',
       project: 'Kitchen Renovation'
     },
     {
@@ -169,7 +179,7 @@ const MyProjects = () => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'In Progress': return 'bg-blue-100 text-blue-800 border-blue-200';
+      case 'In Progress': return 'bg-accent/20 text-accent border-accent/30';
       case 'Planning': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
       case 'Bidding': return 'bg-purple-100 text-purple-800 border-purple-200';
       case 'Completed': return 'bg-green-100 text-green-800 border-green-200';
@@ -190,7 +200,7 @@ const MyProjects = () => {
   const getTimelineHealth = (health: string) => {
     switch (health) {
       case 'ahead': return { color: 'text-green-600', bg: 'bg-green-50', icon: TrendingUp };
-      case 'on-track': return { color: 'text-blue-600', bg: 'bg-blue-50', icon: Target };
+      case 'on-track': return { color: 'text-accent', bg: 'bg-accent/10', icon: Target };
       case 'behind': return { color: 'text-red-600', bg: 'bg-red-50', icon: AlertTriangle };
       default: return { color: 'text-gray-600', bg: 'bg-gray-50', icon: Clock };
     }
@@ -216,22 +226,22 @@ const MyProjects = () => {
               <span>Real-time updates</span>
             </div>
             <div className="flex items-center gap-1">
-              <BarChart3 className="w-4 h-4 text-blue-500" />
+              <BarChart3 className="w-4 h-4 text-accent" />
               <span>Budget tracking</span>
             </div>
             <div className="flex items-center gap-1">
-              <Zap className="w-4 h-4 text-yellow-500" />
+              <Zap className="w-4 h-4 text-accent" />
               <span>AI insights</span>
             </div>
           </div>
         </div>
         
         <div className="flex gap-3">
-          <Button variant="outline" className="gap-2 hover:bg-yellow-50 border-orange-200 text-orange-700">
-            <Download className="w-4 h-4" />
-            Export Report
+          <Button variant="outline" className="gap-2 hover:bg-accent/10 border-accent/20 text-accent">
+            <Filter className="w-4 h-4" />
+            Filter
           </Button>
-          <Button className="bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-white shadow-lg font-semibold gap-2">
+          <Button onClick={() => setCreateProjectOpen(true)} className="bg-accent hover:bg-accent/90 text-accent-foreground shadow-lg font-semibold gap-2">
             <Plus className="w-4 h-4" />
             New Project
           </Button>
@@ -240,57 +250,57 @@ const MyProjects = () => {
 
       {/* Project Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 border-blue-200 dark:border-blue-800">
+        <Card className="bg-gradient-to-br from-accent/10 to-accent/5 border-accent/20">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-semibold text-blue-700 dark:text-blue-400">Active Projects</p>
-                <p className="text-3xl font-bold text-blue-900 dark:text-blue-300">3</p>
+                <p className="text-sm font-semibold text-accent">Active Projects</p>
+                <p className="text-3xl font-bold text-gray-900 dark:text-white">3</p>
               </div>
-              <div className="p-3 bg-blue-200 dark:bg-blue-900/30 rounded-full">
-                <Activity className="w-6 h-6 text-blue-700 dark:text-blue-400" />
+              <div className="p-3 bg-accent/20 rounded-full">
+                <Activity className="w-6 h-6 text-accent" />
               </div>
             </div>
           </CardContent>
         </Card>
         
-        <Card className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 border-green-200 dark:border-green-800">
+        <Card className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900/50 dark:to-gray-800/50 border-gray-200 dark:border-gray-800">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-semibold text-green-700 dark:text-green-400">Total Budget</p>
-                <p className="text-3xl font-bold text-green-900 dark:text-green-300">$88K</p>
+                <p className="text-sm font-semibold text-gray-600 dark:text-gray-400">Total Budget</p>
+                <p className="text-3xl font-bold text-gray-900 dark:text-white">$88K</p>
               </div>
-              <div className="p-3 bg-green-200 dark:bg-green-900/30 rounded-full">
-                <DollarSign className="w-6 h-6 text-green-700 dark:text-green-400" />
+              <div className="p-3 bg-gray-200 dark:bg-gray-800 rounded-full">
+                <DollarSign className="w-6 h-6 text-gray-600 dark:text-gray-400" />
               </div>
             </div>
           </CardContent>
         </Card>
         
-        <Card className="bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20 border-orange-200 dark:border-orange-800">
+        <Card className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900/50 dark:to-gray-800/50 border-gray-200 dark:border-gray-800">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-semibold text-orange-700 dark:text-orange-400">Avg Progress</p>
-                <p className="text-3xl font-bold text-orange-900 dark:text-orange-300">33%</p>
+                <p className="text-sm font-semibold text-gray-600 dark:text-gray-400">Avg Progress</p>
+                <p className="text-3xl font-bold text-gray-900 dark:text-white">33%</p>
               </div>
-              <div className="p-3 bg-orange-200 dark:bg-orange-900/30 rounded-full">
-                <Target className="w-6 h-6 text-orange-700 dark:text-orange-400" />
+              <div className="p-3 bg-gray-200 dark:bg-gray-800 rounded-full">
+                <Target className="w-6 h-6 text-gray-600 dark:text-gray-400" />
               </div>
             </div>
           </CardContent>
         </Card>
         
-        <Card className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 border-purple-200 dark:border-purple-800">
+        <Card className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900/50 dark:to-gray-800/50 border-gray-200 dark:border-gray-800">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-semibold text-purple-700 dark:text-purple-400">On Schedule</p>
-                <p className="text-3xl font-bold text-purple-900 dark:text-purple-300">2/3</p>
+                <p className="text-sm font-semibold text-gray-600 dark:text-gray-400">On Schedule</p>
+                <p className="text-3xl font-bold text-gray-900 dark:text-white">2/3</p>
               </div>
-              <div className="p-3 bg-purple-200 dark:bg-purple-900/30 rounded-full">
-                <Clock className="w-6 h-6 text-purple-700 dark:text-purple-400" />
+              <div className="p-3 bg-gray-200 dark:bg-gray-800 rounded-full">
+                <Clock className="w-6 h-6 text-gray-600 dark:text-gray-400" />
               </div>
             </div>
           </CardContent>
@@ -329,7 +339,7 @@ const MyProjects = () => {
                 key={project.id}
                 className={`cursor-pointer transition-all duration-200 hover:shadow-xl ${
                   selectedProject === project.id 
-                    ? 'ring-2 ring-orange-400 shadow-lg bg-gradient-to-r from-orange-50 to-yellow-50 dark:from-orange-900/20 dark:to-yellow-900/20' 
+                    ? 'ring-2 ring-accent shadow-lg bg-gradient-to-r from-accent/5 to-yellow-50/30 dark:from-accent/10 dark:to-yellow-900/10' 
                     : 'hover:shadow-lg bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm'
                 }`}
                 onClick={() => setSelectedProject(project.id)}
@@ -372,12 +382,12 @@ const MyProjects = () => {
                       <span className="text-gray-600">
                         {project.phase}
                       </span>
-                      <span className="text-orange-600">{project.progress}%</span>
+                      <span className="text-accent">{project.progress}%</span>
                     </div>
                     <div className="relative">
                       <Progress value={project.progress} className="h-2 bg-gray-100" />
                       <div 
-                        className="absolute top-0 left-0 h-2 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full transition-all duration-500"
+                        className="absolute top-0 left-0 h-2 bg-gradient-to-r from-accent to-orange-500 rounded-full transition-all duration-500"
                         style={{ width: `${project.progress}%` }}
                       />
                     </div>
@@ -397,7 +407,7 @@ const MyProjects = () => {
         {/* Project Details */}
         <div className="lg:col-span-8">
           <Card className="h-full shadow-xl border-0 bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm">
-            <CardHeader className="border-b border-gray-100 dark:border-gray-800 bg-gradient-to-r from-gray-50 to-yellow-50/30 dark:from-gray-800 dark:to-yellow-900/10">
+            <CardHeader className="border-b border-gray-100 dark:border-gray-800 bg-gradient-to-r from-gray-50 to-accent/5 dark:from-gray-800 dark:to-accent/10">
               <div className="flex justify-between items-start">
                 <div className="flex items-center gap-4">
                   <div 
@@ -430,15 +440,38 @@ const MyProjects = () => {
                   </div>
                 </div>
                 <div className="flex gap-3">
-                  <Button variant="outline" size="sm" className="gap-2 hover:bg-yellow-50">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="gap-2 hover:bg-accent/10"
+                    onClick={() => {
+                      navigator.clipboard.writeText(window.location.href);
+                      alert('Project link copied to clipboard!');
+                    }}
+                  >
                     <Share className="w-4 h-4" />
                     Share
                   </Button>
-                  <Button variant="outline" size="sm" className="gap-2 hover:bg-yellow-50">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="gap-2 hover:bg-accent/10"
+                    onClick={() => {
+                      if (selectedProjectData.contractorPhone) {
+                        window.location.href = `tel:${selectedProjectData.contractorPhone}`;
+                      } else {
+                        alert('No phone number available');
+                      }
+                    }}
+                  >
                     <Phone className="w-4 h-4" />
                     Call Contractor
                   </Button>
-                  <Button size="sm" className="bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-white font-semibold gap-2">
+                  <Button 
+                    size="sm" 
+                    className="bg-accent hover:bg-accent/90 text-accent-foreground font-semibold gap-2"
+                    onClick={() => setManageProjectOpen(true)}
+                  >
                     <Edit className="w-4 h-4" />
                     Manage
                   </Button>
@@ -449,19 +482,19 @@ const MyProjects = () => {
             <CardContent className="p-6">
               <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
                 <TabsList className="grid w-full grid-cols-5 bg-gray-100 dark:bg-gray-800">
-                  <TabsTrigger value="overview" className="font-semibold text-gray-700 dark:text-gray-300 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700">Overview</TabsTrigger>
-                  <TabsTrigger value="timeline" className="font-semibold text-gray-700 dark:text-gray-300 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700">Timeline</TabsTrigger>
-                  <TabsTrigger value="budget" className="font-semibold text-gray-700 dark:text-gray-300 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700">Budget</TabsTrigger>
-                  <TabsTrigger value="documents" className="font-semibold text-gray-700 dark:text-gray-300 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700">Documents</TabsTrigger>
-                  <TabsTrigger value="team" className="font-semibold text-gray-700 dark:text-gray-300 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700">Team</TabsTrigger>
+                  <TabsTrigger value="overview" className="font-semibold">Overview</TabsTrigger>
+                  <TabsTrigger value="timeline" className="font-semibold">Timeline</TabsTrigger>
+                  <TabsTrigger value="budget" className="font-semibold">Budget</TabsTrigger>
+                  <TabsTrigger value="documents" className="font-semibold">Documents</TabsTrigger>
+                  <TabsTrigger value="team" className="font-semibold">Team</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="overview" className="space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {/* Progress Widget */}
-                    <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-blue-200 dark:border-blue-800">
+                    <Card className="bg-gradient-to-br from-accent/10 to-accent/5 border-accent/20">
                       <CardHeader>
-                        <CardTitle className="text-base font-bold text-blue-900 dark:text-blue-300 flex items-center gap-2">
+                        <CardTitle className="text-base font-bold text-accent flex items-center gap-2">
                           <Target className="w-5 h-5" />
                           Project Progress
                         </CardTitle>
@@ -471,14 +504,14 @@ const MyProjects = () => {
                           <div className="relative size-20 flex items-center justify-center">
                             <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
                               <path
-                                className="text-blue-200 dark:text-blue-900"
+                                className="text-gray-200"
                                 d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                                 fill="none"
                                 stroke="currentColor"
                                 strokeWidth="3"
                               />
                               <path
-                                className="text-blue-600 dark:text-blue-400"
+                                className="text-accent"
                                 d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                                 fill="none"
                                 stroke="currentColor"
@@ -486,18 +519,18 @@ const MyProjects = () => {
                                 strokeWidth="3"
                               />
                             </svg>
-                            <span className="absolute text-lg font-bold text-blue-900 dark:text-blue-300">
+                            <span className="absolute text-lg font-bold text-accent">
                               {selectedProjectData.progress}%
                             </span>
                           </div>
                           <div>
-                            <p className="text-lg font-bold text-blue-900 dark:text-blue-300 mb-1">
+                            <p className="text-lg font-bold text-gray-900 dark:text-white mb-1">
                               {selectedProjectData.phase}
                             </p>
-                            <p className="text-sm text-blue-700 dark:text-blue-400 mb-2">
+                            <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
                               Next: {selectedProjectData.nextMilestone}
                             </p>
-                            <p className="text-xs text-blue-600 dark:text-blue-500">
+                            <p className="text-xs text-gray-500">
                               Due: {new Date(selectedProjectData.milestoneDate).toLocaleDateString()}
                             </p>
                           </div>
@@ -509,7 +542,7 @@ const MyProjects = () => {
                             <span className="text-sm text-gray-700 dark:text-gray-300 line-through">Demolition Complete</span>
                           </div>
                           <div className="flex items-center gap-3">
-                            <div className="w-5 h-5 rounded-full bg-blue-500 dark:bg-blue-400 border-2 border-white dark:border-gray-800 shadow-sm" />
+                            <div className="w-5 h-5 rounded-full bg-accent border-2 border-white dark:border-gray-800 shadow-sm" />
                             <span className="text-sm font-semibold text-gray-900 dark:text-white">Cabinet Installation</span>
                           </div>
                           <div className="flex items-center gap-3">
@@ -594,115 +627,336 @@ const MyProjects = () => {
                   {/* AI Insights & Activity */}
                   <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
                     {/* AI Insight */}
-                    <Card className="md:col-span-2 bg-gradient-to-br from-orange-50 to-yellow-50 dark:from-orange-900/20 dark:to-yellow-900/20 border-orange-200 dark:border-orange-800">
+                    <Card className="md:col-span-2 bg-gradient-to-br from-accent/10 to-yellow-50/30 dark:from-accent/20 dark:to-yellow-900/20 border-accent/20">
                       <CardHeader>
-                        <CardTitle className="flex items-center gap-2 text-orange-900 dark:text-orange-300 text-base font-bold">
-                          <Zap className="w-5 h-5 text-orange-600 dark:text-orange-400" />
+                        <CardTitle className="flex items-center gap-2 text-accent text-base font-bold">
+                          <Zap className="w-5 h-5" />
                           AI Insights
                         </CardTitle>
                       </CardHeader>
                       <CardContent>
                         <div className="space-y-4">
-                          <div className="p-3 bg-white dark:bg-gray-800 rounded-lg border border-orange-100 dark:border-orange-900/50">
-                            <p className="text-sm text-orange-800 dark:text-orange-300 font-medium mb-2">
+                          <div className="p-3 bg-white dark:bg-gray-800 rounded-lg border border-accent/20">
+                            <p className="text-sm text-gray-800 dark:text-gray-200 font-medium mb-2">
                               Timeline Optimization
                             </p>
-                            <p className="text-xs text-orange-700 dark:text-orange-400 leading-relaxed">
+                            <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
                               Order countertops by Friday to maintain your 3-day lead. I found 3 suppliers with immediate availability.
                             </p>
                           </div>
-                          <div className="p-3 bg-white dark:bg-gray-800 rounded-lg border border-orange-100 dark:border-orange-900/50">
-                            <p className="text-sm text-orange-800 dark:text-orange-300 font-medium mb-2">
+                          <div className="p-3 bg-white dark:bg-gray-800 rounded-lg border border-accent/20">
+                            <p className="text-sm text-gray-800 dark:text-gray-200 font-medium mb-2">
                               Budget Alert
                             </p>
-                            <p className="text-xs text-orange-700 dark:text-orange-400 leading-relaxed">
-                              You're 3% under budget so far. Consider upgrading to premium fixtures within remaining budget.
+                            <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
+                              You're 5% under budget. Consider upgrading fixtures or adding contingency.
                             </p>
                           </div>
                         </div>
-                        <Button size="sm" className="w-full mt-4 bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-white font-semibold">
-                          View All Insights
-                        </Button>
                       </CardContent>
                     </Card>
 
                     {/* Recent Activity */}
-                    <Card className="md:col-span-3 bg-white dark:bg-slate-900">
+                    <Card className="md:col-span-3">
                       <CardHeader>
-                        <CardTitle className="text-base font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                          <Activity className="w-5 h-5" />
-                          Recent Activity
-                        </CardTitle>
+                        <CardTitle className="text-base font-bold">Recent Activity</CardTitle>
                       </CardHeader>
                       <CardContent>
                         <div className="space-y-4">
-                          {recentActivity.slice(0, 4).map((activity, index) => (
-                            <div key={index} className="flex gap-4 items-start">
-                              <div className={`bg-gray-50 dark:bg-gray-800 p-2 rounded-lg ${activity.color}`}>
-                                <activity.icon className="w-4 h-4" />
+                          {recentActivity.map((activity, index) => (
+                            <div key={index} className="flex items-start gap-3 p-3 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-colors">
+                              <div className={`p-2 rounded-lg bg-gray-100 dark:bg-gray-800`}>
+                                <activity.icon className={`w-4 h-4 ${activity.color}`} />
                               </div>
-                              <div className="flex-1">
-                                <p className="text-sm font-semibold text-gray-900 dark:text-white">
-                                  {activity.title}
-                                </p>
-                                <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">
-                                  {activity.description}
-                                </p>
-                                <p className="text-xs text-gray-500 dark:text-gray-500">
-                                  {activity.time} • {activity.project}
-                                </p>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-medium text-gray-900 dark:text-white">{activity.title}</p>
+                                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">{activity.description}</p>
+                                <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">{activity.time}</p>
                               </div>
-                              <Button size="sm" variant="outline" className="text-xs hover:bg-yellow-50 dark:hover:bg-yellow-900/20">
-                                View
-                              </Button>
                             </div>
                           ))}
                         </div>
-                        <Button variant="outline" className="w-full mt-4 hover:bg-gray-50 dark:hover:bg-gray-800">
-                          View All Activity
-                        </Button>
                       </CardContent>
                     </Card>
                   </div>
                 </TabsContent>
 
-                <TabsContent value="timeline">
-                  <div className="text-center py-12">
-                    <Calendar className="w-16 h-16 text-gray-400 dark:text-gray-600 mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Project Timeline</h3>
-                    <p className="text-gray-600 dark:text-gray-400">
-                      Detailed project timeline and milestone tracking will be displayed here.
-                    </p>
+                <TabsContent value="timeline" className="space-y-4">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Project Milestones</h3>
+                    <Button size="sm" className="bg-accent hover:bg-accent/90 text-accent-foreground">
+                      <Plus className="w-4 h-4 mr-2" />
+                      Add Milestone
+                    </Button>
+                  </div>
+
+                  <div className="space-y-4">
+                    {[
+                      { id: '1', name: 'Demolition', status: 'completed', date: '2024-01-20', progress: 100 },
+                      { id: '2', name: 'Cabinet Installation', status: 'in-progress', date: '2024-02-15', progress: 68 },
+                      { id: '3', name: 'Countertop Installation', status: 'pending', date: '2024-02-28', progress: 0 },
+                      { id: '4', name: 'Final Inspection', status: 'pending', date: '2024-03-15', progress: 0 },
+                    ].map((milestone) => (
+                      <Card key={milestone.id} className="border-gray-200 dark:border-gray-800">
+                        <CardContent className="p-4">
+                          <div className="flex items-start justify-between mb-3">
+                            <div className="flex items-start gap-3 flex-1">
+                              <div className="mt-1">
+                                {milestone.status === 'completed' && <CheckCircle className="w-5 h-5 text-green-600" />}
+                                {milestone.status === 'in-progress' && <Clock className="w-5 h-5 text-accent" />}
+                                {milestone.status === 'pending' && <div className="w-5 h-5 rounded-full border-2 border-gray-300" />}
+                              </div>
+                              <div className="flex-1">
+                                {editingMilestone === milestone.id ? (
+                                  <Input
+                                    defaultValue={milestone.name}
+                                    className="mb-2"
+                                    onBlur={() => setEditingMilestone(null)}
+                                    autoFocus
+                                  />
+                                ) : (
+                                  <h4 className="font-medium text-gray-900 dark:text-white mb-1">
+                                    {milestone.name}
+                                  </h4>
+                                )}
+                                <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+                                  <div className="flex items-center gap-1">
+                                    <Calendar className="w-4 h-4" />
+                                    <span>{new Date(milestone.date).toLocaleDateString()}</span>
+                                  </div>
+                                  <Badge
+                                    variant="outline"
+                                    className={cn(
+                                      'text-xs',
+                                      milestone.status === 'completed' && 'border-green-200 text-green-700',
+                                      milestone.status === 'in-progress' && 'border-accent/30 text-accent',
+                                      milestone.status === 'pending' && 'border-gray-200 text-gray-600'
+                                    )}
+                                  >
+                                    {milestone.status === 'completed' && 'Completed'}
+                                    {milestone.status === 'in-progress' && 'In Progress'}
+                                    {milestone.status === 'pending' && 'Pending'}
+                                  </Badge>
+                                </div>
+                                {milestone.status === 'in-progress' && (
+                                  <div className="mt-3">
+                                    <div className="flex items-center justify-between text-xs mb-1">
+                                      <span className="text-gray-600 dark:text-gray-400">Progress</span>
+                                      <span className="font-medium text-gray-900 dark:text-white">{milestone.progress}%</span>
+                                    </div>
+                                    <Progress value={milestone.progress} className="h-2" />
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="sm">
+                                  <MoreVertical className="w-4 h-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuItem onClick={() => setEditingMilestone(milestone.id)}>
+                                  <Edit className="w-4 h-4 mr-2" />
+                                  Edit
+                                </DropdownMenuItem>
+                                <DropdownMenuItem>Mark as Complete</DropdownMenuItem>
+                                <DropdownMenuItem className="text-red-600">Delete</DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
                   </div>
                 </TabsContent>
 
-                <TabsContent value="budget">
-                  <div className="text-center py-12">
-                    <BarChart3 className="w-16 h-16 text-gray-400 dark:text-gray-600 mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Budget Analysis</h3>
-                    <p className="text-gray-600 dark:text-gray-400">
-                      Comprehensive budget breakdown and financial tracking will be shown here.
-                    </p>
+                <TabsContent value="budget" className="space-y-4">
+                  <Card className="border-gray-200 dark:border-gray-800">
+                    <CardHeader>
+                      <div className="flex items-center justify-between">
+                        <CardTitle className="text-lg">Budget Breakdown</CardTitle>
+                        <Button size="sm" variant="outline">
+                          <Edit className="w-4 h-4 mr-2" />
+                          Edit Budget
+                        </Button>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-6">
+                        {/* Total Budget Overview */}
+                        <div className="p-6 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                          <div className="flex items-center justify-between mb-4">
+                            <div>
+                              <p className="text-sm text-gray-500 dark:text-gray-400">Total Budget</p>
+                              <p className="text-3xl font-bold text-gray-900 dark:text-white">
+                                ${selectedProjectData.budget.toLocaleString()}
+                              </p>
+                            </div>
+                            <div className="text-right">
+                              <p className="text-sm text-gray-500 dark:text-gray-400">Spent</p>
+                              <p className="text-3xl font-bold text-accent">
+                                ${selectedProjectData.spent.toLocaleString()}
+                              </p>
+                            </div>
+                            <div className="text-right">
+                              <p className="text-sm text-gray-500 dark:text-gray-400">Remaining</p>
+                              <p className="text-3xl font-bold text-green-600">
+                                ${selectedProjectData.remaining.toLocaleString()}
+                              </p>
+                            </div>
+                          </div>
+                          <Progress value={(selectedProjectData.spent / selectedProjectData.budget) * 100} className="h-3" />
+                          <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+                            {Math.round((selectedProjectData.spent / selectedProjectData.budget) * 100)}% of budget used
+                          </p>
+                        </div>
+
+                        {/* Budget Categories */}
+                        <div className="space-y-3">
+                          <h4 className="font-semibold text-gray-900 dark:text-white">Expense Categories</h4>
+                          {[
+                            { name: 'Materials', amount: 9800, budget: 12000, color: 'bg-accent' },
+                            { name: 'Labor', amount: 6450, budget: 10000, color: 'bg-blue-500' },
+                            { name: 'Permits & Fees', amount: 0, budget: 1500, color: 'bg-purple-500' },
+                            { name: 'Contingency', amount: 0, budget: 1500, color: 'bg-gray-500' },
+                          ].map((category) => (
+                            <div key={category.name} className="p-4 border border-gray-200 dark:border-gray-800 rounded-lg">
+                              <div className="flex items-center justify-between mb-2">
+                                <span className="font-medium text-gray-900 dark:text-white">{category.name}</span>
+                                <div className="text-right">
+                                  <span className="font-semibold text-gray-900 dark:text-white">
+                                    ${category.amount.toLocaleString()}
+                                  </span>
+                                  <span className="text-sm text-gray-500 dark:text-gray-400">
+                                    {' '}/ ${category.budget.toLocaleString()}
+                                  </span>
+                                </div>
+                              </div>
+                              <div className="relative">
+                                <div className="w-full bg-gray-100 dark:bg-gray-800 rounded-full h-2">
+                                  <div
+                                    className={`${category.color} h-2 rounded-full transition-all duration-500`}
+                                    style={{ width: `${(category.amount / category.budget) * 100}%` }}
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+
+                        {/* Recent Transactions */}
+                        <div>
+                          <div className="flex items-center justify-between mb-3">
+                            <h4 className="font-semibold text-gray-900 dark:text-white">Recent Transactions</h4>
+                            <Button size="sm" variant="outline">
+                              <Plus className="w-4 h-4 mr-2" />
+                              Add Expense
+                            </Button>
+                          </div>
+                          <div className="space-y-2">
+                            {[
+                              { date: '2024-02-10', description: 'Cabinet materials', amount: 3250, category: 'Materials' },
+                              { date: '2024-02-08', description: 'Labor - Week 3', amount: 2100, category: 'Labor' },
+                              { date: '2024-02-05', description: 'Countertop deposit', amount: 1500, category: 'Materials' },
+                            ].map((transaction, index) => (
+                              <div key={index} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                                <div className="flex-1">
+                                  <p className="font-medium text-sm text-gray-900 dark:text-white">{transaction.description}</p>
+                                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                                    {new Date(transaction.date).toLocaleDateString()} • {transaction.category}
+                                  </p>
+                                </div>
+                                <span className="font-semibold text-gray-900 dark:text-white">
+                                  ${transaction.amount.toLocaleString()}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                <TabsContent value="documents" className="space-y-4">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Project Documents</h3>
+                    <Button 
+                      size="sm" 
+                      className="bg-accent hover:bg-accent/90 text-accent-foreground"
+                      onClick={() => document.getElementById('file-upload')?.click()}
+                      disabled={uploadingDoc}
+                    >
+                      <Plus className="w-4 h-4 mr-2" />
+                      {uploadingDoc ? 'Uploading...' : 'Upload Document'}
+                    </Button>
+                    <input
+                      id="file-upload"
+                      type="file"
+                      className="hidden"
+                      onChange={(e) => {
+                        if (e.target.files?.[0]) {
+                          setUploadingDoc(true);
+                          setTimeout(() => {
+                            alert(`File "${e.target.files![0].name}" uploaded successfully!`);
+                            setUploadingDoc(false);
+                          }, 1500);
+                        }
+                      }}
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {[
+                      { name: 'Contract Agreement.pdf', size: '2.4 MB', date: '2024-01-15', type: 'PDF', icon: FileText },
+                      { name: 'Floor Plans.pdf', size: '5.1 MB', date: '2024-01-18', type: 'PDF', icon: FileText },
+                      { name: 'Material Invoice.pdf', size: '1.2 MB', date: '2024-02-05', type: 'PDF', icon: FileText },
+                      { name: 'Progress Photos.zip', size: '12.8 MB', date: '2024-02-10', type: 'ZIP', icon: FileText },
+                      { name: 'Permit Documents.pdf', size: '890 KB', date: '2024-01-20', type: 'PDF', icon: FileText },
+                      { name: 'Change Orders.pdf', size: '450 KB', date: '2024-02-08', type: 'PDF', icon: FileText },
+                    ].map((doc, index) => (
+                      <Card key={index} className="border-gray-200 dark:border-gray-800 hover:shadow-md transition-shadow">
+                        <CardContent className="p-4">
+                          <div className="flex items-start gap-3">
+                            <div className="p-2 bg-accent/10 rounded-lg">
+                              <doc.icon className="w-5 h-5 text-accent" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h4 className="font-medium text-sm text-gray-900 dark:text-white truncate">
+                                {doc.name}
+                              </h4>
+                              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                {doc.size} • {new Date(doc.date).toLocaleDateString()}
+                              </p>
+                            </div>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="sm">
+                                  <MoreVertical className="w-4 h-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuItem>
+                                  <Eye className="w-4 h-4 mr-2" />
+                                  View
+                                </DropdownMenuItem>
+                                <DropdownMenuItem>Download</DropdownMenuItem>
+                                <DropdownMenuItem>Share</DropdownMenuItem>
+                                <DropdownMenuItem className="text-red-600">Delete</DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
                   </div>
                 </TabsContent>
 
-                <TabsContent value="documents">
+                <TabsContent value="team" className="space-y-4">
                   <div className="text-center py-12">
-                    <FileText className="w-16 h-16 text-gray-400 dark:text-gray-600 mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Project Documents</h3>
-                    <p className="text-gray-600 dark:text-gray-400">
-                      Contracts, permits, invoices, and other project documents will be organized here.
-                    </p>
-                  </div>
-                </TabsContent>
-
-                <TabsContent value="team">
-                  <div className="text-center py-12">
-                    <Users className="w-16 h-16 text-gray-400 dark:text-gray-600 mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Project Team</h3>
-                    <p className="text-gray-600 dark:text-gray-400">
-                      Contractor details, team members, and communication tools will be available here.
-                    </p>
+                    <Users className="w-12 h-12 mx-auto mb-4 text-gray-400" />
+                    <p className="text-gray-600 dark:text-gray-400">Team view coming soon</p>
                   </div>
                 </TabsContent>
               </Tabs>
@@ -710,6 +964,147 @@ const MyProjects = () => {
           </Card>
         </div>
       </div>
+
+      {/* Create Project Dialog */}
+      <CreateProjectDialog open={createProjectOpen} onOpenChange={setCreateProjectOpen} />
+
+      {/* Manage Project Dialog */}
+      <Dialog open={manageProjectOpen} onOpenChange={setManageProjectOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-xl">Manage Project</DialogTitle>
+            <DialogDescription>
+              Update project details and settings
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-5 mt-4">
+            {/* Project Name */}
+            <div className="space-y-2">
+              <Label htmlFor="projectName">Project Name</Label>
+              <Input
+                id="projectName"
+                defaultValue={selectedProjectData.name}
+                placeholder="e.g., Kitchen Renovation"
+              />
+            </div>
+
+            {/* Contractor */}
+            <div className="space-y-2">
+              <Label htmlFor="contractor">Contractor</Label>
+              <Input
+                id="contractor"
+                defaultValue={selectedProjectData.contractor}
+                placeholder="Contractor name"
+              />
+            </div>
+
+            {/* Budget & Status */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="budget">Budget</Label>
+                <Input
+                  id="budget"
+                  type="number"
+                  defaultValue={selectedProjectData.budget}
+                  placeholder="25000"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="status">Status</Label>
+                <select
+                  id="status"
+                  defaultValue={selectedProjectData.status}
+                  className="w-full h-10 px-3 rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-950"
+                >
+                  <option value="In Progress">In Progress</option>
+                  <option value="Planning">Planning</option>
+                  <option value="Bidding">Bidding</option>
+                  <option value="Completed">Completed</option>
+                  <option value="On Hold">On Hold</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Dates */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="startDate">Start Date</Label>
+                <Input
+                  id="startDate"
+                  type="date"
+                  defaultValue={selectedProjectData.startDate}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="endDate">End Date</Label>
+                <Input
+                  id="endDate"
+                  type="date"
+                  defaultValue={selectedProjectData.endDate}
+                />
+              </div>
+            </div>
+
+            {/* Location */}
+            <div className="space-y-2">
+              <Label htmlFor="location">Location</Label>
+              <Input
+                id="location"
+                defaultValue={selectedProjectData.location}
+                placeholder="123 Maple Dr, Austin, TX"
+              />
+            </div>
+
+            {/* Contact Info */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="phone">Contractor Phone</Label>
+                <Input
+                  id="phone"
+                  type="tel"
+                  defaultValue={selectedProjectData.contractorPhone}
+                  placeholder="+1 (555) 123-4567"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="email">Contractor Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  defaultValue={selectedProjectData.contractorEmail}
+                  placeholder="contact@contractor.com"
+                />
+              </div>
+            </div>
+
+            {/* Notes */}
+            <div className="space-y-2">
+              <Label htmlFor="notes">Project Notes</Label>
+              <Textarea
+                id="notes"
+                placeholder="Add any additional notes or details..."
+                rows={4}
+              />
+            </div>
+          </div>
+
+          <DialogFooter className="gap-2 mt-6">
+            <Button variant="outline" onClick={() => setManageProjectOpen(false)}>
+              Cancel
+            </Button>
+            <Button 
+              className="bg-accent hover:bg-accent/90 text-accent-foreground"
+              onClick={() => {
+                alert('Project updated successfully!');
+                setManageProjectOpen(false);
+              }}
+            >
+              Save Changes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

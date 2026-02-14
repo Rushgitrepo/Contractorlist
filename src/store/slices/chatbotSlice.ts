@@ -5,7 +5,7 @@ export interface Message {
     id: string;
     text: string;
     isBot: boolean;
-    timestamp: Date;
+    timestamp: string; // Changed from Date to string for serialization
     type?: 'text' | 'image' | 'file';
 }
 
@@ -25,7 +25,7 @@ const initialState: ChatbotState = {
             id: '1',
             text: "Hi! I'm your AI construction assistant. How can I help you today?",
             isBot: true,
-            timestamp: new Date(),
+            timestamp: new Date().toISOString(),
             type: 'text',
         },
     ],
@@ -126,7 +126,7 @@ const chatbotSlice = createSlice({
                 id: Date.now().toString(),
                 text: action.payload,
                 isBot: false,
-                timestamp: new Date(),
+                timestamp: new Date().toISOString(),
                 type: 'text',
             };
             state.messages.push(message);
@@ -136,7 +136,7 @@ const chatbotSlice = createSlice({
                 id: Date.now().toString(),
                 text: action.payload,
                 isBot: true,
-                timestamp: new Date(),
+                timestamp: new Date().toISOString(),
                 type: 'text',
             };
             state.messages.push(message);
@@ -150,7 +150,7 @@ const chatbotSlice = createSlice({
                     id: '1',
                     text: "Hi! I'm your AI construction assistant. How can I help you today?",
                     isBot: true,
-                    timestamp: new Date(),
+                    timestamp: new Date().toISOString(),
                     type: 'text',
                 },
             ];
@@ -177,7 +177,7 @@ const chatbotSlice = createSlice({
                     id: (Date.now() + 1).toString(),
                     text: action.payload,
                     isBot: true,
-                    timestamp: new Date(),
+                    timestamp: new Date().toISOString(),
                     type: 'text',
                 };
                 state.messages.push(botMessage);

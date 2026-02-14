@@ -100,21 +100,21 @@ const HomeownerSidebar = ({ isOpen, onClose }: HomeownerSidebarProps) => {
 
       {/* Sidebar */}
       <div className={`
-        fixed top-0 left-0 h-full bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 z-50 shadow-2xl transition-all duration-300 ease-in-out
+        fixed top-0 left-0 h-full bg-gray-900 border-r border-gray-800 z-50 shadow-2xl transition-all duration-300 ease-in-out
         ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
         ${isCollapsed ? 'w-20' : 'w-80'}
         lg:relative lg:translate-x-0
       `}>
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-100 dark:border-gray-800 bg-accent/10 dark:bg-gray-800">
+        <div className="flex items-center justify-between p-6 border-b border-gray-800 bg-gray-800">
           {!isCollapsed && (
             <div className="flex items-center gap-3">
               <div className="size-10 rounded-xl bg-accent flex items-center justify-center shadow-lg">
                 <Home className="w-6 h-6 text-accent-foreground" />
               </div>
               <div>
-                <h2 className="font-bold text-lg text-gray-900 dark:text-white">ContractorsList</h2>
-                <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">Homeowner Portal</p>
+                <h2 className="font-bold text-lg text-white">ContractorsList</h2>
+                <p className="text-sm text-gray-400 font-medium">Homeowner Portal</p>
               </div>
             </div>
           )}
@@ -125,12 +125,12 @@ const HomeownerSidebar = ({ isOpen, onClose }: HomeownerSidebarProps) => {
               variant="ghost"
               size="sm"
               onClick={() => setIsCollapsed(!isCollapsed)}
-              className="hidden lg:flex p-2 hover:bg-accent/20 rounded-lg"
+              className="hidden lg:flex p-2 hover:bg-gray-700 rounded-lg text-gray-400 hover:text-white"
             >
               {isCollapsed ? (
-                <ChevronRight className="w-5 h-5 text-gray-600" />
+                <ChevronRight className="w-5 h-5" />
               ) : (
-                <ChevronLeft className="w-5 h-5 text-gray-600" />
+                <ChevronLeft className="w-5 h-5" />
               )}
             </Button>
 
@@ -139,26 +139,26 @@ const HomeownerSidebar = ({ isOpen, onClose }: HomeownerSidebarProps) => {
               variant="ghost"
               size="sm"
               onClick={onClose}
-              className="lg:hidden p-2 hover:bg-accent/20 rounded-lg"
+              className="lg:hidden p-2 hover:bg-gray-700 rounded-lg text-gray-400 hover:text-white"
             >
-              <X className="w-5 h-5 text-gray-600" />
+              <X className="w-5 h-5" />
             </Button>
           </div>
         </div>
 
         {/* User Profile */}
         {!isCollapsed && (
-          <div className="p-6 border-b border-gray-100 dark:border-gray-800 bg-accent/10 dark:bg-gray-800">
+          <div className="p-6 border-b border-gray-800 bg-gray-800">
             <div className="flex items-center gap-4">
               <div className="size-12 rounded-full bg-accent flex items-center justify-center text-accent-foreground font-bold text-lg shadow-lg ring-4 ring-accent/20">
                 A
               </div>
               <div className="flex flex-col overflow-hidden">
-                <p className="text-gray-900 dark:text-white text-base font-semibold truncate">Alex Johnson</p>
-                <p className="text-gray-600 dark:text-gray-400 text-sm truncate">Premium Homeowner</p>
+                <p className="text-white text-base font-semibold truncate">Alex Johnson</p>
+                <p className="text-gray-400 text-sm truncate">Premium Homeowner</p>
                 <div className="flex items-center gap-2 mt-1">
                   <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                  <span className="text-xs text-green-600 dark:text-green-400 font-medium">Active</span>
+                  <span className="text-xs text-green-400 font-medium">Active</span>
                 </div>
               </div>
             </div>
@@ -183,7 +183,7 @@ const HomeownerSidebar = ({ isOpen, onClose }: HomeownerSidebarProps) => {
                     "group flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300 relative overflow-hidden",
                     active
                       ? "bg-accent text-accent-foreground shadow-lg shadow-accent/30 transform scale-[1.02]"
-                      : "text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-800 dark:hover:to-gray-700 hover:text-gray-900 dark:hover:text-white hover:shadow-md",
+                      : "text-gray-300 hover:bg-gray-800 hover:text-white hover:shadow-md",
                     isCollapsed ? 'justify-center px-3' : ''
                   )}
                 >
@@ -223,7 +223,7 @@ const HomeownerSidebar = ({ isOpen, onClose }: HomeownerSidebarProps) => {
                         </div>
                         <p className={cn(
                           "text-xs truncate transition-all duration-300",
-                          active ? "text-accent-foreground/70" : "text-gray-500 dark:text-gray-400"
+                          active ? "text-accent-foreground/70" : "text-gray-500"
                         )}>
                           {item.description}
                         </p>
@@ -234,9 +234,9 @@ const HomeownerSidebar = ({ isOpen, onClose }: HomeownerSidebarProps) => {
                           className={cn(
                             "text-xs px-2 py-1 font-semibold transition-all duration-300 relative z-10",
                             active && 'bg-black/20 text-black border-black/20 shadow-md',
-                            item.badge === 'Pro' && !active && "bg-accent/10 text-accent dark:bg-accent/20 dark:text-accent group-hover:scale-110",
-                            item.badge === 'New' && !active && "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300 group-hover:scale-110 animate-pulse",
-                            !active && !['Pro', 'New'].includes(item.badge) && "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 group-hover:scale-105"
+                            item.badge === 'Pro' && !active && "bg-accent/10 text-accent group-hover:scale-110",
+                            item.badge === 'New' && !active && "bg-green-100 text-green-700 group-hover:scale-110 animate-pulse",
+                            !active && !['Pro', 'New'].includes(item.badge) && "bg-gray-700 text-gray-300 group-hover:scale-105"
                           )}
                         >
                           {item.badge}
